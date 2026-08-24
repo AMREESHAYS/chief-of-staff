@@ -1,0 +1,14 @@
+# secrets — repo is public, these must never land in it
+credentials.json
+client_secret*.json
+token.json
+token*.pickle
+.env
+
+# local state
+*.db
+*.db-journal
+__pycache__/
+*.pyc
+.venv/
+venv/

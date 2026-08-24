@@ -1,0 +1,8 @@
+anthropic
+google-api-python-client
+google-auth-oauthlib
+python-dateutil
+fastapi
+uvicorn
+jinja2
+python-multipart
