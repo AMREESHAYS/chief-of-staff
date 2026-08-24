@@ -82,7 +82,17 @@ references_obligation_id — if the message chases, asks about, or fulfils one
 of the open commitments listed with it, that commitment's id. Null otherwise.
 This is INDEPENDENT of label too: a client writing "any luck with that?" is
 conversationally noise and is also the client chasing a specific overdue
-promise. Record both."""
+promise. Record both.
+
+obligation_relation — required whenever references_obligation_id is set, null
+otherwise. Exactly one of:
+  chases   the message asks about, follows up on, or complains about the
+           commitment. It is still outstanding.
+  fulfils  the message delivers the thing that was promised. The developer
+           handing over the work closes the commitment; the client saying
+           "thanks, got it" does not.
+Getting this wrong in the chases direction leaves delivered work sitting in
+the overdue list, so read the message for delivery, not for intent."""
 
 
 class Verdict(BaseModel):
@@ -93,10 +103,12 @@ class Verdict(BaseModel):
     promise_text: str | None
     due_phrase: str | None
     references_obligation_id: int | None
+    obligation_relation: str | None
 
 
 LABELS = {"in_scope", "out_of_scope", "new_commitment", "noise"}
 BANDS = {"certain", "likely", "unsure"}
+RELATIONS = {"chases", "fulfils"}
 
 
 def render_scope(items):
@@ -150,6 +162,16 @@ def validate(verdict, items, obligations=()):
                 f"references_obligation_id {verdict.references_obligation_id}"
                 " was not among the open commitments"
             )
+        if verdict.obligation_relation not in RELATIONS:
+            raise ValueError(
+                f"reference to obligation {verdict.references_obligation_id}"
+                f" with unusable relation {verdict.obligation_relation!r}"
+            )
+    elif verdict.obligation_relation is not None:
+        raise ValueError(
+            f"obligation_relation {verdict.obligation_relation!r} with nothing"
+            " to relate to"
+        )
     if verdict.scope_item_id is not None:
         if verdict.scope_item_id not in {i["id"] for i in items}:
             raise ValueError(
@@ -171,7 +193,8 @@ def classify(target, history, items, obligations=(), parse_fn=None):
 def store(conn, message_id, verdict):
     conn.execute(
         "INSERT OR REPLACE INTO verdict (message_id, label, scope_item_id,"
-        " reasoning, confidence, references_obligation_id) VALUES (?,?,?,?,?,?)",
+        " reasoning, confidence, references_obligation_id, obligation_relation)"
+        " VALUES (?,?,?,?,?,?,?)",
         (
             message_id,
             verdict.label,
@@ -179,6 +202,7 @@ def store(conn, message_id, verdict):
             verdict.reasoning,
             verdict.confidence,
             verdict.references_obligation_id,
+            verdict.obligation_relation,
         ),
     )
 
@@ -215,13 +239,26 @@ def run(project_id=1):
         ]
 
         conn.execute("DELETE FROM obligation WHERE project_id = ?", (project_id,))
-        cached = 0
+        cached, rejected = 0, 0
         for n, target in enumerate(messages):
             open_now = ledger.open_obligations(conn, project_id,
                                                target["received_at"])
-            verdict, result = classify(target, messages[:n], items, open_now)
+            try:
+                verdict, result = classify(target, messages[:n], items, open_now)
+            except ValueError as e:
+                # the verdict was malformed and validate() refused it. One bad
+                # message must not abandon the rest of the thread.
+                # ponytail: no retry — add one if a real provider starts
+                # failing here, Gemini has not
+                rejected += 1
+                print(f"x {'rejected':15} {str(e)[:38]:8} {target['body'][:46]}")
+                continue
             store(conn, target["id"], verdict)
             ledger.record(conn, project_id, target, verdict, project["owner_tz"])
+            # only the developer can deliver their own promise
+            if (verdict.obligation_relation == "fulfils"
+                    and not target["from_client"]):
+                ledger.close(conn, verdict.references_obligation_id)
             cached += result.cache_read_tokens
 
             mark = "!" if verdict.confidence == ESCALATE else " "
@@ -231,13 +268,13 @@ def run(project_id=1):
                 print(f"    promise: {verdict.promise_text[:60]!r}"
                       f" due={verdict.due_phrase!r}")
             if verdict.references_obligation_id:
-                print(f"    -> chases obligation "
+                print(f"    -> {verdict.obligation_relation} obligation "
                       f"#{verdict.references_obligation_id}")
 
         # the thread's own end date, not today — the demo replays history
         late = ledger.sweep(conn, project_id, messages[-1]["received_at"])
-        print(f"\n{result.provider}/{result.model} — {late} obligation(s) overdue"
-              f", cache reads: {cached} tokens")
+        print(f"\n{result.provider}/{result.model} — {late} overdue, "
+              f"{rejected} verdict(s) rejected, cache reads: {cached} tokens")
 
         for o in ledger.open_obligations(conn, project_id, "9999"):
             print(f"  [{o['status']:7}] {o['promise_text'][:58]!r}"

@@ -19,6 +19,9 @@ from pathlib import Path
 import db
 
 FIXTURE = Path(__file__).parent / "fixtures" / "thread.json"
+# scope items already extracted by the shipped provider, cached so that
+# iterating on later stages costs no API calls and no daily quota
+SCOPE_CACHE = Path(__file__).parent / "fixtures" / "scope_items.json"
 
 
 def load_fixture(path=FIXTURE):
@@ -65,6 +68,13 @@ def seed(conn, data, sow, gmail_ids=None):
                 m["body"],
             ),
         )
+    if SCOPE_CACHE.exists():
+        conn.executemany(
+            "INSERT INTO scope_item (project_id, item_text, source_quote,"
+            " category) VALUES (?,?,?,?)",
+            [(project_id, i["item_text"], i["source_quote"], i["category"])
+             for i in json.loads(SCOPE_CACHE.read_text())],
+        )
     return project_id
 
 
@@ -106,7 +116,10 @@ def main():
         project_id = seed(conn, data, sow, gmail_ids)
         check(conn, project_id, data, sow)
 
-    print(f"seeded project {project_id}: {len(data['messages'])} messages")
+    cached = len(json.loads(SCOPE_CACHE.read_text())) if SCOPE_CACHE.exists() else 0
+    print(f"seeded project {project_id}: {len(data['messages'])} messages, "
+          f"{cached} cached scope items"
+          + ("" if cached else " (run ingest.py to extract scope)"))
 
 
 def check(conn, project_id, data, sow):
@@ -128,6 +141,16 @@ def check(conn, project_id, data, sow):
     # out_of_scope citation later has nothing verbatim to point at
     for excluded in ("e-commerce functionality are excluded", "multi-language"):
         assert excluded in sow, f"SOW missing exclusion: {excluded}"
+
+    # a cached quote that no longer matches the SOW would citate nothing —
+    # same rule as ingest, enforced when the cache is loaded rather than trusted
+    import ingest
+    items = conn.execute(
+        "SELECT source_quote FROM scope_item WHERE project_id = ?", (project_id,)
+    ).fetchall()
+    stale = [r["source_quote"] for r in items
+             if ingest._norm(r["source_quote"]) not in ingest._norm(sow)]
+    assert not stale, f"cached scope quotes no longer in the SOW: {stale}"
 
     stored = conn.execute(
         "SELECT sow_text FROM project WHERE id = ?", (project_id,)

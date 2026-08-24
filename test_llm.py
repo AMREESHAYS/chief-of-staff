@@ -133,7 +133,7 @@ def test_unknown_provider_names_the_valid_ones():
     try:
         llm._client("openai")
     except ValueError as e:
-        assert "anthropic" in str(e) and "gemini" in str(e)
+        assert all(p in str(e) for p in ("anthropic", "gemini", "ollama"))
     else:
         raise AssertionError("unknown provider accepted")
 
@@ -151,10 +151,11 @@ def test_env_file_does_not_override_real_environment():
     del os.environ["LLM_TEST_KEY"]
 
 
-def test_provider_defaults_to_gemini():
+def test_provider_defaults_to_local():
+    # iteration must not silently spend a quota or a rupee
     saved = os.environ.pop("LLM_PROVIDER", None)
     try:
-        assert llm.provider() == "gemini", "free tier should be the default"
+        assert llm.provider() == "ollama", "default must be the unmetered one"
     finally:
         if saved is not None:
             os.environ["LLM_PROVIDER"] = saved

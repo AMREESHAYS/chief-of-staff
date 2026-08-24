@@ -51,7 +51,10 @@ CREATE TABLE IF NOT EXISTS verdict (
                     ('certain','likely','unsure')),
     -- orthogonal to label, same principle as promise_text: a message can be
     -- noise AND be the client chasing a commitment made three weeks ago.
-    references_obligation_id INTEGER REFERENCES obligation(id)
+    references_obligation_id INTEGER REFERENCES obligation(id),
+    -- chases: asking about it. fulfils: delivering it. Without this every
+    -- delivered promise stays open and the ledger reports false overdues.
+    obligation_relation TEXT CHECK (obligation_relation IN ('chases','fulfils'))
 );
 
 CREATE TABLE IF NOT EXISTS obligation (

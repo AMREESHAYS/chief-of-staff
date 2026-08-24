@@ -39,7 +39,7 @@ OBLIGATIONS = [
 def verdict(**kw):
     base = {"label": "noise", "scope_item_id": None, "reasoning": "r",
             "confidence": "certain", "promise_text": None, "due_phrase": None,
-            "references_obligation_id": None}
+            "references_obligation_id": None, "obligation_relation": None}
     return Verdict(**{**base, **kw})
 
 
@@ -115,7 +115,8 @@ def test_unknown_confidence_band_raises():
 
 def test_dangling_obligation_reference_raises():
     try:
-        validate(verdict(references_obligation_id=42), ITEMS, OBLIGATIONS)
+        validate(verdict(references_obligation_id=42,
+                         obligation_relation="chases"), ITEMS, OBLIGATIONS)
     except ValueError as e:
         assert "42" in str(e)
     else:
@@ -125,9 +126,35 @@ def test_dangling_obligation_reference_raises():
 def test_reference_survives_a_noise_label():
     # the Aug 19 beat: "any luck with the Collections page?" is
     # conversationally noise AND is the client chasing an overdue promise.
-    v = validate(verdict(label="noise", references_obligation_id=4),
-                 ITEMS, OBLIGATIONS)
+    v = validate(verdict(label="noise", references_obligation_id=4,
+                         obligation_relation="chases"), ITEMS, OBLIGATIONS)
     assert v.label == "noise" and v.references_obligation_id == 4
+
+
+def test_reference_without_a_relation_raises():
+    # a reference the runner cannot act on: chase or deliver, it must say which
+    try:
+        validate(verdict(references_obligation_id=4), ITEMS, OBLIGATIONS)
+    except ValueError as e:
+        assert "relation" in str(e)
+    else:
+        raise AssertionError("unusable reference accepted")
+
+
+def test_relation_without_a_reference_raises():
+    try:
+        validate(verdict(obligation_relation="fulfils"), ITEMS, OBLIGATIONS)
+    except ValueError as e:
+        assert "nothing" in str(e)
+    else:
+        raise AssertionError("dangling relation accepted")
+
+
+def test_fulfils_is_a_valid_relation():
+    v = validate(verdict(label="in_scope", scope_item_id=1,
+                         references_obligation_id=4,
+                         obligation_relation="fulfils"), ITEMS, OBLIGATIONS)
+    assert v.obligation_relation == "fulfils"
 
 
 def test_unknown_label_raises():

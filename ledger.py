@@ -164,6 +164,15 @@ def render(obligations):
     )
 
 
+def close(conn, obligation_id):
+    """A promise that was kept. Only ever called for the developer's own
+    messages — the client confirming receipt is not delivery."""
+    conn.execute(
+        "UPDATE obligation SET status = 'done' WHERE id = ? AND status != 'done'",
+        (obligation_id,),
+    )
+
+
 def sweep(conn, project_id, now):
     """Mark past-due open obligations overdue. `now` is explicit so the demo
     can be replayed at the thread's own end date."""

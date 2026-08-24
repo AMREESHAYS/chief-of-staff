@@ -1,8 +1,14 @@
 """One structured-output call, two providers.
 
-    LLM_PROVIDER=gemini      free tier, for iteration
-    LLM_PROVIDER=anthropic   for the final ingest and the recorded demo
+    LLM_PROVIDER=ollama      local, unmetered — the default for iteration
+    LLM_PROVIDER=gemini      the shipped provider, for real verification runs
+    LLM_PROVIDER=anthropic   fallback only
     LLM_MODEL=...            override the per-provider default
+
+Ollama exists here so that developing against the pipeline costs nothing and
+hits no daily quota. It is NOT the shipped provider: a 7B local model will
+disagree with Gemini on borderline judgement calls, so treat an Ollama run as
+proof the plumbing works, never as evidence about classification quality.
 
 Callers pass a plain system string and a list of turns. Provider-specific
 shapes — Anthropic's content blocks and cache_control, Gemini's Content/Part
@@ -21,7 +27,10 @@ from pathlib import Path
 DEFAULT_MODELS = {
     "anthropic": "claude-opus-5",
     "gemini": "gemini-3.6-flash",
+    "ollama": "qwen2.5:7b",
 }
+
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 
 ENV_FILE = Path(__file__).parent / ".env"
 
@@ -48,7 +57,8 @@ class Result:
 
 
 def provider():
-    return os.environ.get("LLM_PROVIDER", "gemini").lower()
+    # local by default: no key, no quota, no bill
+    return os.environ.get("LLM_PROVIDER", "ollama").lower()
 
 
 def model_for(name):
@@ -66,7 +76,11 @@ def _client(name):
         from google import genai
 
         return genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-    raise ValueError(f"unknown LLM_PROVIDER {name!r} (want anthropic or gemini)")
+    if name == "ollama":
+        return OLLAMA_HOST
+    raise ValueError(
+        f"unknown LLM_PROVIDER {name!r} (want ollama, gemini or anthropic)"
+    )
 
 
 def _anthropic(client, model, system, turns, schema, max_tokens):
@@ -117,6 +131,47 @@ def _gemini(client, model, system, turns, schema, max_tokens):
     )
 
 
+def _ollama(host, model, system, turns, schema, max_tokens):
+    """Local models via /api/chat. urllib rather than a client library — it is
+    one POST and the project does not need another dependency for it."""
+    import json
+    import urllib.error
+    import urllib.request
+
+    payload = {
+        "model": model,
+        "messages": [{"role": "system", "content": system}]
+        + [{"role": t["role"], "content": t["text"]} for t in turns],
+        "format": schema.model_json_schema(),
+        "stream": False,
+        "options": {"num_predict": max_tokens, "temperature": 0},
+    }
+    request = urllib.request.Request(
+        f"{host}/api/chat",
+        data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=600) as response:
+            body = json.load(response)
+    except urllib.error.URLError as e:
+        raise RuntimeError(
+            f"ollama at {host} unreachable ({e}) — is `ollama serve` running?"
+        ) from e
+
+    content = body["message"]["content"]
+    try:
+        parsed = schema.model_validate_json(content)
+    except Exception as e:
+        # small models drift off-schema; say so plainly rather than crash deeper
+        raise RuntimeError(
+            f"ollama/{model} returned output that does not match {schema.__name__}"
+            f": {content[:200]}"
+        ) from e
+    return Result(parsed=parsed, cache_read_tokens=0, provider="ollama",
+                  model=model)
+
+
 def parse(system, turns, schema, model=None, name=None, max_tokens=16000):
     """Send one request, get back a validated `schema` instance.
 
@@ -127,7 +182,7 @@ def parse(system, turns, schema, model=None, name=None, max_tokens=16000):
     name = (name or provider()).lower()
     model = model or model_for(name)
     client = _client(name)
-    impl = {"anthropic": _anthropic, "gemini": _gemini}[name]
+    impl = {"anthropic": _anthropic, "gemini": _gemini, "ollama": _ollama}[name]
     result = impl(client, model, system, turns, schema, max_tokens)
     if result.parsed is None:
         raise RuntimeError(
