@@ -83,9 +83,16 @@ def load(conn, project_id=PROJECT_ID):
         " ORDER BY CASE status WHEN 'overdue' THEN 0 WHEN 'vague' THEN 1"
         " WHEN 'open' THEN 2 ELSE 3 END, due_at", (project_id,))]
 
+    # actions carry no project column of their own: a nudge points at an
+    # obligation, everything else at a message. Without this join the page
+    # counts and the audit drawer quietly include every other project's work.
     actions = [dict(r) for r in conn.execute(
         "SELECT id, type, target_id, payload, state, created_at, executed_at"
-        " FROM action ORDER BY id")]
+        " FROM action WHERE (type = 'nudge' AND target_id IN"
+        "  (SELECT id FROM obligation WHERE project_id = ?))"
+        " OR (type != 'nudge' AND target_id IN"
+        "  (SELECT m.id FROM message m JOIN thread t ON t.id = m.thread_id"
+        "   WHERE t.project_id = ?)) ORDER BY id", (project_id, project_id))]
     for a in actions:
         a["payload"] = json.loads(a["payload"])
 
@@ -180,9 +187,9 @@ def undo(request: Request, action_id: int):
 
 
 @app.get("/audit", response_class=HTMLResponse)
-def audit(request: Request):
+def audit(request: Request, project: int = PROJECT_ID):
     with db.connect() as conn:
-        data = load(conn)
+        data = load(conn, project)
     return templates.TemplateResponse(request, "_audit.html", data)
 
 

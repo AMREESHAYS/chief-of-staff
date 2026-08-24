@@ -127,7 +127,8 @@
 
 <div class="auditbar">
   <details class="audit">
-    <summary hx-get="/audit" hx-target="#auditlog" hx-trigger="click once">
+    <summary hx-get="/audit?project={{ project.id }}"
+             hx-target="#auditlog" hx-trigger="click once">
       Every action taken
     </summary>
     <div id="auditlog"></div>
