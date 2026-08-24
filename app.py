@@ -21,6 +21,7 @@ from markupsafe import Markup, escape
 
 import db
 import draft
+import ledger
 
 HERE = Path(__file__).parent
 app = FastAPI()
@@ -30,8 +31,10 @@ templates = Jinja2Templates(directory=HERE / "templates")
 PROJECT_ID = 1
 
 
-def day(iso):
-    return datetime.fromisoformat(iso.replace("Z", "+00:00")).strftime("%-d %b")
+def day(iso, tz="UTC"):
+    """Always render in the project owner's zone. A due date stored as
+    end-of-day UTC reads as the next calendar day anywhere west of UTC."""
+    return ledger.local_day(iso, tz)
 
 
 def days_between(a, b):
@@ -121,6 +124,8 @@ def load(conn, project_id=PROJECT_ID):
 
     return {
         "project": dict(project),
+        "projects": [dict(r) for r in conn.execute(
+            "SELECT id, client_name FROM project ORDER BY id")],
         "messages": messages,
         "obligations": obligations,
         "actions": actions,
@@ -138,9 +143,9 @@ def load(conn, project_id=PROJECT_ID):
 
 
 @app.get("/", response_class=HTMLResponse)
-def index(request: Request):
+def index(request: Request, project: int = PROJECT_ID):
     with db.connect() as conn:
-        data = load(conn)
+        data = load(conn, project)
     if not data:
         return HTMLResponse(
             "<p style='font:16px system-ui;padding:3rem'>No project loaded. "

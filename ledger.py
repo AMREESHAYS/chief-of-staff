@@ -148,19 +148,31 @@ def open_obligations(conn, project_id, as_of):
     ]
 
 
-def _due_label(o):
+def _due_label(o, tz="UTC"):
     if o["due_at"]:
-        return o["due_at"][:10]
+        return local_day(o["due_at"], tz)
     return f"NO DATE (said {o['due_phrase'] or 'nothing'})"
 
 
-def render(obligations):
+def render(obligations, tz="UTC"):
     if not obligations:
         return "(none)"
     return "\n".join(
-        f"[{o['id']}] \"{o['promise_text']}\" — promised {o['created_at'][:10]},"
-        f" due {_due_label(o)}"
+        f"[{o['id']}] \"{o['promise_text']}\" — promised "
+        f"{local_day(o['created_at'], tz)}, due {_due_label(o, tz)}"
         for o in obligations
+    )
+
+
+def local_day(iso, tz):
+    """Render an instant as the calendar day it falls on where the developer
+    lives. Due dates are stored end-of-day UTC so comparisons are correct;
+    read back in UTC they land on the following date for any zone west of it.
+    """
+    return (
+        datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        .astimezone(ZoneInfo(tz))
+        .strftime("%-d %b")
     )
 
 

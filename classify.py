@@ -126,7 +126,7 @@ def build_system(items):
     return SYSTEM.format(scope_items=render_scope(items))
 
 
-def build_messages(history, target, obligations=()):
+def build_messages(history, target, obligations=(), tz="UTC"):
     """Thread context, open commitments, and the one message under judgement —
     all volatile, all after the breakpoint."""
     context = "\n\n".join(
@@ -138,7 +138,7 @@ def build_messages(history, target, obligations=()):
         {
             "role": "user",
             "text": f"<thread_so_far>\n{context or '(none)'}\n</thread_so_far>\n\n"
-            f"<open_commitments>\n{ledger.render(obligations)}\n"
+            f"<open_commitments>\n{ledger.render(obligations, tz)}\n"
             "</open_commitments>\n\n"
             f"<message_to_classify from=\""
             f"{'client' if target['from_client'] else 'developer'}\" "
@@ -182,10 +182,12 @@ def validate(verdict, items, obligations=()):
     return verdict
 
 
-def classify(target, history, items, obligations=(), parse_fn=None):
+def classify(target, history, items, obligations=(), parse_fn=None, tz="UTC"):
     parse_fn = parse_fn or llm.parse
     result = parse_fn(
-        build_system(items), build_messages(history, target, obligations), Verdict
+        build_system(items),
+        build_messages(history, target, obligations, tz),
+        Verdict,
     )
     return validate(result.parsed, items, obligations), result
 
@@ -244,7 +246,8 @@ def run(project_id=1):
             open_now = ledger.open_obligations(conn, project_id,
                                                target["received_at"])
             try:
-                verdict, result = classify(target, messages[:n], items, open_now)
+                verdict, result = classify(target, messages[:n], items, open_now,
+                                           tz=project["owner_tz"])
             except ValueError as e:
                 # the verdict was malformed and validate() refused it. One bad
                 # message must not abandon the rest of the thread.
@@ -278,7 +281,7 @@ def run(project_id=1):
 
         for o in ledger.open_obligations(conn, project_id, "9999"):
             print(f"  [{o['status']:7}] {o['promise_text'][:58]!r}"
-                  f" due={ledger._due_label(o)}")
+                  f" due={ledger._due_label(o, project['owner_tz'])}")
 
 
 if __name__ == "__main__":

@@ -6,8 +6,8 @@
    "scope_item_id": null,
    "reasoning": "The client promises to send the logo files and shop photos today, raising no scope questions.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-03T06:10:00Z",
@@ -15,8 +15,8 @@
    "scope_item_id": null,
    "reasoning": "You promised to start work on the Home and Collections layouts this week.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-05T05:20:00Z",
@@ -24,8 +24,8 @@
    "scope_item_id": null,
    "reasoning": "You have promised to share a staging link tomorrow, which creates a new commitment without raising any scope questions.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-05T09:02:00Z",
@@ -33,8 +33,8 @@
    "scope_item_id": null,
    "reasoning": "The client is simply acknowledging your update and confirming they will review the staging link tomorrow.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-06T07:45:00Z",
@@ -42,8 +42,8 @@
    "scope_item_id": 2,
    "reasoning": "Sharing a live staging link showing progress on the site pages directly relates to building the five-page website under scope item 2.",
    "confidence": "certain",
-   "references_obligation_id": 2,
-   "obligation_relation": "fulfils"
+   "obligation_relation": "fulfils",
+   "references_obligation_at": 1
   },
   {
    "received_at": "2026-08-07T04:50:00Z",
@@ -51,8 +51,8 @@
    "scope_item_id": 2,
    "reasoning": "Feedback and minor layout tweaks on the Home page are part of building the five-page website under scope item 2.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-10T05:15:00Z",
@@ -60,8 +60,8 @@
    "scope_item_id": 9,
    "reasoning": "This request for online payment functionality contradicts scope item [9], which explicitly excludes online payments, shopping carts, and e-commerce functionality.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-10T11:30:00Z",
@@ -69,8 +69,8 @@
    "scope_item_id": 9,
    "reasoning": "Scope item 9 explicitly excludes online payments and e-commerce functionality from the project scope.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-11T06:00:00Z",
@@ -78,8 +78,8 @@
    "scope_item_id": null,
    "reasoning": "The client is delivering asset files for the site, which is routine project logistics and contains no new work requests or promises.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-12T13:20:00Z",
@@ -87,8 +87,8 @@
    "scope_item_id": 2,
    "reasoning": "The Collections page is explicitly included as part of the five-page static marketing website under scope item [2].",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-13T05:40:00Z",
@@ -96,8 +96,8 @@
    "scope_item_id": 2,
    "reasoning": "This inquiry concerns the implementation details of the Store Locator page, which is explicitly included in the contract's scope under item [2].",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-13T08:15:00Z",
@@ -105,8 +105,8 @@
    "scope_item_id": 2,
    "reasoning": "The message clarifies the content and features of the Store Locator page, which is explicitly included in scope item 2.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-17T04:25:00Z",
@@ -114,8 +114,8 @@
    "scope_item_id": 10,
    "reasoning": "The request to make the site available in Hindi contradicts scope item [10], which explicitly excludes content translation and multi-language versions.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-17T04:31:00Z",
@@ -123,8 +123,8 @@
    "scope_item_id": 14,
    "reasoning": "Animating the logo on load is a small addition not explicitly mentioned in the contract, which could either be considered part of the Home page deliverable [2] or unlisted work requiring a change order [14].",
    "confidence": "unsure",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-18T06:50:00Z",
@@ -132,8 +132,8 @@
    "scope_item_id": 5,
    "reasoning": "Sending page titles and meta descriptions for approval falls directly under the basic on-page SEO deliverable in scope item [5].",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-19T05:05:00Z",
@@ -141,8 +141,8 @@
    "scope_item_id": null,
    "reasoning": "This message is conversational follow-up asking about the status of the Collections page delivery.",
    "confidence": "certain",
-   "references_obligation_id": 4,
-   "obligation_relation": "chases"
+   "obligation_relation": "chases",
+   "references_obligation_at": 3
   },
   {
    "received_at": "2026-08-20T15:10:00Z",
@@ -150,8 +150,8 @@
    "scope_item_id": 2,
    "reasoning": "Addressing and optimizing load time for images on the Collections page falls under building the five-page website in scope item 2.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-21T10:40:00Z",
@@ -159,8 +159,8 @@
    "scope_item_id": null,
    "reasoning": "This message provides operational information about the client's office closure for a holiday and does not raise any scope questions.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   },
   {
    "received_at": "2026-08-24T04:20:00Z",
@@ -168,8 +168,8 @@
    "scope_item_id": 9,
    "reasoning": "The client's request for payment functionality is explicitly excluded under Scope Item 9, which rules out online payments and e-commerce features.",
    "confidence": "certain",
-   "references_obligation_id": 3,
-   "obligation_relation": "chases"
+   "obligation_relation": "chases",
+   "references_obligation_at": 2
   },
   {
    "received_at": "2026-08-24T04:26:00Z",
@@ -177,8 +177,8 @@
    "scope_item_id": 12,
    "reasoning": "The client's inquiry about the delivery date directly relates to Scope Item 12, which specifies delivery within four weeks of signing.",
    "confidence": "certain",
-   "references_obligation_id": null,
-   "obligation_relation": null
+   "obligation_relation": null,
+   "references_obligation_at": null
   }
  ],
  "obligations": [
@@ -229,6 +229,56 @@
    "due_at": null,
    "due_confidence": null,
    "status": "vague"
+  }
+ ],
+ "actions": [
+  {
+   "type": "draft_reply",
+   "payload": "{\"body\": \"Thanks for reaching out about this! Enabling direct online purchases sounds like a great way to help your customers. Our signed agreement notes that \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because this sits outside our current agreement, I can draft a written change order with a separate price for the extra work. Let me know if you would like me to put that together for you!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
+   "state": "proposed",
+   "target": "2026-08-10T05:15:00Z"
+  },
+  {
+   "type": "draft_reply",
+   "payload": "{\"body\": \"Thanks for reaching out about adding those features! I would be happy to help with this. Taking a look at our contract, it states: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Since this work sits outside our current agreement, the best next step is a written change order with a separate price for the additions. Let me know if you would like me to draft that for you!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
+   "state": "proposed",
+   "target": "2026-08-10T11:30:00Z"
+  },
+  {
+   "type": "draft_reply",
+   "payload": "{\"body\": \"Thanks for reaching out about adding Hindi support! That sounds like a great way to better serve your audience. Looking at our signed agreement, it notes: \\\"Content translation and multi-language versions of the site are excluded.\\\" Because of this, adding a second language sits outside our current scope. I am more than happy to help make this happen, though! I can put together a written change order with a separate price for the extra work. Let me know if you would like me to draft that for you.\", \"quoted_contract_text\": \"Content translation and multi-language versions of the site are excluded.\"}",
+   "state": "proposed",
+   "target": "2026-08-17T04:25:00Z"
+  },
+  {
+   "type": "flag",
+   "payload": "{\"reason\": \"Animating the logo on load is a small addition not explicitly mentioned in the contract, which could either be considered part of the Home page deliverable [2] or unlisted work requiring a change order [14].\"}",
+   "state": "proposed",
+   "target": "2026-08-17T04:31:00Z"
+  },
+  {
+   "type": "draft_reply",
+   "payload": "{\"body\": \"Hi there! I would be happy to help get payments set up for your site. Looking back at our signed agreement, it states: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because this sits outside our current scope, the next step would be for me to put together a written change order with a separate price for the payment setup. Once we review and approve that, we can get it added. Let me know if you would like me to draft that change order for you!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
+   "state": "proposed",
+   "target": "2026-08-24T04:20:00Z"
+  },
+  {
+   "type": "nudge",
+   "payload": "{\"body\": \"Hi, I wanted to update you regarding the Home and Collections layouts that were due on August 7, 2026. I missed this target date and am working to finish them up. I will deliver the layouts to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": \"Starting on the Home and Collections layouts this week\"}",
+   "state": "proposed",
+   "target": 0
+  },
+  {
+   "type": "nudge",
+   "payload": "{\"body\": \"Hi, I am writing to update you on the Collections page, which I promised to deliver by Friday, August 14. I missed this deadline and apologize for not reaching out earlier. I am currently finishing the remaining work and will have it delivered to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": \"I'll get the Collections page to you by Friday.\"}",
+   "state": "proposed",
+   "target": 3
+  },
+  {
+   "type": "nudge",
+   "payload": "{\"body\": \"Hi, I am following up regarding the SEO titles and meta descriptions I promised to deliver by August 21st. I was unable to meet that deadline and apologize for not updating you sooner. I am currently working on completing them and will have the final text over to you for approval by [NEW DATE].\", \"quoted_contract_text\": \"I'll send over the SEO titles and meta descriptions by end of this week for you to approve\"}",
+   "state": "proposed",
+   "target": 4
   }
  ]
 }

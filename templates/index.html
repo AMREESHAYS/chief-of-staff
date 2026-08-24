@@ -20,6 +20,16 @@
       {{ messages|length }} messages
     </div>
   </div>
+  {% if projects | length > 1 %}
+  <nav class="switch" aria-label="Contract">
+    {% for p in projects %}
+      <a href="/?project={{ p.id }}"
+         {% if p.id == project.id %}aria-current="page"{% endif %}>
+        {{ p.client_name }}
+      </a>
+    {% endfor %}
+  </nav>
+  {% endif %}
   <div class="tally">
     <div class="is-stamp">
       <b>{{ counts.flagged }}</b><span class="mono">outside scope</span>
@@ -43,7 +53,7 @@
         <span class="who {% if not m.from_client %}dev{% endif %}">
           {{ 'client' if m.from_client else 'you' }}
         </span>
-        <span class="when">{{ m.received_at | day }}</span>
+        <span class="when">{{ m.received_at | day(project.owner_tz) }}</span>
         {% if m.label %}
           <span class="mark {{ m.label }}">{{ m.label.replace('_', ' ') }}</span>
           {% if m.confidence == 'unsure' %}
@@ -77,8 +87,8 @@
             <span class="verb">{{ m.obligation_relation }}</span>
             <span>
               <q>{{ tied.promise_text }}</q> —
-              you said this on {{ tied.created_at | day }}{% if tied.due_at %},
-              due {{ tied.due_at | day }}{% endif %}.
+              you said this on {{ tied.created_at | day(project.owner_tz) }}{% if tied.due_at %},
+              due {{ tied.due_at | day(project.owner_tz) }}{% endif %}.
             </span>
           </div>
           {% endif %}
@@ -106,7 +116,7 @@
         <span class="drafted mono">update drafted</span>
       {% endif %}
       {% if o.due_at %}
-        <span class="due">due {{ o.due_at | day }}</span>
+        <span class="due">due {{ o.due_at | day(project.owner_tz) }}</span>
       {% else %}
         <span class="due">no date — you said <span class="said">“{{ o.due_phrase or 'nothing' }}”</span></span>
       {% endif %}

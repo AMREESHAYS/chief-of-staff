@@ -81,6 +81,30 @@ a { color: inherit; }
   margin-top: 3px;
 }
 
+.switch {
+  display: flex;
+  gap: 18px;
+  align-self: center;
+}
+
+.switch a {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink-soft);
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
+}
+
+.switch a[aria-current="page"] {
+  color: var(--carbon);
+  border-bottom-color: var(--carbon);
+}
+
+.switch a:hover { color: var(--ink); }
+
 .tally {
   display: flex;
   gap: 28px;

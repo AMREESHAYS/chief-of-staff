@@ -249,7 +249,14 @@ def run(project_id=1):
     with db.connect() as conn:
         sow = conn.execute("SELECT sow_text FROM project WHERE id = ?",
                            (project_id,)).fetchone()["sow_text"]
-        conn.execute("DELETE FROM action")
+        # scoped to this project: a second project's run must not wipe the
+        # first one's proposals
+        conn.execute(
+            "DELETE FROM action WHERE (type = 'nudge' AND target_id IN"
+            " (SELECT id FROM obligation WHERE project_id = ?))"
+            " OR (type != 'nudge' AND target_id IN"
+            " (SELECT m.id FROM message m JOIN thread t ON t.id = m.thread_id"
+            "  WHERE t.project_id = ?))", (project_id, project_id))
 
         rows = conn.execute(
             "SELECT v.label, v.confidence, v.reasoning, m.id AS message_id,"
@@ -294,7 +301,13 @@ def run(project_id=1):
             print(f"  nudge   {o['promise_text'][:56]}")
 
         counts = dict(conn.execute(
-            "SELECT type, COUNT(*) FROM action GROUP BY type").fetchall())
+            "SELECT type, COUNT(*) FROM action WHERE"
+            " (type = 'nudge' AND target_id IN"
+            "  (SELECT id FROM obligation WHERE project_id = ?))"
+            " OR (type != 'nudge' AND target_id IN"
+            "  (SELECT m.id FROM message m JOIN thread t ON t.id = m.thread_id"
+            "   WHERE t.project_id = ?)) GROUP BY type",
+            (project_id, project_id)).fetchall())
         print(f"\n{counts} — all 'proposed', nothing sent."
               f" {refused} draft(s) refused by the safety rails")
 

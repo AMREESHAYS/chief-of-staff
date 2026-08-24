@@ -1,0 +1,67 @@
+[
+ {
+  "item_text": "Design and build an internal reporting pipeline and operations dashboards covering on-time delivery rate, average dwell time, and carrier cost per shipment.",
+  "source_quote": "The Contractor will design and build an internal reporting pipeline that consolidates the Company's shipment records from its existing operational database into a warehouse table refreshed nightly, together with a set of internal dashboards for the operations team covering on-time delivery rate, average dwell time, and carrier cost per shipment.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "Dashboards or tools intended for viewing by customers, shippers, or external parties are excluded.",
+  "source_quote": "Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.",
+  "category": "exclusion"
+ },
+ {
+  "item_text": "Provide handover documentation and conduct a single dashboard walkthrough with the operations team.",
+  "source_quote": "The Contractor will provide handover documentation sufficient for a competent engineer to operate and modify the pipeline, and will walk the operations team through the dashboards once before the engagement closes.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "Contractor hourly billing rate set at USD 95 per hour.",
+  "source_quote": "The Contractor bills at USD 95 per hour.",
+  "category": "term"
+ },
+ {
+  "item_text": "Contractor must notify the Company before exceeding expected monthly hours and agree on written terms to proceed.",
+  "source_quote": "Should the work in any month be trending materially above that figure, the Contractor will raise it with the Company before continuing rather than after the fact, and the parties will agree in writing how to proceed.",
+  "category": "term"
+ },
+ {
+  "item_text": "Monthly invoices payable within 21 days.",
+  "source_quote": "Invoices are issued monthly and payable within 21 days.",
+  "category": "term"
+ },
+ {
+  "item_text": "Correct defects in Contractor's work at no charge for 30 days post-handover.",
+  "source_quote": "The Contractor will correct defects in their own work at no charge for 30 days following handover.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "Monitoring, paging, out-of-hours availability, and on-call rotation services are excluded.",
+  "source_quote": "Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.",
+  "category": "exclusion"
+ },
+ {
+  "item_text": "Company must grant read access to the operational database to the Contractor.",
+  "source_quote": "The Company will provide read access to the operational database.",
+  "category": "term"
+ },
+ {
+  "item_text": "Migrating, restructuring, or altering the operational database and touching production systems beyond read access is excluded without prior written approval.",
+  "source_quote": "The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.",
+  "category": "exclusion"
+ },
+ {
+  "item_text": "Any work outside the specific Engagement section description is excluded.",
+  "source_quote": "Work not described under Engagement above is outside this agreement.",
+  "category": "exclusion"
+ },
+ {
+  "item_text": "Scope changes must be agreed upon in writing by both parties including impact on fees and timeline.",
+  "source_quote": "Either party may propose a change; it takes effect only once both have agreed it in writing, including its effect on hours and fees.",
+  "category": "term"
+ },
+ {
+  "item_text": "Agreement termination permitted by either party with 14 days written notice.",
+  "source_quote": "Either party may end this agreement with 14 days written notice.",
+  "category": "term"
+ }
+]

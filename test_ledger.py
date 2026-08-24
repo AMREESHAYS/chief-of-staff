@@ -101,6 +101,33 @@ def test_a_date_in_the_past_is_rejected():
     assert due is None or local_date(due) >= "2026-08-20"
 
 
+def test_due_date_displays_as_the_local_day():
+    """Found by the second contract, not the first.
+
+    Due dates are stored as end-of-day UTC so comparisons are correct. Read
+    back in UTC they land on the next calendar day for any zone west of it —
+    Asia/Kolkata (+5:30) hides this, America/New_York (-4) does not.
+    """
+    due, _ = ledger.resolve_due("next Tuesday", "2026-07-29T13:40:00Z",
+                                "America/New_York")
+    assert due[:10] == "2026-08-05", "stored instant is next-day UTC, as designed"
+    assert ledger.local_day(due, "America/New_York") == "4 Aug"
+
+
+def test_local_day_is_stable_east_of_utc():
+    due, _ = ledger.resolve_due("by Friday", "2026-08-12T13:20:00Z", TZ)
+    assert ledger.local_day(due, TZ) == "14 Aug"
+
+
+def test_render_shows_local_days():
+    text = ledger.render([
+        {"id": 3, "promise_text": "docs", "due_phrase": "next Tuesday",
+         "due_at": "2026-08-05T03:59:59+00:00", "status": "open",
+         "created_at": "2026-07-29T13:40:00Z"},
+    ], "America/New_York")
+    assert "due 4 Aug" in text and "promised 29 Jul" in text
+
+
 def test_ambiguous_next_week_is_marked_lower_confidence():
     due, confidence = ledger.resolve_due("next week", "2026-08-10T05:00:00Z", TZ)
     assert due is not None

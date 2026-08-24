@@ -4,7 +4,7 @@
     {% for a in actions %}
       <tr>
         <td class="mono" style="color:var(--ink-soft);width:9ch">
-          {{ a.created_at | day }}
+          {{ a.created_at | day(project.owner_tz) }}
         </td>
         <td class="mono" style="color:var(--carbon);width:14ch">
           {{ a.type.replace('_', ' ') }}

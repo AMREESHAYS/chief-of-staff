@@ -19,15 +19,22 @@ from pathlib import Path
 import db
 
 FIXTURE = Path(__file__).parent / "fixtures" / "thread.json"
-# scope items already extracted by the shipped provider, cached so that
-# iterating on later stages costs no API calls and no daily quota
-SCOPE_CACHE = Path(__file__).parent / "fixtures" / "scope_items.json"
-# a full pipeline run captured from the shipped provider, so work downstream of
-# the classifier (UI, drafts) can start from real output without spending calls
-RUN_SNAPSHOT = Path(__file__).parent / "fixtures" / "run_snapshot.json"
+
+
+def scope_cache(fixture):
+    """Scope items already extracted by the shipped provider, cached per
+    fixture so iterating costs no API calls and no daily quota."""
+    return fixture.with_name(fixture.stem + "_scope.json")
+
+
+def run_snapshot(fixture):
+    """A full pipeline run captured from the shipped provider, so work
+    downstream of the classifier starts from real output for free."""
+    return fixture.with_name(fixture.stem + "_run.json")
 
 
 def load_fixture(path=FIXTURE):
+    path = Path(path)
     data = json.loads(path.read_text())
     sow = (path.parent.parent / data["project"]["sow_filename"]).read_text()
     return data, sow
@@ -44,7 +51,7 @@ def to_mime(data, msg, subject):
     return base64.urlsafe_b64encode(mail.as_bytes()).decode()
 
 
-def seed(conn, data, sow, gmail_ids=None):
+def seed(conn, data, sow, gmail_ids=None, cache=None):
     now = datetime.now(timezone.utc).isoformat()
     p = data["project"]
     project_id = conn.execute(
@@ -71,12 +78,12 @@ def seed(conn, data, sow, gmail_ids=None):
                 m["body"],
             ),
         )
-    if SCOPE_CACHE.exists():
+    if cache and cache.exists():
         conn.executemany(
             "INSERT INTO scope_item (project_id, item_text, source_quote,"
             " category) VALUES (?,?,?,?)",
             [(project_id, i["item_text"], i["source_quote"], i["category"])
-             for i in json.loads(SCOPE_CACHE.read_text())],
+             for i in json.loads(cache.read_text())],
         )
     return project_id
 
@@ -104,6 +111,10 @@ def push_to_gmail(data, subject):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--fixture", default=FIXTURE, type=Path,
+                    help="which thread fixture to load")
+    ap.add_argument("--add", action="store_true",
+                    help="keep existing projects and add this one alongside")
     ap.add_argument("--gmail", action="store_true", help="also insert into demo Gmail")
     ap.add_argument("--snapshot", action="store_true",
                     help="save the current verdicts and obligations to fixtures")
@@ -111,63 +122,101 @@ def main():
                     help="load a saved pipeline run instead of calling a model")
     args = ap.parse_args()
 
+    fixture = Path(args.fixture)
     if args.snapshot:
-        return snapshot()
+        return snapshot(fixture)
 
     db.init()
-    data, sow = load_fixture()
+    data, sow = load_fixture(fixture)
     gmail_ids = push_to_gmail(data, data["thread"]["subject"]) if args.gmail else None
 
     with db.connect() as conn:
-        conn.execute("DELETE FROM message")
-        conn.execute("DELETE FROM thread")
-        conn.execute("DELETE FROM scope_item")
-        conn.execute("DELETE FROM project")
-        project_id = seed(conn, data, sow, gmail_ids)
+        if not args.add:
+            for table in ("action", "verdict", "obligation", "message",
+                          "thread", "scope_item", "project"):
+                conn.execute(f"DELETE FROM {table}")
+        project_id = seed(conn, data, sow, gmail_ids, scope_cache(fixture))
         check(conn, project_id, data, sow)
-        replayed = replay(conn, project_id) if args.replay else 0
+        replayed = replay(conn, project_id, fixture) if args.replay else 0
 
-    cached = len(json.loads(SCOPE_CACHE.read_text())) if SCOPE_CACHE.exists() else 0
+    cache = scope_cache(fixture)
+    cached = len(json.loads(cache.read_text())) if cache.exists() else 0
     print(f"seeded project {project_id}: {len(data['messages'])} messages, "
           f"{cached} cached scope items"
           + ("" if cached else " (run ingest.py to extract scope)")
           + (f", {replayed} replayed verdicts" if args.replay else ""))
 
 
-def snapshot():
-    """Capture the current run. Messages are keyed by arrival time — row ids
+def snapshot(fixture=FIXTURE, project_id=None):
+    """Capture one project's run. Messages are keyed by arrival time — row ids
     change every reseed, timestamps do not."""
     with db.connect() as conn:
+        if project_id is None:
+            data, _ = load_fixture(fixture)
+            project_id = conn.execute(
+                "SELECT id FROM project WHERE client_name = ?",
+                (data["project"]["client_name"],)).fetchone()[0]
         verdicts = [
             dict(r)
             for r in conn.execute(
                 "SELECT m.received_at, v.label, v.scope_item_id, v.reasoning,"
                 " v.confidence, v.references_obligation_id, v.obligation_relation"
                 " FROM verdict v JOIN message m ON m.id = v.message_id"
-                " ORDER BY m.received_at"
+                " JOIN thread t ON t.id = m.thread_id"
+                " WHERE t.project_id = ? ORDER BY m.received_at", (project_id,)
             )
         ]
-        obligations = [
-            dict(r)
-            for r in conn.execute(
-                "SELECT m.received_at, o.promise_text, o.due_phrase, o.due_at,"
-                " o.due_confidence, o.status FROM obligation o"
-                " JOIN message m ON m.id = o.message_id ORDER BY o.id"
-            )
-        ]
-    RUN_SNAPSHOT.write_text(
-        json.dumps({"verdicts": verdicts, "obligations": obligations},
-                   indent=1, ensure_ascii=False)
+        rows = conn.execute(
+            "SELECT o.id, m.received_at, o.promise_text, o.due_phrase,"
+            " o.due_at, o.due_confidence, o.status FROM obligation o"
+            " JOIN message m ON m.id = o.message_id"
+            " WHERE o.project_id = ? ORDER BY o.id", (project_id,)
+        ).fetchall()
+        # obligation ids are global and shift as other projects are seeded, so
+        # references travel as a position within this project's own list
+        position = {r["id"]: i for i, r in enumerate(rows)}
+        obligations = [{k: r[k] for k in r.keys() if k != "id"} for r in rows]
+
+        for v in verdicts:
+            v["references_obligation_at"] = position.get(
+                v.pop("references_obligation_id"))
+
+        actions = []
+        for a in conn.execute(
+            "SELECT a.type, a.target_id, a.payload, a.state FROM action a"
+            " ORDER BY a.id"
+        ):
+            a = dict(a)
+            if a["type"] == "nudge":
+                if a["target_id"] not in position:
+                    continue
+                a["target"] = position[a["target_id"]]
+            else:
+                hit = conn.execute(
+                    "SELECT m.received_at FROM message m JOIN thread t"
+                    " ON t.id = m.thread_id WHERE m.id = ? AND t.project_id = ?",
+                    (a["target_id"], project_id)).fetchone()
+                if not hit:
+                    continue
+                a["target"] = hit["received_at"]
+            del a["target_id"]
+            actions.append(a)
+
+    run_snapshot(fixture).write_text(
+        json.dumps({"verdicts": verdicts, "obligations": obligations,
+                    "actions": actions}, indent=1, ensure_ascii=False)
     )
-    print(f"snapshot: {len(verdicts)} verdicts, {len(obligations)} obligations")
+    print(f"snapshot: {len(verdicts)} verdicts, {len(obligations)} obligations,"
+          f" {len(actions)} actions")
 
 
-def replay(conn, project_id):
+def replay(conn, project_id, fixture=FIXTURE):
     """Reload a captured run. Scope item ids are stable because seed inserts
     the cached items in file order; obligation ids are reassigned here."""
-    if not RUN_SNAPSHOT.exists():
+    saved_path = run_snapshot(fixture)
+    if not saved_path.exists():
         return 0
-    saved = json.loads(RUN_SNAPSHOT.read_text())
+    saved = json.loads(saved_path.read_text())
     by_time = {
         r["received_at"]: r["id"]
         for r in conn.execute(
@@ -175,9 +224,9 @@ def replay(conn, project_id):
             " ON t.id = m.thread_id WHERE t.project_id = ?", (project_id,)
         )
     }
-    obligation_ids = {}
-    for o in saved["obligations"]:
-        obligation_ids[len(obligation_ids) + 1] = conn.execute(
+    # positions in the snapshot's own list -> the ids this database issues now
+    issued = [
+        conn.execute(
             "INSERT INTO obligation (project_id, message_id, promise_text,"
             " due_phrase, due_at, due_confidence, status, created_at)"
             " VALUES (?,?,?,?,?,?,?,?)",
@@ -185,16 +234,29 @@ def replay(conn, project_id):
              o["due_phrase"], o["due_at"], o["due_confidence"], o["status"],
              o["received_at"]),
         ).lastrowid
+        for o in saved["obligations"]
+    ]
 
     for v in saved["verdicts"]:
+        at = v.get("references_obligation_at")
         conn.execute(
             "INSERT INTO verdict (message_id, label, scope_item_id, reasoning,"
             " confidence, references_obligation_id, obligation_relation)"
             " VALUES (?,?,?,?,?,?,?)",
             (by_time[v["received_at"]], v["label"], v["scope_item_id"],
              v["reasoning"], v["confidence"],
-             obligation_ids.get(v["references_obligation_id"]),
+             issued[at] if at is not None else None,
              v["obligation_relation"]),
+        )
+
+    for a in saved.get("actions", []):
+        target = (issued[a["target"]] if a["type"] == "nudge"
+                  else by_time[a["target"]])
+        conn.execute(
+            "INSERT INTO action (type, target_id, payload, state, created_at)"
+            " VALUES (?,?,?,?,?)",
+            (a["type"], target, a["payload"], a["state"],
+             datetime.now(timezone.utc).isoformat()),
         )
     return len(saved["verdicts"])
 
@@ -214,10 +276,11 @@ def check(conn, project_id, data, sow):
         m["at"] for m in data["messages"]
     ), "messages out of order"
 
-    # the SOW must actually contain the exclusions the demo turns on, or every
-    # out_of_scope citation later has nothing verbatim to point at
-    for excluded in ("e-commerce functionality are excluded", "multi-language"):
-        assert excluded in sow, f"SOW missing exclusion: {excluded}"
+    # the SOW must contain the lines this thread's out_of_scope beats depend
+    # on, or those citations later point at nothing. Which lines those are
+    # belongs to the fixture, not to the seeder.
+    for phrase in data.get("must_contain", []):
+        assert phrase in sow, f"SOW missing: {phrase!r}"
 
     # a cached quote that no longer matches the SOW would citate nothing —
     # same rule as ingest, enforced when the cache is loaded rather than trusted
