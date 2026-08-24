@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ project.client_name }} — contract review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+
+<header class="masthead">
+  <div>
+    <h1>{{ project.client_name }}</h1>
+    <div class="provenance mono">
+      read against {{ project.sow_filename }} · {{ counts.clauses }} clauses ·
+      {{ messages|length }} messages
+    </div>
+  </div>
+  <div class="tally">
+    <div class="is-stamp">
+      <b>{{ counts.flagged }}</b><span class="mono">outside scope</span>
+    </div>
+    <div class="is-stamp">
+      <b>{{ counts.overdue }}</b><span class="mono">overdue</span>
+    </div>
+    <div class="is-carbon">
+      <b>{{ counts.waiting }}</b><span class="mono">awaiting you</span>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+
+  <main class="thread">
+    {% for m in messages %}
+    <article class="entry {% if m.label == 'noise' and not m.references_obligation_id %}quiet{% endif %}">
+
+      <div class="margin">
+        <span class="who {% if not m.from_client %}dev{% endif %}">
+          {{ 'client' if m.from_client else 'you' }}
+        </span>
+        <span class="when">{{ m.received_at | day }}</span>
+        {% if m.label %}
+          <span class="mark {{ m.label }}">{{ m.label.replace('_', ' ') }}</span>
+          {% if m.confidence == 'unsure' %}
+            <span class="mark unsure">unsure</span>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <div class="body">
+        <p style="margin:0">{{ m.body }}</p>
+
+        {% if m.label == 'out_of_scope' and m.source_quote %}
+          {% if m.citation_is_repeat %}
+          <div class="excerpt is-echo">
+            <span class="clause">same clause as above</span>
+            <p class="reading">{{ m.reasoning }}</p>
+          </div>
+          {% else %}
+          <div class="excerpt">
+            <span class="clause">the agreement you both signed</span>
+            <blockquote>{{ m.source_quote }}</blockquote>
+            <p class="reading">{{ m.reasoning }}</p>
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% if m.references_obligation_id %}
+          {% set tied = obligations | selectattr('id', 'equalto', m.references_obligation_id) | first %}
+          {% if tied %}
+          <div class="tieback {{ m.obligation_relation }}">
+            <span class="verb">{{ m.obligation_relation }}</span>
+            <span>
+              <q>{{ tied.promise_text }}</q> —
+              you said this on {{ tied.created_at | day }}{% if tied.due_at %},
+              due {{ tied.due_at | day }}{% endif %}.
+            </span>
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% for a in m.actions %}
+          {% include "_action.html" with context %}
+        {% endfor %}
+      </div>
+    </article>
+    {% endfor %}
+  </main>
+
+  <aside class="ledger">
+    <h2>What you owe</h2>
+    <p class="strap">Every promise you made in this thread, and whether you kept it.</p>
+
+    {% for o in obligations %}
+    <div class="entryline {{ o.status }}">
+      <span class="status">
+        {{ o.status }}{% if o.late_by %} · {{ o.late_by }} days late{% endif %}
+      </span>
+      <p class="promise">{{ o.promise_text }}</p>
+      {% if o.action and o.action.state != 'undone' %}
+        <span class="drafted mono">update drafted</span>
+      {% endif %}
+      {% if o.due_at %}
+        <span class="due">due {{ o.due_at | day }}</span>
+      {% else %}
+        <span class="due">no date — you said <span class="said">“{{ o.due_phrase or 'nothing' }}”</span></span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </aside>
+</div>
+
+<div class="auditbar">
+  <details class="audit">
+    <summary hx-get="/audit" hx-target="#auditlog" hx-trigger="click once">
+      Every action taken
+    </summary>
+    <div id="auditlog"></div>
+  </details>
+  <span class="note">
+    Nothing has been sent. <b>{{ counts.waiting }}</b> proposals are waiting for you.
+  </span>
+</div>
+
+</body>
+</html>

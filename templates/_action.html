@@ -1,0 +1,43 @@
+{% set a = a if a is defined else m.action %}
+{% if a.type == 'flag' %}
+  <div class="question" id="action-{{ a.id }}">
+    <span class="kind">not your agent's call</span>
+    {{ a.payload.reason }}
+  </div>
+{% else %}
+  <div class="proposal {% if a.state == 'undone' %}is-undone{% endif %}" id="action-{{ a.id }}">
+    <header>
+      <span class="kind">
+        {{ 'draft reply' if a.type == 'draft_reply' else 'update they never got' }}
+      </span>
+      <span class="state {{ a.state }}">
+        {{ 'waiting for you' if a.state == 'proposed' else a.state }}
+      </span>
+    </header>
+
+    <div class="draft-body">{{ a.payload.body | with_placeholder }}</div>
+
+    <div class="controls">
+      {% if a.state == 'proposed' %}
+        <button hx-post="/action/{{ a.id }}/approve"
+                hx-target="#action-{{ a.id }}" hx-swap="outerHTML">
+          Approve draft
+        </button>
+        <button class="ghost" hx-post="/action/{{ a.id }}/undo"
+                hx-target="#action-{{ a.id }}" hx-swap="outerHTML">
+          Discard
+        </button>
+      {% elif a.state == 'approved' %}
+        <button class="ghost" hx-post="/action/{{ a.id }}/undo"
+                hx-target="#action-{{ a.id }}" hx-swap="outerHTML">
+          Undo approval
+        </button>
+      {% else %}
+        <button class="ghost" hx-post="/action/{{ a.id }}/approve"
+                hx-target="#action-{{ a.id }}" hx-swap="outerHTML">
+          Restore
+        </button>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

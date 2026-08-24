@@ -1,0 +1,26 @@
+<div class="auditlog">
+  <table>
+    <tbody>
+    {% for a in actions %}
+      <tr>
+        <td class="mono" style="color:var(--ink-soft);width:9ch">
+          {{ a.created_at | day }}
+        </td>
+        <td class="mono" style="color:var(--carbon);width:14ch">
+          {{ a.type.replace('_', ' ') }}
+        </td>
+        <td>
+          {% if a.type == 'flag' %}
+            asked you about it
+          {% else %}
+            {{ a.payload.body[:78] }}…
+          {% endif %}
+        </td>
+        <td class="mono" style="width:16ch;text-align:right">
+          {{ 'waiting' if a.state == 'proposed' else a.state }}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
