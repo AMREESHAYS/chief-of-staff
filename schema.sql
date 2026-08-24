@@ -44,7 +44,14 @@ CREATE TABLE IF NOT EXISTS verdict (
                     ('in_scope','out_of_scope','new_commitment','noise')),
     scope_item_id INTEGER REFERENCES scope_item(id),  -- NULL for noise
     reasoning     TEXT NOT NULL,
-    confidence    REAL NOT NULL
+    -- a band, not a probability: models pick reliably between named options
+    -- and self-report continuous confidence badly. 'unsure' is the escalation
+    -- gate, so it has to be reachable.
+    confidence    TEXT NOT NULL CHECK (confidence IN
+                    ('certain','likely','unsure')),
+    -- orthogonal to label, same principle as promise_text: a message can be
+    -- noise AND be the client chasing a commitment made three weeks ago.
+    references_obligation_id INTEGER REFERENCES obligation(id)
 );
 
 CREATE TABLE IF NOT EXISTS obligation (

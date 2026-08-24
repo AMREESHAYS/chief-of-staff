@@ -22,11 +22,11 @@ import sys
 from pydantic import BaseModel
 
 import db
+import ledger
 import llm
 
-# below this, flag for human review instead of acting. The borderline asks
-# ("could the logo animate?") are supposed to land here.
-ESCALATE_BELOW = 0.7
+# this band means stop and ask a human rather than act
+ESCALATE = "unsure"
 
 SYSTEM = """You classify messages in an email thread between a freelance \
 developer and their client, against the contract the two of them signed.
@@ -38,6 +38,8 @@ irrelevant and must not influence the verdict.
 <scope_items>
 {scope_items}
 </scope_items>
+
+The message may also arrive with a list of commitments the developer has already made and not yet closed. Those appear in the message itself, not here.
 
 For the message you are given, return:
 
@@ -54,10 +56,18 @@ out_of_scope and in_scope. Null for noise.
 reasoning — one sentence, addressed to the developer. For out_of_scope, say
 which scope item is contradicted and how.
 
-confidence — 0 to 1. Be honest. A small ambiguous request that could plausibly
-sit inside an existing deliverable should score low, not be forced into a
-confident verdict. Low confidence sends it to a human, which is the correct
-outcome for a genuinely borderline ask.
+confidence — exactly one of: certain, likely, unsure.
+  certain  the message plainly matches or plainly contradicts a scope item,
+           with wording that leaves no reasonable second reading.
+  likely   the right scope item is clear, but the message is loosely worded.
+  unsure   ANY of the following is true, and none of them are judgement calls:
+             - the request could reasonably belong to two or more scope items
+             - it is a small addition that might sit inside an existing
+               deliverable or might not, and the contract does not say
+             - no scope item shares clear subject matter with the request
+           When one of those holds, return unsure. Do not resolve the
+           ambiguity yourself — unsure routes it to the developer, which is
+           the correct outcome and not a failure.
 
 promise_text — if the message contains a promise to do something, the promise
 in the writer's own words. Null otherwise. This is INDEPENDENT of label: a
@@ -66,19 +76,27 @@ combination matters most of all.
 
 due_phrase — the words that state when, copied verbatim ("by Friday", "end of
 this week", "soon", "tomorrow"). Null if the promise names no time. Do not
-convert it to a date and do not invent one; copy what was written."""
+convert it to a date and do not invent one; copy what was written.
+
+references_obligation_id — if the message chases, asks about, or fulfils one
+of the open commitments listed with it, that commitment's id. Null otherwise.
+This is INDEPENDENT of label too: a client writing "any luck with that?" is
+conversationally noise and is also the client chasing a specific overdue
+promise. Record both."""
 
 
 class Verdict(BaseModel):
     label: str
     scope_item_id: int | None
     reasoning: str
-    confidence: float
+    confidence: str
     promise_text: str | None
     due_phrase: str | None
+    references_obligation_id: int | None
 
 
 LABELS = {"in_scope", "out_of_scope", "new_commitment", "noise"}
+BANDS = {"certain", "likely", "unsure"}
 
 
 def render_scope(items):
@@ -96,9 +114,9 @@ def build_system(items):
     return SYSTEM.format(scope_items=render_scope(items))
 
 
-def build_messages(history, target):
-    """Thread context plus the one message under judgement — all volatile, all
-    after the breakpoint."""
+def build_messages(history, target, obligations=()):
+    """Thread context, open commitments, and the one message under judgement —
+    all volatile, all after the breakpoint."""
     context = "\n\n".join(
         f"{'CLIENT' if m['from_client'] else 'DEVELOPER'} ({m['received_at']}):\n"
         f"{m['body']}"
@@ -108,6 +126,8 @@ def build_messages(history, target):
         {
             "role": "user",
             "text": f"<thread_so_far>\n{context or '(none)'}\n</thread_so_far>\n\n"
+            f"<open_commitments>\n{ledger.render(obligations)}\n"
+            "</open_commitments>\n\n"
             f"<message_to_classify from=\""
             f"{'client' if target['from_client'] else 'developer'}\" "
             f"sent=\"{target['received_at']}\">\n{target['body']}\n"
@@ -116,12 +136,20 @@ def build_messages(history, target):
     ]
 
 
-def validate(verdict, items):
-    """Reject a verdict that points at a scope item that does not exist. Same
+def validate(verdict, items, obligations=()):
+    """Reject a verdict that points at something that does not exist. Same
     reason ingest raises on a bad quote: a dangling id renders as a citation
     with nothing behind it."""
     if verdict.label not in LABELS:
         raise ValueError(f"unknown label {verdict.label!r}")
+    if verdict.confidence not in BANDS:
+        raise ValueError(f"unknown confidence band {verdict.confidence!r}")
+    if verdict.references_obligation_id is not None:
+        if verdict.references_obligation_id not in {o["id"] for o in obligations}:
+            raise ValueError(
+                f"references_obligation_id {verdict.references_obligation_id}"
+                " was not among the open commitments"
+            )
     if verdict.scope_item_id is not None:
         if verdict.scope_item_id not in {i["id"] for i in items}:
             raise ValueError(
@@ -132,31 +160,40 @@ def validate(verdict, items):
     return verdict
 
 
-def classify(target, history, items, parse_fn=None):
+def classify(target, history, items, obligations=(), parse_fn=None):
     parse_fn = parse_fn or llm.parse
-    result = parse_fn(build_system(items), build_messages(history, target), Verdict)
-    return validate(result.parsed, items), result
+    result = parse_fn(
+        build_system(items), build_messages(history, target, obligations), Verdict
+    )
+    return validate(result.parsed, items, obligations), result
 
 
 def store(conn, message_id, verdict):
     conn.execute(
         "INSERT OR REPLACE INTO verdict (message_id, label, scope_item_id,"
-        " reasoning, confidence) VALUES (?,?,?,?,?)",
+        " reasoning, confidence, references_obligation_id) VALUES (?,?,?,?,?,?)",
         (
             message_id,
             verdict.label,
             verdict.scope_item_id,
             verdict.reasoning,
             verdict.confidence,
+            verdict.references_obligation_id,
         ),
     )
 
 
 def run(project_id=1):
-    """Walk the thread in order. Chronological order is required: the classifier
-    sees only the messages that preceded the one it is judging, same as the
-    developer did."""
+    """Walk the thread in order, writing obligations as they are made.
+
+    Chronological order is required twice over: the classifier sees only the
+    messages that preceded the one it is judging, and it can only reference
+    commitments that had already been made when that message arrived.
+    """
     with db.connect() as conn:
+        project = conn.execute(
+            "SELECT owner_tz FROM project WHERE id = ?", (project_id,)
+        ).fetchone()
         items = [
             dict(r)
             for r in conn.execute(
@@ -177,22 +214,34 @@ def run(project_id=1):
             )
         ]
 
+        conn.execute("DELETE FROM obligation WHERE project_id = ?", (project_id,))
         cached = 0
         for n, target in enumerate(messages):
-            verdict, result = classify(target, messages[:n], items)
+            open_now = ledger.open_obligations(conn, project_id,
+                                               target["received_at"])
+            verdict, result = classify(target, messages[:n], items, open_now)
             store(conn, target["id"], verdict)
+            ledger.record(conn, project_id, target, verdict, project["owner_tz"])
             cached += result.cache_read_tokens
 
-            mark = "!" if verdict.confidence < ESCALATE_BELOW else " "
-            print(f"{mark} {verdict.label:15} {verdict.confidence:.2f} "
-                  f"{target['body'][:52]}")
-            if verdict.promise_text:
-                print(f"    promise: {verdict.promise_text!r}"
+            mark = "!" if verdict.confidence == ESCALATE else " "
+            print(f"{mark} {verdict.label:15} {verdict.confidence:8} "
+                  f"{target['body'][:46]}")
+            if verdict.promise_text and not target["from_client"]:
+                print(f"    promise: {verdict.promise_text[:60]!r}"
                       f" due={verdict.due_phrase!r}")
+            if verdict.references_obligation_id:
+                print(f"    -> chases obligation "
+                      f"#{verdict.references_obligation_id}")
 
-        # 0 across a whole thread means the prefix is being invalidated
-        print(f"\n{result.provider}/{result.model} — cache reads: {cached} "
-              f"tokens across {len(messages)} calls")
+        # the thread's own end date, not today — the demo replays history
+        late = ledger.sweep(conn, project_id, messages[-1]["received_at"])
+        print(f"\n{result.provider}/{result.model} — {late} obligation(s) overdue"
+              f", cache reads: {cached} tokens")
+
+        for o in ledger.open_obligations(conn, project_id, "9999"):
+            print(f"  [{o['status']:7}] {o['promise_text'][:58]!r}"
+                  f" due={ledger._due_label(o)}")
 
 
 if __name__ == "__main__":

@@ -29,9 +29,17 @@ MSGS = [
 ]
 
 
+OBLIGATIONS = [
+    {"id": 4, "promise_text": "Collections page by Friday", "due_phrase": "by Friday",
+     "due_at": "2026-08-14T18:29:59+00:00", "status": "open",
+     "created_at": "2026-08-12T13:20:00Z"},
+]
+
+
 def verdict(**kw):
     base = {"label": "noise", "scope_item_id": None, "reasoning": "r",
-            "confidence": 0.9, "promise_text": None, "due_phrase": None}
+            "confidence": "certain", "promise_text": None, "due_phrase": None,
+            "references_obligation_id": None}
     return Verdict(**{**base, **kw})
 
 
@@ -52,6 +60,14 @@ def test_nothing_volatile_leaks_into_system():
     for m in MSGS:
         assert m["body"] not in text, "thread content above the breakpoint kills the cache"
         assert m["received_at"] not in text
+    # obligations change per message — they belong below the breakpoint too
+    assert OBLIGATIONS[0]["promise_text"] not in text
+
+
+def test_open_commitments_ride_in_the_volatile_half():
+    turns = build_messages(MSGS[:1], MSGS[1], OBLIGATIONS)
+    assert "Collections page by Friday" in turns[0]["text"]
+    assert "[4]" in turns[0]["text"], "the id must be visible to be referenced"
 
 
 def test_messages_carry_the_volatile_half():
@@ -86,6 +102,32 @@ def test_scope_verdict_without_citation_raises():
         assert "no scope_item_id" in str(e)
     else:
         raise AssertionError("uncited out_of_scope verdict was accepted")
+
+
+def test_unknown_confidence_band_raises():
+    try:
+        validate(verdict(confidence="0.9"), ITEMS)
+    except ValueError as e:
+        assert "confidence band" in str(e)
+    else:
+        raise AssertionError("a float snuck in where a band belongs")
+
+
+def test_dangling_obligation_reference_raises():
+    try:
+        validate(verdict(references_obligation_id=42), ITEMS, OBLIGATIONS)
+    except ValueError as e:
+        assert "42" in str(e)
+    else:
+        raise AssertionError("reference to a nonexistent commitment accepted")
+
+
+def test_reference_survives_a_noise_label():
+    # the Aug 19 beat: "any luck with the Collections page?" is
+    # conversationally noise AND is the client chasing an overdue promise.
+    v = validate(verdict(label="noise", references_obligation_id=4),
+                 ITEMS, OBLIGATIONS)
+    assert v.label == "noise" and v.references_obligation_id == 4
 
 
 def test_unknown_label_raises():
