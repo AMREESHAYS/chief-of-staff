@@ -6,7 +6,9 @@ nothing visibly breaks.
 
 Run: .venv/bin/python test_classify.py     (no API calls, no framework)
 """
-from classify import LABELS, Verdict, build_messages, build_system, render_scope, validate
+import llm
+from classify import (LABELS, Verdict, build_messages, build_system,
+                      classify, render_scope, validate)
 
 ITEMS = [
     {"id": 3, "item_text": "Five-page static site", "category": "deliverable",
@@ -35,11 +37,6 @@ def verdict(**kw):
 
 # --- cache shape ---------------------------------------------------------
 
-def test_breakpoint_is_on_the_system_block():
-    block, = build_system(ITEMS)
-    assert block["cache_control"] == {"type": "ephemeral"}
-
-
 def test_system_is_identical_across_messages():
     # the whole point: 20 classifications, one cached prefix
     assert build_system(ITEMS) == build_system(list(reversed(ITEMS)))
@@ -51,23 +48,23 @@ def test_scope_rendering_is_order_independent():
 
 
 def test_nothing_volatile_leaks_into_system():
-    text = build_system(ITEMS)[0]["text"]
+    text = build_system(ITEMS)
     for m in MSGS:
         assert m["body"] not in text, "thread content above the breakpoint kills the cache"
         assert m["received_at"] not in text
 
 
 def test_messages_carry_the_volatile_half():
-    msgs = build_messages(MSGS[:1], MSGS[1])
-    content = msgs[0]["content"]
+    turns = build_messages(MSGS[:1], MSGS[1])
+    content = turns[0]["text"]
     assert MSGS[1]["body"] in content
     assert MSGS[0]["body"] in content, "prior turn should be visible as context"
-    assert "cache_control" not in msgs[0]
+    assert turns[0]["role"] == "user"
 
 
 def test_future_messages_are_not_visible():
     # classifying message 2 must not see message 3 — the developer didn't
-    content = build_messages(MSGS[:1], MSGS[1])[0]["content"]
+    content = build_messages(MSGS[:1], MSGS[1])[0]["text"]
     assert MSGS[2]["body"] not in content
 
 
@@ -112,6 +109,18 @@ def test_promise_survives_an_out_of_scope_label():
                          due_phrase=None), ITEMS)
     assert v.promise_text == "let me look into it"
     assert v.label == "out_of_scope"
+
+
+def test_classify_rejects_a_bad_verdict_before_it_is_stored():
+    def fake(system, turns, schema):
+        return llm.Result(parsed=verdict(label="out_of_scope", scope_item_id=77),
+                          cache_read_tokens=0, provider="fake", model="fake")
+    try:
+        classify(MSGS[0], [], ITEMS, parse_fn=fake)
+    except ValueError as e:
+        assert "77" in str(e)
+    else:
+        raise AssertionError("dangling citation reached the caller")
 
 
 def test_labels_match_the_db_constraint():

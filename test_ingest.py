@@ -2,8 +2,7 @@
 
 Run: python3 test_ingest.py     (no API calls, no framework)
 """
-from types import SimpleNamespace
-
+import llm
 from ingest import QuoteNotFound, ScopeItem, Sow, extract, validate_quotes
 
 SOW = """The contractor will build a five-page static marketing website
@@ -43,35 +42,38 @@ def test_only_bad_items_returned():
     assert validate_quotes([good, bad], SOW) == [bad]
 
 
-class FakeClient:
-    """Returns canned extractions. Records how many calls it saw."""
+class FakeParse:
+    """Stands in for llm.parse. Returns canned extractions, counts calls."""
 
     def __init__(self, *responses):
-        self.responses, self.calls = list(responses), 0
-        self.messages = SimpleNamespace(parse=self._parse)
+        self.responses, self.calls, self.turns = list(responses), 0, None
 
-    def _parse(self, **kwargs):
+    def __call__(self, system, turns, schema):
         self.calls += 1
-        return SimpleNamespace(parsed_output=self.responses.pop(0))
+        self.turns = turns
+        return llm.Result(parsed=self.responses.pop(0), cache_read_tokens=0,
+                          provider="fake", model="fake")
 
 
 def test_bad_extraction_raises_not_drops():
-    client = FakeClient(Sow(items=[item("invented"), item("five-page")]),
-                        Sow(items=[item("still invented")]))
+    fake = FakeParse(Sow(items=[item("invented"), item("five-page")]),
+                     Sow(items=[item("still invented")]))
     try:
-        extract(SOW, client=client)
+        extract(SOW, parse_fn=fake)
     except QuoteNotFound as e:
         assert "still invented" in str(e)
-        assert client.calls == 2, "should retry exactly once"
+        assert fake.calls == 2, "should retry exactly once"
     else:
         raise AssertionError("bad quotes were dropped instead of raising")
 
 
 def test_retry_recovers():
-    client = FakeClient(Sow(items=[item("invented")]),
-                        Sow(items=[item("five-page static marketing website")]))
-    assert len(extract(SOW, client=client)) == 1
-    assert client.calls == 2
+    fake = FakeParse(Sow(items=[item("invented")]),
+                     Sow(items=[item("five-page static marketing website")]))
+    assert len(extract(SOW, parse_fn=fake)) == 1
+    assert fake.calls == 2
+    # the retry must name the offender, not ask again vaguely
+    assert "invented" in fake.turns[-1]["text"]
 
 
 if __name__ == "__main__":

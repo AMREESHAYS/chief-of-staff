@@ -19,12 +19,10 @@ label, not a fifth label value.
 import json
 import sys
 
-import anthropic
 from pydantic import BaseModel
 
 import db
-
-MODEL = "claude-opus-5"
+import llm
 
 # below this, flag for human review instead of acting. The borderline asks
 # ("could the logo animate?") are supposed to land here.
@@ -93,14 +91,9 @@ def render_scope(items):
 
 
 def build_system(items):
-    """System block carrying the cache breakpoint."""
-    return [
-        {
-            "type": "text",
-            "text": SYSTEM.format(scope_items=render_scope(items)),
-            "cache_control": {"type": "ephemeral"},
-        }
-    ]
+    """The cacheable half. Byte-identical for every message in a project —
+    llm.parse attaches the provider's cache breakpoint to it."""
+    return SYSTEM.format(scope_items=render_scope(items))
 
 
 def build_messages(history, target):
@@ -114,7 +107,7 @@ def build_messages(history, target):
     return [
         {
             "role": "user",
-            "content": f"<thread_so_far>\n{context or '(none)'}\n</thread_so_far>\n\n"
+            "text": f"<thread_so_far>\n{context or '(none)'}\n</thread_so_far>\n\n"
             f"<message_to_classify from=\""
             f"{'client' if target['from_client'] else 'developer'}\" "
             f"sent=\"{target['received_at']}\">\n{target['body']}\n"
@@ -139,17 +132,10 @@ def validate(verdict, items):
     return verdict
 
 
-def classify(target, history, items, client=None):
-    client = client or anthropic.Anthropic()
-    response = client.messages.parse(
-        model=MODEL,
-        max_tokens=16000,
-        system=build_system(items),
-        thinking={"type": "adaptive"},
-        messages=build_messages(history, target),
-        output_format=Verdict,
-    )
-    return validate(response.parsed_output, items), response
+def classify(target, history, items, parse_fn=None):
+    parse_fn = parse_fn or llm.parse
+    result = parse_fn(build_system(items), build_messages(history, target), Verdict)
+    return validate(result.parsed, items), result
 
 
 def store(conn, message_id, verdict):
@@ -193,9 +179,9 @@ def run(project_id=1):
 
         cached = 0
         for n, target in enumerate(messages):
-            verdict, response = classify(target, messages[:n], items)
+            verdict, result = classify(target, messages[:n], items)
             store(conn, target["id"], verdict)
-            cached += response.usage.cache_read_input_tokens
+            cached += result.cache_read_tokens
 
             mark = "!" if verdict.confidence < ESCALATE_BELOW else " "
             print(f"{mark} {verdict.label:15} {verdict.confidence:.2f} "
@@ -204,8 +190,9 @@ def run(project_id=1):
                 print(f"    promise: {verdict.promise_text!r}"
                       f" due={verdict.due_phrase!r}")
 
-        # if this is 0 across a whole thread, the prefix is being invalidated
-        print(f"\ncache reads: {cached} tokens across {len(messages)} calls")
+        # 0 across a whole thread means the prefix is being invalidated
+        print(f"\n{result.provider}/{result.model} — cache reads: {cached} "
+              f"tokens across {len(messages)} calls")
 
 
 if __name__ == "__main__":

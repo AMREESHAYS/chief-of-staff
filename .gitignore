@@ -4,6 +4,7 @@ client_secret*.json
 token.json
 token*.pickle
 .env
+.env.*
 
 # local state
 *.db

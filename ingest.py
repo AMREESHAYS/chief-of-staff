@@ -16,12 +16,10 @@ import re
 import sys
 from pathlib import Path
 
-import anthropic
 from pydantic import BaseModel
 
 import db
-
-MODEL = "claude-opus-5"
+import llm
 
 SYSTEM = """You extract structured scope from a contract between a freelance \
 developer and a client.
@@ -81,26 +79,19 @@ def validate_quotes(items, sow_text):
     return [i for i in items if _norm(i.source_quote) not in haystack]
 
 
-def extract(sow_text, client=None, retries=1):
-    client = client or anthropic.Anthropic()
-    messages = [
+def extract(sow_text, parse_fn=None, retries=1):
+    parse_fn = parse_fn or llm.parse
+    turns = [
         {
             "role": "user",
-            "content": f"<document>\n{sow_text}\n</document>\n\n"
+            "text": f"<document>\n{sow_text}\n</document>\n\n"
             "Extract every scope item from this document.",
         }
     ]
 
     for attempt in range(retries + 1):
-        response = client.messages.parse(
-            model=MODEL,
-            max_tokens=16000,
-            system=SYSTEM,
-            thinking={"type": "adaptive"},
-            messages=messages,
-            output_format=Sow,
-        )
-        items = response.parsed_output.items
+        result = parse_fn(SYSTEM, turns, Sow)
+        items = result.parsed.items
         bad = validate_quotes(items, sow_text)
         if not bad:
             return items
@@ -113,11 +104,11 @@ def extract(sow_text, client=None, retries=1):
             )
 
         # name the offenders; do not ask for a general retry
-        messages += [
-            {"role": "assistant", "content": response.parsed_output.model_dump_json()},
+        turns += [
+            {"role": "assistant", "text": result.parsed.model_dump_json()},
             {
                 "role": "user",
-                "content": "These source_quote values do not appear in the "
+                "text": "These source_quote values do not appear in the "
                 "document:\n"
                 + "\n".join(f"- {i.source_quote!r}" for i in bad)
                 + "\n\nRe-extract every item. Copy each source_quote "
