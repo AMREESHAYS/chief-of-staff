@@ -22,6 +22,9 @@ FIXTURE = Path(__file__).parent / "fixtures" / "thread.json"
 # scope items already extracted by the shipped provider, cached so that
 # iterating on later stages costs no API calls and no daily quota
 SCOPE_CACHE = Path(__file__).parent / "fixtures" / "scope_items.json"
+# a full pipeline run captured from the shipped provider, so work downstream of
+# the classifier (UI, drafts) can start from real output without spending calls
+RUN_SNAPSHOT = Path(__file__).parent / "fixtures" / "run_snapshot.json"
 
 
 def load_fixture(path=FIXTURE):
@@ -102,7 +105,14 @@ def push_to_gmail(data, subject):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gmail", action="store_true", help="also insert into demo Gmail")
+    ap.add_argument("--snapshot", action="store_true",
+                    help="save the current verdicts and obligations to fixtures")
+    ap.add_argument("--replay", action="store_true",
+                    help="load a saved pipeline run instead of calling a model")
     args = ap.parse_args()
+
+    if args.snapshot:
+        return snapshot()
 
     db.init()
     data, sow = load_fixture()
@@ -115,11 +125,78 @@ def main():
         conn.execute("DELETE FROM project")
         project_id = seed(conn, data, sow, gmail_ids)
         check(conn, project_id, data, sow)
+        replayed = replay(conn, project_id) if args.replay else 0
 
     cached = len(json.loads(SCOPE_CACHE.read_text())) if SCOPE_CACHE.exists() else 0
     print(f"seeded project {project_id}: {len(data['messages'])} messages, "
           f"{cached} cached scope items"
-          + ("" if cached else " (run ingest.py to extract scope)"))
+          + ("" if cached else " (run ingest.py to extract scope)")
+          + (f", {replayed} replayed verdicts" if args.replay else ""))
+
+
+def snapshot():
+    """Capture the current run. Messages are keyed by arrival time — row ids
+    change every reseed, timestamps do not."""
+    with db.connect() as conn:
+        verdicts = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT m.received_at, v.label, v.scope_item_id, v.reasoning,"
+                " v.confidence, v.references_obligation_id, v.obligation_relation"
+                " FROM verdict v JOIN message m ON m.id = v.message_id"
+                " ORDER BY m.received_at"
+            )
+        ]
+        obligations = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT m.received_at, o.promise_text, o.due_phrase, o.due_at,"
+                " o.due_confidence, o.status FROM obligation o"
+                " JOIN message m ON m.id = o.message_id ORDER BY o.id"
+            )
+        ]
+    RUN_SNAPSHOT.write_text(
+        json.dumps({"verdicts": verdicts, "obligations": obligations},
+                   indent=1, ensure_ascii=False)
+    )
+    print(f"snapshot: {len(verdicts)} verdicts, {len(obligations)} obligations")
+
+
+def replay(conn, project_id):
+    """Reload a captured run. Scope item ids are stable because seed inserts
+    the cached items in file order; obligation ids are reassigned here."""
+    if not RUN_SNAPSHOT.exists():
+        return 0
+    saved = json.loads(RUN_SNAPSHOT.read_text())
+    by_time = {
+        r["received_at"]: r["id"]
+        for r in conn.execute(
+            "SELECT m.id, m.received_at FROM message m JOIN thread t"
+            " ON t.id = m.thread_id WHERE t.project_id = ?", (project_id,)
+        )
+    }
+    obligation_ids = {}
+    for o in saved["obligations"]:
+        obligation_ids[len(obligation_ids) + 1] = conn.execute(
+            "INSERT INTO obligation (project_id, message_id, promise_text,"
+            " due_phrase, due_at, due_confidence, status, created_at)"
+            " VALUES (?,?,?,?,?,?,?,?)",
+            (project_id, by_time[o["received_at"]], o["promise_text"],
+             o["due_phrase"], o["due_at"], o["due_confidence"], o["status"],
+             o["received_at"]),
+        ).lastrowid
+
+    for v in saved["verdicts"]:
+        conn.execute(
+            "INSERT INTO verdict (message_id, label, scope_item_id, reasoning,"
+            " confidence, references_obligation_id, obligation_relation)"
+            " VALUES (?,?,?,?,?,?,?)",
+            (by_time[v["received_at"]], v["label"], v["scope_item_id"],
+             v["reasoning"], v["confidence"],
+             obligation_ids.get(v["references_obligation_id"]),
+             v["obligation_relation"]),
+        )
+    return len(saved["verdicts"])
 
 
 def check(conn, project_id, data, sow):

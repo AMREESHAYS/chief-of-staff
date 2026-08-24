@@ -1,0 +1,234 @@
+{
+ "verdicts": [
+  {
+   "received_at": "2026-08-03T04:35:00Z",
+   "label": "new_commitment",
+   "scope_item_id": null,
+   "reasoning": "The client promises to send the logo files and shop photos today, raising no scope questions.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-03T06:10:00Z",
+   "label": "new_commitment",
+   "scope_item_id": null,
+   "reasoning": "You promised to start work on the Home and Collections layouts this week.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-05T05:20:00Z",
+   "label": "new_commitment",
+   "scope_item_id": null,
+   "reasoning": "You have promised to share a staging link tomorrow, which creates a new commitment without raising any scope questions.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-05T09:02:00Z",
+   "label": "noise",
+   "scope_item_id": null,
+   "reasoning": "The client is simply acknowledging your update and confirming they will review the staging link tomorrow.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-06T07:45:00Z",
+   "label": "in_scope",
+   "scope_item_id": 2,
+   "reasoning": "Sharing a live staging link showing progress on the site pages directly relates to building the five-page website under scope item 2.",
+   "confidence": "certain",
+   "references_obligation_id": 2,
+   "obligation_relation": "fulfils"
+  },
+  {
+   "received_at": "2026-08-07T04:50:00Z",
+   "label": "in_scope",
+   "scope_item_id": 2,
+   "reasoning": "Feedback and minor layout tweaks on the Home page are part of building the five-page website under scope item 2.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-10T05:15:00Z",
+   "label": "out_of_scope",
+   "scope_item_id": 9,
+   "reasoning": "This request for online payment functionality contradicts scope item [9], which explicitly excludes online payments, shopping carts, and e-commerce functionality.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-10T11:30:00Z",
+   "label": "out_of_scope",
+   "scope_item_id": 9,
+   "reasoning": "Scope item 9 explicitly excludes online payments and e-commerce functionality from the project scope.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-11T06:00:00Z",
+   "label": "noise",
+   "scope_item_id": null,
+   "reasoning": "The client is delivering asset files for the site, which is routine project logistics and contains no new work requests or promises.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-12T13:20:00Z",
+   "label": "in_scope",
+   "scope_item_id": 2,
+   "reasoning": "The Collections page is explicitly included as part of the five-page static marketing website under scope item [2].",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-13T05:40:00Z",
+   "label": "in_scope",
+   "scope_item_id": 2,
+   "reasoning": "This inquiry concerns the implementation details of the Store Locator page, which is explicitly included in the contract's scope under item [2].",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-13T08:15:00Z",
+   "label": "in_scope",
+   "scope_item_id": 2,
+   "reasoning": "The message clarifies the content and features of the Store Locator page, which is explicitly included in scope item 2.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-17T04:25:00Z",
+   "label": "out_of_scope",
+   "scope_item_id": 10,
+   "reasoning": "The request to make the site available in Hindi contradicts scope item [10], which explicitly excludes content translation and multi-language versions.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-17T04:31:00Z",
+   "label": "out_of_scope",
+   "scope_item_id": 14,
+   "reasoning": "Animating the logo on load is a small addition not explicitly mentioned in the contract, which could either be considered part of the Home page deliverable [2] or unlisted work requiring a change order [14].",
+   "confidence": "unsure",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-18T06:50:00Z",
+   "label": "in_scope",
+   "scope_item_id": 5,
+   "reasoning": "Sending page titles and meta descriptions for approval falls directly under the basic on-page SEO deliverable in scope item [5].",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-19T05:05:00Z",
+   "label": "noise",
+   "scope_item_id": null,
+   "reasoning": "This message is conversational follow-up asking about the status of the Collections page delivery.",
+   "confidence": "certain",
+   "references_obligation_id": 4,
+   "obligation_relation": "chases"
+  },
+  {
+   "received_at": "2026-08-20T15:10:00Z",
+   "label": "in_scope",
+   "scope_item_id": 2,
+   "reasoning": "Addressing and optimizing load time for images on the Collections page falls under building the five-page website in scope item 2.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-21T10:40:00Z",
+   "label": "noise",
+   "scope_item_id": null,
+   "reasoning": "This message provides operational information about the client's office closure for a holiday and does not raise any scope questions.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  },
+  {
+   "received_at": "2026-08-24T04:20:00Z",
+   "label": "out_of_scope",
+   "scope_item_id": 9,
+   "reasoning": "The client's request for payment functionality is explicitly excluded under Scope Item 9, which rules out online payments and e-commerce features.",
+   "confidence": "certain",
+   "references_obligation_id": 3,
+   "obligation_relation": "chases"
+  },
+  {
+   "received_at": "2026-08-24T04:26:00Z",
+   "label": "in_scope",
+   "scope_item_id": 12,
+   "reasoning": "The client's inquiry about the delivery date directly relates to Scope Item 12, which specifies delivery within four weeks of signing.",
+   "confidence": "certain",
+   "references_obligation_id": null,
+   "obligation_relation": null
+  }
+ ],
+ "obligations": [
+  {
+   "received_at": "2026-08-03T06:10:00Z",
+   "promise_text": "Starting on the Home and Collections layouts this week",
+   "due_phrase": "this week",
+   "due_at": "2026-08-07T18:29:59+00:00",
+   "due_confidence": 0.8,
+   "status": "overdue"
+  },
+  {
+   "received_at": "2026-08-05T05:20:00Z",
+   "promise_text": "I'll have a staging link up for you tomorrow",
+   "due_phrase": "tomorrow",
+   "due_at": "2026-08-06T18:29:59+00:00",
+   "due_confidence": 0.95,
+   "status": "done"
+  },
+  {
+   "received_at": "2026-08-10T11:30:00Z",
+   "promise_text": "look into what that would take and get back to you",
+   "due_phrase": null,
+   "due_at": null,
+   "due_confidence": null,
+   "status": "vague"
+  },
+  {
+   "received_at": "2026-08-12T13:20:00Z",
+   "promise_text": "I'll get the Collections page to you by Friday.",
+   "due_phrase": "by Friday",
+   "due_at": "2026-08-14T18:29:59+00:00",
+   "due_confidence": 0.9,
+   "status": "overdue"
+  },
+  {
+   "received_at": "2026-08-18T06:50:00Z",
+   "promise_text": "I'll send over the SEO titles and meta descriptions by end of this week for you to approve",
+   "due_phrase": "by end of this week",
+   "due_at": "2026-08-21T18:29:59+00:00",
+   "due_confidence": 0.8,
+   "status": "overdue"
+  },
+  {
+   "received_at": "2026-08-20T15:10:00Z",
+   "promise_text": "I'll look at the load time on the Collections page soon",
+   "due_phrase": "soon",
+   "due_at": null,
+   "due_confidence": null,
+   "status": "vague"
+  }
+ ]
+}
