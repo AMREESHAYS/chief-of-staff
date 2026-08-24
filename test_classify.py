@@ -1,0 +1,131 @@
+"""Checks for the classifier's cache shape and verdict validation.
+
+The cache tests are the ones with money attached: if the system block is not
+byte-identical across calls, every classification pays full input price and
+nothing visibly breaks.
+
+Run: .venv/bin/python test_classify.py     (no API calls, no framework)
+"""
+from classify import LABELS, Verdict, build_messages, build_system, render_scope, validate
+
+ITEMS = [
+    {"id": 3, "item_text": "Five-page static site", "category": "deliverable",
+     "source_quote": "a five-page static marketing website"},
+    {"id": 1, "item_text": "E-commerce excluded", "category": "exclusion",
+     "source_quote": "any e-commerce functionality are excluded"},
+    {"id": 2, "item_text": "Contact form", "category": "deliverable",
+     "source_quote": "A contact form will be included"},
+]
+
+MSGS = [
+    {"id": 10, "from_client": 1, "received_at": "2026-08-10T05:15:00Z",
+     "body": "can we add a buy button"},
+    {"id": 11, "from_client": 0, "received_at": "2026-08-10T11:30:00Z",
+     "body": "sure, let me look into it"},
+    {"id": 12, "from_client": 1, "received_at": "2026-08-11T06:00:00Z",
+     "body": "sending photos"},
+]
+
+
+def verdict(**kw):
+    base = {"label": "noise", "scope_item_id": None, "reasoning": "r",
+            "confidence": 0.9, "promise_text": None, "due_phrase": None}
+    return Verdict(**{**base, **kw})
+
+
+# --- cache shape ---------------------------------------------------------
+
+def test_breakpoint_is_on_the_system_block():
+    block, = build_system(ITEMS)
+    assert block["cache_control"] == {"type": "ephemeral"}
+
+
+def test_system_is_identical_across_messages():
+    # the whole point: 20 classifications, one cached prefix
+    assert build_system(ITEMS) == build_system(list(reversed(ITEMS)))
+
+
+def test_scope_rendering_is_order_independent():
+    # rows arriving in a different order must not shift a single byte
+    assert render_scope(ITEMS) == render_scope(sorted(ITEMS, key=lambda i: i["item_text"]))
+
+
+def test_nothing_volatile_leaks_into_system():
+    text = build_system(ITEMS)[0]["text"]
+    for m in MSGS:
+        assert m["body"] not in text, "thread content above the breakpoint kills the cache"
+        assert m["received_at"] not in text
+
+
+def test_messages_carry_the_volatile_half():
+    msgs = build_messages(MSGS[:1], MSGS[1])
+    content = msgs[0]["content"]
+    assert MSGS[1]["body"] in content
+    assert MSGS[0]["body"] in content, "prior turn should be visible as context"
+    assert "cache_control" not in msgs[0]
+
+
+def test_future_messages_are_not_visible():
+    # classifying message 2 must not see message 3 — the developer didn't
+    content = build_messages(MSGS[:1], MSGS[1])[0]["content"]
+    assert MSGS[2]["body"] not in content
+
+
+# --- verdict validation --------------------------------------------------
+
+def test_dangling_scope_item_id_raises():
+    try:
+        validate(verdict(label="out_of_scope", scope_item_id=99), ITEMS)
+    except ValueError as e:
+        assert "99" in str(e)
+    else:
+        raise AssertionError("citation pointing at nothing was accepted")
+
+
+def test_scope_verdict_without_citation_raises():
+    try:
+        validate(verdict(label="out_of_scope", scope_item_id=None), ITEMS)
+    except ValueError as e:
+        assert "no scope_item_id" in str(e)
+    else:
+        raise AssertionError("uncited out_of_scope verdict was accepted")
+
+
+def test_unknown_label_raises():
+    try:
+        validate(verdict(label="escalate"), ITEMS)
+    except ValueError as e:
+        assert "escalate" in str(e)
+    else:
+        raise AssertionError("invalid label accepted")
+
+
+def test_noise_needs_no_citation():
+    assert validate(verdict(label="noise"), ITEMS).scope_item_id is None
+
+
+def test_promise_survives_an_out_of_scope_label():
+    # the Aug 10 beat: an unguarded yes to an out-of-scope ask. Both halves
+    # must be recorded, or the ledger misses the worst commitment in the thread.
+    v = validate(verdict(label="out_of_scope", scope_item_id=1,
+                         promise_text="let me look into it",
+                         due_phrase=None), ITEMS)
+    assert v.promise_text == "let me look into it"
+    assert v.label == "out_of_scope"
+
+
+def test_labels_match_the_db_constraint():
+    # schema.sql CHECK and this module must not drift apart
+    import re
+    from pathlib import Path
+    sql = Path(__file__).parent.joinpath("schema.sql").read_text()
+    declared = set(re.findall(r"'(in_scope|out_of_scope|new_commitment|noise)'", sql))
+    assert declared == LABELS, f"schema {declared} vs classifier {LABELS}"
+
+
+if __name__ == "__main__":
+    for name, fn in sorted(globals().items()):
+        if name.startswith("test_"):
+            fn()
+            print(f"ok  {name}")
+    print("\nall checks passed")
