@@ -128,6 +128,12 @@ def load(conn, project_id=PROJECT_ID):
         if o["action"]:
             nudges.setdefault(o["message_id"], []).append((o, o["action"]))
 
+    amendments = [dict(r) for r in conn.execute(
+        "SELECT id, item_text, source_quote, origin_message_id, agreed_at"
+        " FROM scope_item WHERE project_id = ? AND origin = 'amendment'"
+        " ORDER BY agreed_at", (project_id,))]
+    agreed_here = {a["origin_message_id"] for a in amendments}
+
     # quoting the same clause twice in a row spends the evidence for nothing.
     # The full text lands the first time; after that a back-reference is enough.
     seen_quote = None
@@ -137,18 +143,17 @@ def load(conn, project_id=PROJECT_ID):
         if m["source_quote"]:
             seen_quote = m["source_quote"]
 
-        own = by_target.get(("draft_reply", m["id"])) or by_target.get(
-            ("flag", m["id"]))
+        # a message that agreed to a change needs no reply proposing one: it
+        # is the answer, not the question. Keyed off the amendment itself,
+        # which is the fact that survives a replay.
+        own = None if m["id"] in agreed_here else (
+            by_target.get(("draft_reply", m["id"]))
+            or by_target.get(("flag", m["id"])))
         m["actions"] = ([own] if own else []) + [
             a for _, a in nudges.get(m["id"], [])]
         m["nudged"] = [o for o, _ in nudges.get(m["id"], [])]
 
     import classify
-
-    amendments = [dict(r) for r in conn.execute(
-        "SELECT id, item_text, source_quote, origin_message_id, agreed_at"
-        " FROM scope_item WHERE project_id = ? AND origin = 'amendment'"
-        " ORDER BY agreed_at", (project_id,))]
 
     return {
         "project": dict(project),

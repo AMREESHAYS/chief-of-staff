@@ -55,7 +55,9 @@
           {{ role.them_short if m.from_counterparty else 'you' }}
         </span>
         <span class="when">{{ m.received_at | day(project.owner_tz) }}</span>
-        {% if m.label %}
+        {% if amendments | selectattr('origin_message_id', 'equalto', m.id) | first %}
+          <span class="mark agreed">agreed</span>
+        {% elif m.label %}
           <span class="mark {{ m.label }}">{{ m.label.replace('_', ' ') }}</span>
           {% if m.confidence == 'unsure' %}
             <span class="mark unsure">unsure</span>
@@ -66,9 +68,9 @@
       <div class="body">
         <p style="margin:0">{{ m.body }}</p>
 
-        {% if m.accepts_change_to %}
-          {% set added = amendments | selectattr('origin_message_id', 'equalto', m.id) | first %}
-          {% if added %}
+        {% set added = amendments | selectattr('origin_message_id', 'equalto', m.id) | first %}
+        {% if added %}
+          {% if true %}
           <div class="excerpt is-amendment">
             <span class="clause">scope changed here — by agreement, not by contract</span>
             <p class="added">{{ added.item_text }}</p>

@@ -195,6 +195,14 @@ a { color: inherit; }
 .mark.in_scope { color: var(--settled); border-color: #C2D6CB; background: #EFF5F1; }
 .mark.noise { color: var(--ink-soft); border-color: var(--rule); }
 
+/* the message that changed the deal */
+.mark.agreed {
+  color: var(--settled);
+  border-color: var(--settled);
+  background: #EAF3EE;
+  font-weight: 500;
+}
+
 .mark.unsure {
   color: var(--amber);
   background: var(--amber-pale);
