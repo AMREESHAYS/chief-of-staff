@@ -1,0 +1,72 @@
+[
+ {
+  "item_text": "Fixed fee of INR 85,000 with 40% on signing and 60% on delivery.",
+  "source_quote": "**Fee:** INR 85,000, fixed. 40% on signing, 60% on delivery.",
+  "category": "term"
+ },
+ {
+  "item_text": "Build a five-page static marketing website consisting of Home, Collections, About, Contact, and Store Locator pages.",
+  "source_quote": "The contractor will build a five-page static marketing website consisting of Home, Collections, About, Contact, and Store Locator pages.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "Responsive website rendering on current mobile and desktop browsers.",
+  "source_quote": "The site will be responsive and render correctly on current mobile and desktop browsers.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "Contact form on Contact page delivering submissions by email.",
+  "source_quote": "A contact form will be included on the Contact page, delivering submissions by email to the store's registered address.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "Basic on-page SEO including page titles, meta descriptions, and XML sitemap.",
+  "source_quote": "Basic on-page search engine optimisation is included: page titles, meta descriptions, and an XML sitemap.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "Deployment of finished site to client's existing hosting account.",
+  "source_quote": "The contractor will deploy the finished site to the client's existing hosting account.",
+  "category": "deliverable"
+ },
+ {
+  "item_text": "One round of revisions included following site delivery.",
+  "source_quote": "One round of revisions is included following delivery of the completed site.",
+  "category": "term"
+ },
+ {
+  "item_text": "Revisions must be requested within 14 days of delivery.",
+  "source_quote": "Revisions must be requested within fourteen days of delivery.",
+  "category": "term"
+ },
+ {
+  "item_text": "Exclusion of online payments, shopping cart, and e-commerce functionality.",
+  "source_quote": "Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.",
+  "category": "exclusion"
+ },
+ {
+  "item_text": "Exclusion of content translation and multi-language versions.",
+  "source_quote": "Content translation and multi-language versions of the site are excluded.",
+  "category": "exclusion"
+ },
+ {
+  "item_text": "Exclusion of ongoing maintenance, hosting fees, and photography.",
+  "source_quote": "Ongoing maintenance, hosting fees, and photography are excluded.",
+  "category": "exclusion"
+ },
+ {
+  "item_text": "Delivery within four weeks of signing.",
+  "source_quote": "Delivery within four weeks of signing.",
+  "category": "term"
+ },
+ {
+  "item_text": "Timeline extensions caused by late client content delivery.",
+  "source_quote": "Delays caused by late delivery of client content extend the timeline accordingly.",
+  "category": "term"
+ },
+ {
+  "item_text": "Requirement of written change order and separate fee agreement for unlisted work.",
+  "source_quote": "Any work not described in Section 1 requires a written change order and separate fee agreement before the contractor begins that work.",
+  "category": "term"
+ }
+]

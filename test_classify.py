@@ -20,11 +20,11 @@ ITEMS = [
 ]
 
 MSGS = [
-    {"id": 10, "from_client": 1, "received_at": "2026-08-10T05:15:00Z",
+    {"id": 10, "from_counterparty": 1, "received_at": "2026-08-10T05:15:00Z",
      "body": "can we add a buy button"},
-    {"id": 11, "from_client": 0, "received_at": "2026-08-10T11:30:00Z",
+    {"id": 11, "from_counterparty": 0, "received_at": "2026-08-10T11:30:00Z",
      "body": "sure, let me look into it"},
-    {"id": 12, "from_client": 1, "received_at": "2026-08-11T06:00:00Z",
+    {"id": 12, "from_counterparty": 1, "received_at": "2026-08-11T06:00:00Z",
      "body": "sending photos"},
 ]
 
@@ -190,6 +190,29 @@ def test_classify_rejects_a_bad_verdict_before_it_is_stored():
         assert "77" in str(e)
     else:
         raise AssertionError("dangling citation reached the caller")
+
+
+def test_the_prompt_names_the_side_you_are_on():
+    """Same engine, two readings. A buyer must not be told they are the
+    contractor, or every verdict is written to the wrong reader."""
+    from classify import ROLES
+
+    contractor = build_system(ITEMS, "contractor")
+    buyer = build_system(ITEMS, "buyer")
+    assert "the contractor" in contractor and "the client" in contractor
+    assert "the buyer" in buyer and "the supplier" in buyer
+    assert contractor != buyer
+    # and the scope items are identical in both: whether a request is in scope
+    # is a property of the request, not of who is reading
+    for role in ROLES:
+        assert ITEMS[1]["source_quote"] in build_system(ITEMS, role)
+
+
+def test_thread_context_labels_follow_the_role():
+    buyer = build_messages(MSGS[:1], MSGS[1], (), role="buyer")[0]["text"]
+    assert "SUPPLIER" in buyer
+    contractor = build_messages(MSGS[:1], MSGS[1], (), role="contractor")[0]["text"]
+    assert "CLIENT" in contractor
 
 
 def test_labels_match_the_db_constraint():

@@ -110,16 +110,21 @@ def resolve_due(phrase, received_at, tz="Asia/Kolkata"):
 
 
 def record(conn, project_id, message, verdict, tz):
-    """Store a developer's promise. Client promises are not the developer's
-    obligations, so they are not tracked."""
-    if not verdict.promise_text or message["from_client"]:
+    """Store a promise, tagged with who made it.
+
+    Both directions are kept. A freelancer mostly wants their own promises
+    back; a shop that hired one mostly wants the vendor's. The same thread
+    answers both questions, and which one matters is the reader's side, not a
+    property of the message.
+    """
+    if not verdict.promise_text:
         return None
 
     due_at, confidence = resolve_due(verdict.due_phrase, message["received_at"], tz)
     return conn.execute(
         "INSERT INTO obligation (project_id, message_id, promise_text,"
-        " due_phrase, due_at, due_confidence, status, created_at)"
-        " VALUES (?,?,?,?,?,?,?,?)",
+        " due_phrase, due_at, due_confidence, status, created_at, owed_by)"
+        " VALUES (?,?,?,?,?,?,?,?,?)",
         (
             project_id,
             message["id"],
@@ -129,6 +134,7 @@ def record(conn, project_id, message, verdict, tz):
             confidence,
             "vague" if due_at is None else "open",
             message["received_at"],
+            "them" if message["from_counterparty"] else "me",
         ),
     ).lastrowid
 
@@ -139,8 +145,8 @@ def open_obligations(conn, project_id, as_of):
     return [
         dict(r)
         for r in conn.execute(
-            "SELECT id, promise_text, due_phrase, due_at, status, created_at"
-            " FROM obligation"
+            "SELECT id, promise_text, due_phrase, due_at, status, created_at,"
+            " owed_by FROM obligation"
             " WHERE project_id = ? AND status IN ('open','overdue','vague')"
             " AND created_at < ? ORDER BY id",
             (project_id, as_of),
@@ -158,8 +164,9 @@ def render(obligations, tz="UTC"):
     if not obligations:
         return "(none)"
     return "\n".join(
-        f"[{o['id']}] \"{o['promise_text']}\" — promised "
-        f"{local_day(o['created_at'], tz)}, due {_due_label(o, tz)}"
+        f"[{o['id']}] ({'they' if o.get('owed_by') == 'them' else 'you'} promised)"
+        f" \"{o['promise_text']}\" — {local_day(o['created_at'], tz)},"
+        f" due {_due_label(o, tz)}"
         for o in obligations
     )
 

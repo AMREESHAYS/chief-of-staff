@@ -28,8 +28,18 @@ import llm
 # this band means stop and ask a human rather than act
 ESCALATE = "unsure"
 
-SYSTEM = """You classify messages in an email thread between a freelance \
-developer and their client, against the contract the two of them signed.
+# Which side of the contract the user is on. The engine is the same either
+# way: whether a request is in scope is a property of the request, not of who
+# is reading. Only whose promise it is depends on the side.
+ROLES = {
+    "contractor": {"me": "the contractor", "them": "the client",
+                   "them_short": "client"},
+    "buyer": {"me": "the buyer", "them": "the supplier",
+              "them_short": "supplier"},
+}
+
+SYSTEM = """You classify messages in an email thread between {me} and {them}, \
+against the contract the two of them signed. You are working for {me}.
 
 The contract's scope items are listed below. They are the ONLY definition of \
 what is in scope. Your own sense of what a website project usually includes is \
@@ -53,7 +63,7 @@ label — how the message relates to the contract:
 scope_item_id — the id of the scope item that decides the verdict. Required for
 out_of_scope and in_scope. Null for noise.
 
-reasoning — one sentence, addressed to the developer, explaining the verdict.
+reasoning — one sentence, addressed to {me}, explaining the verdict.
 Never mention scope item numbers or ids. They are internal database keys, they
 mean nothing to the person reading this, and the interface already shows the
 contract line itself directly above your sentence. Refer to what the clause
@@ -81,7 +91,8 @@ confidence — exactly one of: certain, likely, unsure.
            the correct outcome and not a failure.
 
 promise_text — if the message contains a promise to do something, the promise
-in the writer's own words. Null otherwise. This is INDEPENDENT of label: a
+in the writer's own words. Null otherwise. Either party can make one; record
+it whoever it came from. This is INDEPENDENT of label: a
 message can be out_of_scope and contain a promise at the same time, and that
 combination matters most of all.
 
@@ -99,9 +110,9 @@ obligation_relation — required whenever references_obligation_id is set, null
 otherwise. Exactly one of:
   chases   the message asks about, follows up on, or complains about the
            commitment. It is still outstanding.
-  fulfils  the message delivers the thing that was promised. The developer
-           handing over the work closes the commitment; the client saying
-           "thanks, got it" does not.
+  fulfils  the message delivers the thing that was promised. Only the party
+           who made the promise can close it: handing the work over counts,
+           the other side saying "thanks, got it" does not.
 Getting this wrong in the chases direction leaves delivered work sitting in
 the overdue list, so read the message for delivery, not for intent."""
 
@@ -131,17 +142,18 @@ def render_scope(items):
     )
 
 
-def build_system(items):
+def build_system(items, role="contractor"):
     """The cacheable half. Byte-identical for every message in a project —
     llm.parse attaches the provider's cache breakpoint to it."""
-    return SYSTEM.format(scope_items=render_scope(items))
+    return SYSTEM.format(scope_items=render_scope(items), **ROLES[role])
 
 
-def build_messages(history, target, obligations=(), tz="UTC"):
+def build_messages(history, target, obligations=(), tz="UTC", role="contractor"):
     """Thread context, open commitments, and the one message under judgement —
     all volatile, all after the breakpoint."""
+    them = ROLES[role]["them_short"].upper()
     context = "\n\n".join(
-        f"{'CLIENT' if m['from_client'] else 'DEVELOPER'} ({m['received_at']}):\n"
+        f"{them if m['from_counterparty'] else 'YOU'} ({m['received_at']}):\n"
         f"{m['body']}"
         for m in history
     )
@@ -152,7 +164,7 @@ def build_messages(history, target, obligations=(), tz="UTC"):
             f"<open_commitments>\n{ledger.render(obligations, tz)}\n"
             "</open_commitments>\n\n"
             f"<message_to_classify from=\""
-            f"{'client' if target['from_client'] else 'developer'}\" "
+            f"{ROLES[role]['them_short'] if target['from_counterparty'] else 'you'}\" "
             f"sent=\"{target['received_at']}\">\n{target['body']}\n"
             "</message_to_classify>\n\nClassify this message.",
         }
@@ -193,11 +205,12 @@ def validate(verdict, items, obligations=()):
     return verdict
 
 
-def classify(target, history, items, obligations=(), parse_fn=None, tz="UTC"):
+def classify(target, history, items, obligations=(), parse_fn=None, tz="UTC",
+             role="contractor"):
     parse_fn = parse_fn or llm.parse
     result = parse_fn(
-        build_system(items),
-        build_messages(history, target, obligations, tz),
+        build_system(items, role),
+        build_messages(history, target, obligations, tz, role),
         Verdict,
     )
     return validate(result.parsed, items, obligations), result
@@ -229,7 +242,7 @@ def run(project_id=1):
     """
     with db.connect() as conn:
         project = conn.execute(
-            "SELECT owner_tz FROM project WHERE id = ?", (project_id,)
+            "SELECT owner_tz, my_role FROM project WHERE id = ?", (project_id,)
         ).fetchone()
         items = [
             dict(r)
@@ -272,7 +285,8 @@ def run(project_id=1):
                                                target["received_at"])
             try:
                 verdict, result = classify(target, messages[:n], items, open_now,
-                                           tz=project["owner_tz"])
+                                           tz=project["owner_tz"],
+                                           role=project["my_role"])
             except ValueError as e:
                 # the verdict was malformed and validate() refused it. One bad
                 # message must not abandon the rest of the thread.
@@ -283,16 +297,22 @@ def run(project_id=1):
                 continue
             store(conn, target["id"], verdict)
             ledger.record(conn, project_id, target, verdict, project["owner_tz"])
-            # only the developer can deliver their own promise
-            if (verdict.obligation_relation == "fulfils"
-                    and not target["from_client"]):
-                ledger.close(conn, verdict.references_obligation_id)
+            # only the party who made a promise can deliver it. Before both
+            # sides were tracked this read "not from_counterparty", which
+            # silently means the counterparty can never close their own.
+            if verdict.obligation_relation == "fulfils":
+                owed = conn.execute(
+                    "SELECT owed_by FROM obligation WHERE id = ?",
+                    (verdict.references_obligation_id,)).fetchone()
+                sender = "them" if target["from_counterparty"] else "me"
+                if owed and owed["owed_by"] == sender:
+                    ledger.close(conn, verdict.references_obligation_id)
             cached += result.cache_read_tokens
 
             mark = "!" if verdict.confidence == ESCALATE else " "
             print(f"{mark} {verdict.label:15} {verdict.confidence:8} "
                   f"{target['body'][:46]}")
-            if verdict.promise_text and not target["from_client"]:
+            if verdict.promise_text and not target["from_counterparty"]:
                 print(f"    promise: {verdict.promise_text[:60]!r}"
                       f" due={verdict.due_phrase!r}")
             if verdict.references_obligation_id:

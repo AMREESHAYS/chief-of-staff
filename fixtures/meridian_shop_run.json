@@ -189,7 +189,7 @@
    "due_at": "2026-08-07T18:29:59+00:00",
    "due_confidence": 0.8,
    "status": "overdue",
-   "owed_by": "me"
+   "owed_by": "them"
   },
   {
    "received_at": "2026-08-05T05:20:00Z",
@@ -198,7 +198,7 @@
    "due_at": "2026-08-06T18:29:59+00:00",
    "due_confidence": 0.95,
    "status": "done",
-   "owed_by": "me"
+   "owed_by": "them"
   },
   {
    "received_at": "2026-08-10T11:30:00Z",
@@ -207,7 +207,7 @@
    "due_at": null,
    "due_confidence": null,
    "status": "vague",
-   "owed_by": "me"
+   "owed_by": "them"
   },
   {
    "received_at": "2026-08-12T13:20:00Z",
@@ -216,7 +216,7 @@
    "due_at": "2026-08-14T18:29:59+00:00",
    "due_confidence": 0.9,
    "status": "overdue",
-   "owed_by": "me"
+   "owed_by": "them"
   },
   {
    "received_at": "2026-08-18T06:50:00Z",
@@ -225,7 +225,7 @@
    "due_at": "2026-08-21T18:29:59+00:00",
    "due_confidence": 0.8,
    "status": "overdue",
-   "owed_by": "me"
+   "owed_by": "them"
   },
   {
    "received_at": "2026-08-20T15:10:00Z",
@@ -234,25 +234,25 @@
    "due_at": null,
    "due_confidence": null,
    "status": "vague",
-   "owed_by": "me"
+   "owed_by": "them"
   }
  ],
  "actions": [
   {
-   "type": "draft_reply",
-   "payload": "{\"body\": \"That sounds like a great feature to add for your customers. Looking at our signed agreement, it states: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because of this, setting up direct online purchasing sits outside our current scope. I would be happy to build this out for you, though. As a next step, I can put together a written change order with a separate price for the extra work and send it over for your review. Let me know if you would like me to draft that up!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
+   "type": "flag",
+   "payload": "{\"reason\": \"You asked for this. The agreement explicitly excludes online payments, shopping carts, and e-commerce functionality.\"}",
    "state": "proposed",
    "target": "2026-08-10T05:15:00Z"
   },
   {
-   "type": "flag",
-   "payload": "{\"reason\": \"You asked for this. The contract explicitly excludes online payments, shopping carts, and e-commerce functionality.\"}",
+   "type": "draft_reply",
+   "payload": "{\"body\": \"Thanks for reaching out about this! I would love to help you add these features to the project. Looking back at our signed agreement, it states that: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Since this work sits outside our current scope, I can draft a written change order with a separate price for the extra features. Let me know if you would like me to send that over!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
    "state": "proposed",
    "target": "2026-08-10T11:30:00Z"
   },
   {
-   "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for reaching out about adding Hindi language support! Reaching your Hindi-speaking customers makes total sense for your site. Looking back at our agreement, it states: \\\"Content translation and multi-language versions of the site are excluded.\\\" Because of this, adding a Hindi version sits outside our current agreement. I would still love to help you build this out! As a next step, I can put together a written change order with a separate price for the extra work. Let me know if you would like me to draft that for you.\", \"quoted_contract_text\": \"Content translation and multi-language versions of the site are excluded.\"}",
+   "type": "flag",
+   "payload": "{\"reason\": \"You asked for this. The contract explicitly excludes content translation and multi-language versions of the site.\"}",
    "state": "proposed",
    "target": "2026-08-17T04:25:00Z"
   },
@@ -263,26 +263,26 @@
    "target": "2026-08-17T04:31:00Z"
   },
   {
-   "type": "draft_reply",
-   "payload": "{\"body\": \"Hi there! Thanks for reaching out about adding payments to the site. I can certainly see why you would want that set up. Looking back at our signed contract, it specifies that: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because of this, adding payment functionality sits outside our current agreement. I would be glad to help build this out for you. As a next step, I can send over a written change order with a separate price for the additional work. Let me know if you would like me to draft that for your review.\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
+   "type": "flag",
+   "payload": "{\"reason\": \"You asked for this. Online payments, shopping carts, and e-commerce functionality are explicitly excluded from the contract agreement.\"}",
    "state": "proposed",
    "target": "2026-08-24T04:20:00Z"
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"I promised to start work on the Home and Collections layouts by August 7, 2026, but I missed this deadline. I am actively working on this now and will share an update with you by [NEW DATE].\", \"quoted_contract_text\": null}",
+   "payload": "{\"body\": \"Hi, following up on the Home and Collections layouts that were due on 7 August 2026. Could you please let me know where things stand and confirm [NEW DATE] for delivery?\", \"quoted_contract_text\": \"starting on the Home and Collections layouts\"}",
    "state": "proposed",
    "target": 0
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"Hi, I am writing to update you on the Collections page that was due on August 14, 2026. I missed this deadline and am still working on it. I will send it over to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": null}",
+   "payload": "{\"body\": \"Hi, I am following up on the Collections page that was due on 14 August 2026. Could you please give me an update and confirm [NEW DATE] for delivery?\", \"quoted_contract_text\": null}",
    "state": "proposed",
    "target": 3
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"I missed my August 21, 2026 deadline to send over the SEO titles and meta descriptions for your approval. I am actively working on this and will have them to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": null}",
+   "payload": "{\"body\": \"Hi, I am following up on the SEO titles and meta descriptions you committed to send over by 21 August 2026. Since that date has passed, could you please let me know when we can expect them and confirm if [NEW DATE] works as your revised delivery date? Thanks!\", \"quoted_contract_text\": null}",
    "state": "proposed",
    "target": 4
   }

@@ -1,6 +1,7 @@
 {
  "project": {
-  "client_name": "Meridian Jewellers",
+  "client_name": "Aarav (web developer)",
+  "my_role": "buyer",
   "owner_tz": "Asia/Kolkata",
   "sow_filename": "fixtures/sow.md"
  },
@@ -11,107 +12,107 @@
   "e-commerce functionality are excluded",
   "multi-language versions of the site are excluded"
  ],
- "client_email": "priya@meridianjewellers.example",
- "owner_email": "dev@contractor.example",
+ "client_email": "dev@contractor.example",
+ "owner_email": "priya@meridianjewellers.example",
  "messages": [
   {
    "at": "2026-08-03T04:35:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Hi, good to have this moving. Sending the logo files and the shop photos over today. Anything else you need from us to start?"
   },
   {
    "at": "2026-08-03T06:10:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Got it, thanks. Logo and photos are all I need for now. Starting on the Home and Collections layouts this week. Four weeks from signing puts delivery around 25 August."
   },
   {
    "at": "2026-08-05T05:20:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Home page is taking shape. I'll have a staging link up for you tomorrow so you can click through it."
   },
   {
    "at": "2026-08-05T09:02:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Perfect, will look tomorrow."
   },
   {
    "at": "2026-08-06T07:45:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Staging link is live: https://staging.meridian.example — Home and About are in, the rest are placeholders for now."
   },
   {
    "at": "2026-08-07T04:50:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Looks lovely. Two things on Home: the hero photo feels a bit dark, and can the phone number be bigger in the header? Also checked it on my phone, works fine."
   },
   {
    "at": "2026-08-10T05:15:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "One more thing we've been discussing here. Customers keep calling to ask if they can just buy the rings directly from the website. Can we set that up so they pay online and we ship? Nothing fancy, just a buy button."
   },
   {
    "at": "2026-08-10T11:30:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Sure, let me look into what that would take and get back to you."
   },
   {
    "at": "2026-08-11T06:00:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Sending the new product photos now — 40 images, the necklaces set is the important one."
   },
   {
    "at": "2026-08-12T13:20:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Photos received. Working through the Collections grid now. I'll get the Collections page to you by Friday."
   },
   {
    "at": "2026-08-13T05:40:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Quick question on the Store Locator — will it show a map, or just the address? We only have the one Pune shop."
   },
   {
    "at": "2026-08-13T08:15:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Address, hours, and an embedded map pin for the Pune shop. That's what we scoped."
   },
   {
    "at": "2026-08-17T04:25:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Bigger ask, sorry. A lot of our customers are more comfortable in Hindi. We'd like the whole site in Hindi as well, same pages, switchable from the header. How much extra time is that?"
   },
   {
    "at": "2026-08-17T04:31:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Also, small one — could the logo animate a little when the homepage loads? Saw it on another jeweller's site."
   },
   {
    "at": "2026-08-18T06:50:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Noted on both. Separately — I'll send over the SEO titles and meta descriptions by end of this week for you to approve."
   },
   {
    "at": "2026-08-19T05:05:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Any luck with the Collections page? You'd mentioned Friday and I wanted to show it to my father over the weekend."
   },
   {
    "at": "2026-08-20T15:10:00Z",
-   "from_counterparty": 0,
+   "from_counterparty": 1,
    "body": "Apologies, it slipped. Almost there. The grid is loading slowly with the 40 images — I'll look at the load time on the Collections page soon."
   },
   {
    "at": "2026-08-21T10:40:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Understood. Note that we're shut Monday for Ganesh Chaturthi, so nobody will be at the shop email that day."
   },
   {
    "at": "2026-08-24T04:20:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "Back in. Where are we on the payments thing? My cousin does websites and he says adding a payment button is a half day of work, so I assumed it would be in by now."
   },
   {
    "at": "2026-08-24T04:26:00Z",
-   "from_counterparty": 1,
+   "from_counterparty": 0,
    "body": "And can you confirm the delivery date? We were told four weeks and that's tomorrow."
   }
  ]

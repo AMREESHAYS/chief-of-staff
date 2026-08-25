@@ -2,7 +2,12 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS project (
     id            INTEGER PRIMARY KEY,
-    client_name   TEXT NOT NULL,
+    client_name   TEXT NOT NULL,          -- the other party, whoever they are
+    -- which side of this contract the user is on. A freelancer owes the work;
+    -- a shop that hired one is owed it. Same contract, same thread, opposite
+    -- reading of who is late.
+    my_role       TEXT NOT NULL DEFAULT 'contractor'
+                  CHECK (my_role IN ('contractor','buyer')),
     owner_tz      TEXT NOT NULL DEFAULT 'Asia/Kolkata',  -- anchor for due-date resolution
     sow_filename  TEXT,
     sow_text      TEXT NOT NULL,
@@ -31,7 +36,9 @@ CREATE TABLE IF NOT EXISTS message (
     thread_id    INTEGER NOT NULL REFERENCES thread(id),
     gmail_msg_id TEXT UNIQUE,
     sender       TEXT NOT NULL,
-    from_client  INTEGER NOT NULL,          -- 1 = client wrote it, 0 = we did
+    -- 1 = the other party wrote it, 0 = we did. Not "from_client": when the
+    -- user is the buyer, the counterparty is their supplier.
+    from_counterparty INTEGER NOT NULL,
     received_at  TEXT NOT NULL,             -- ISO 8601 UTC. due-date anchor.
     body         TEXT NOT NULL
 );
@@ -62,6 +69,10 @@ CREATE TABLE IF NOT EXISTS obligation (
     project_id     INTEGER NOT NULL REFERENCES project(id),
     message_id     INTEGER NOT NULL REFERENCES message(id),
     promise_text   TEXT NOT NULL,
+    -- 'me' = the user promised it, 'them' = the counterparty did. A freelancer
+    -- mostly cares about the first; a shop chasing a vendor cares about the
+    -- second. Both are tracked, never mixed.
+    owed_by        TEXT NOT NULL DEFAULT 'me' CHECK (owed_by IN ('me','them')),
     due_phrase     TEXT,                    -- verbatim, e.g. "by Friday". NULL if none.
     due_at         TEXT,                    -- resolved UTC, NULL when vague/absent
     due_confidence REAL,

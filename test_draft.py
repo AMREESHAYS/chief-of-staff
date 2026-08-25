@@ -150,6 +150,36 @@ def test_a_nudge_may_not_quote_money_either():
         raise AssertionError("nudge invented a refund")
 
 
+def test_chasing_and_apologising_are_different_letters():
+    """Late work reads one way when it is yours and another when it is
+    theirs. Sending a supplier an apology for their own delay is worse than
+    sending nothing."""
+    assert "apologise" in draft.CHASE_SYSTEM.lower()
+    assert "not the sender" in draft.CHASE_SYSTEM
+    assert DATE_PLACEHOLDER in draft.CHASE_SYSTEM
+    assert DATE_PLACEHOLDER in draft.OWN_NUDGE_SYSTEM
+    # neither side may be committed to a date by the agent
+    for prompt in (draft.CHASE_SYSTEM, draft.OWN_NUDGE_SYSTEM):
+        assert "fee" in prompt or "price" in prompt
+
+
+def test_nudge_picks_the_prompt_from_who_owes():
+    seen = []
+
+    def fake(system, turns, schema):
+        seen.append(system)
+        return SimpleNamespace(parsed=Draft(
+            body=f"Late. New date: {DATE_PLACEHOLDER}.",
+            quoted_contract_text=None))
+
+    base = {"promise_text": "the staging link", "created_at": "2026-08-05",
+            "due_at": "2026-08-06"}
+    draft.nudge({**base, "owed_by": "them"}, SOW, parse_fn=fake)
+    draft.nudge({**base, "owed_by": "me"}, SOW, parse_fn=fake)
+    assert seen[0] is draft.CHASE_SYSTEM
+    assert seen[1] is draft.OWN_NUDGE_SYSTEM
+
+
 # --- nothing is ever sent ------------------------------------------------
 
 def test_the_module_contains_no_send_path():

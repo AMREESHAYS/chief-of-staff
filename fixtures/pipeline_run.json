@@ -152,7 +152,8 @@
    "due_phrase": "by end of the month",
    "due_at": "2026-08-01T03:59:59+00:00",
    "due_confidence": 0.8,
-   "status": "done"
+   "status": "done",
+   "owed_by": "me"
   },
   {
    "received_at": "2026-07-16T16:30:00Z",
@@ -160,7 +161,8 @@
    "due_phrase": "in 3 days",
    "due_at": "2026-07-20T03:59:59+00:00",
    "due_confidence": 0.9,
-   "status": "done"
+   "status": "done",
+   "owed_by": "me"
   },
   {
    "received_at": "2026-07-17T18:45:00Z",
@@ -168,7 +170,8 @@
    "due_phrase": null,
    "due_at": null,
    "due_confidence": null,
-   "status": "vague"
+   "status": "vague",
+   "owed_by": "me"
   },
   {
    "received_at": "2026-07-23T14:20:00Z",
@@ -176,7 +179,8 @@
    "due_phrase": "when I get a chance",
    "due_at": null,
    "due_confidence": null,
-   "status": "vague"
+   "status": "vague",
+   "owed_by": "me"
   },
   {
    "received_at": "2026-07-29T13:40:00Z",
@@ -184,31 +188,32 @@
    "due_phrase": "next Tuesday",
    "due_at": "2026-08-05T03:59:59+00:00",
    "due_confidence": 0.9,
-   "status": "overdue"
+   "status": "overdue",
+   "owed_by": "me"
   }
  ],
  "actions": [
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"That sounds like a great feature that would save your team a lot of time. Looking at our agreement, it notes: \\\"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\\\" This means an external shipper portal sits outside our current scope. I can put together a written change order for this, and the price will follow in that document. Let me know if you'd like me to draft that up for you!\", \"quoted_contract_text\": \"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\"}",
+   "payload": "{\"body\": \"That makes total sense\\u2014giving your shippers direct access would definitely save a lot of back-and-forth calls. Looking at our agreement, this feature sits outside our current scope. As noted in the contract: \\\"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\\\" The next step would be for me to put together a written change order, which will include a separate price for this new work. Let me know if you would like me to draft that up for you!\", \"quoted_contract_text\": \"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\"}",
    "state": "proposed",
    "target": "2026-07-17T12:10:00Z"
   },
   {
-   "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for reaching out about this update! It sounds like a great addition to the project. Just to keep us aligned on our signed agreement, it notes: \\\"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\\\" Since this work is for external users, it sits outside our current scope. I would be happy to draft a written change order with a separate price for your review. Let me know if you would like me to send that over!\", \"quoted_contract_text\": \"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\"}",
+   "type": "flag",
+   "payload": "{\"reason\": \"You asked for this. Dashboards or tools intended for viewing by customers, shippers, or external parties are explicitly excluded from the scope of work.\"}",
    "state": "proposed",
    "target": "2026-07-17T18:45:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Hi! Setting up paging for pipeline failures makes total sense to keep things running smoothly. This work sits outside our current agreement, which states: \\\"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\\\" To add this, I can prepare a written change order with a separate price for support coverage. Let me know if you'd like me to send that over!\", \"quoted_contract_text\": \"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\"}",
+   "payload": "{\"body\": \"Thanks for reaching out about pipeline paging alerts\\u2014I completely understand wanting immediate coverage for weekend downtime. For reference, our contract states: \\\"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\\\" This work sits outside our current agreement. I can put together a written change order with a separate price to cover on-call monitoring. Let me know if you would like me to draft that for you!\", \"quoted_contract_text\": \"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\"}",
    "state": "proposed",
    "target": "2026-07-22T11:15:00Z"
   },
   {
-   "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for bringing this up! Setting up failure alerts and monitoring sounds like a great addition to the setup. For reference, our contract states: \\\"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\\\" Since this work sits outside our current agreement, the best next step is for me to draft a written change order. I will include a separate price for the work in that document for you to review. Let me know if you would like me to send that over!\", \"quoted_contract_text\": \"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\"}",
+   "type": "flag",
+   "payload": "{\"reason\": \"You asked for this. The agreement explicitly excludes monitoring, paging, out-of-hours availability, and on-call alerting setup from this engagement.\"}",
    "state": "proposed",
    "target": "2026-07-23T14:20:00Z"
   },
@@ -220,19 +225,19 @@
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for reaching out about optimizing the shipments table\\u2014I completely understand wanting to speed that up! Looking at our agreement, it notes: \\\"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\\\" Since this work sits outside our current agreement, the next step is for me to draft a written change order with a separate price for your review. Let me know if you would like me to put that together!\", \"quoted_contract_text\": \"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\"}",
+   "payload": "{\"body\": \"Thanks for reaching out about this. I completely understand wanting to speed up the ops database! Looking at our agreement, it notes: \\\"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\\\" Because of that, this work sits outside our current scope. I am very happy to take this on, though. I can draft a quick written change order with a separate price for you to review. Let me know if you would like me to put that together!\", \"quoted_contract_text\": \"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\"}",
    "state": "proposed",
    "target": "2026-07-28T15:50:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for checking in about the shipper login. I completely understand why they are asking for it. Looking back at our agreement, it notes: \\\"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\\\" Because this feature is for external users, it sits outside our current project agreement. I am more than happy to build this for you, though! I can put together a written change order with a separate price for your review. Let me know if you would like me to draft that up.\", \"quoted_contract_text\": \"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\"}",
+   "payload": "{\"body\": \"Thanks for checking in about the shipper login feature\\u2014I completely understand why they are asking for it. Looking back at our signed agreement, this feature sits outside our current project scope. Specifically, the contract states: \\\"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\\\" I would be happy to add this on for you. As a next step, I will put together a written change order with a separate price for your review so we can get it lined up. Let me know if that works for you!\", \"quoted_contract_text\": \"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\"}",
    "state": "proposed",
    "target": "2026-08-06T16:10:00Z"
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"Hi, I'm following up regarding the handover documentation that was due on August 5, 2026. I apologize for missing this deadline and not updating you sooner. I am finishing this up and will deliver it to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": \"I'll send over the handover documentation\"}",
+   "payload": "{\"body\": \"I am writing to update you on the handover documentation, which I promised to deliver by August 5, 2026. I missed this deadline and am currently finishing the work. I will send the documentation to you by [NEW DATE].\", \"quoted_contract_text\": \"I'll send over the handover documentation\"}",
    "state": "proposed",
    "target": 4
   }

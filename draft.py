@@ -63,11 +63,12 @@ work is worth. Say the price will follow in the change order.
 - promise a delivery date
 - apologise for the contract. It was agreed by both sides."""
 
-NUDGE_SYSTEM = f"""You draft short proactive updates from a freelance developer \
-to their client about work that is running late.
+# a promise the user made and missed: they owe the other side an update
+OWN_NUDGE_SYSTEM = f"""You draft short proactive updates about work that is \
+running late, sent from the person who is late.
 
-The developer promised something by a date, that date has passed, and the \
-client has not been told. Draft the update the developer should have sent.
+They promised something by a date, that date has passed, and the other party \
+has not been told. Draft the update they should have sent.
 
 The update must:
 - name what was promised and the date that was missed
@@ -76,10 +77,30 @@ The update must:
 - stay under 80 words
 
 The update must NOT:
-- state, guess, or imply any new date. You do not know when the developer can \
-deliver, and committing them to a date they have not chosen is not yours to \
-do. Use {DATE_PLACEHOLDER} and nothing else.
+- state, guess, or imply any new date. You do not know when they can deliver, \
+and committing someone to a date they have not chosen is not yours to do. Use \
+{DATE_PLACEHOLDER} and nothing else.
 - quote any fee, price, or percentage."""
+
+# a promise the other side made and missed: the user is chasing it
+CHASE_SYSTEM = f"""You draft short messages chasing work somebody else \
+promised and has not delivered.
+
+The other party committed to something by a date, that date has passed, and \
+nothing has arrived. Draft the message asking where it is.
+
+The message must:
+- name what they promised and the date they gave
+- be civil and unfussy. This is a working relationship, not a complaint.
+- ask them to confirm a new date, writing the literal text \
+{DATE_PLACEHOLDER} where their answer belongs
+- stay under 80 words
+
+The message must NOT:
+- propose a date on their behalf. The date is theirs to give; use \
+{DATE_PLACEHOLDER}.
+- threaten consequences, mention penalties, or quote any fee or percentage.
+- apologise. The delay is not the sender's."""
 
 
 class Draft(BaseModel):
@@ -161,14 +182,19 @@ def change_order(message, scope_item, sow_text, parse_fn=None):
 
 
 def nudge(obligation, sow_text, parse_fn=None):
+    """Late work. Whose promise it was decides which letter this is: an update
+    you owe them, or a chase you send them. Sending a supplier an apology for
+    their own delay is worse than sending nothing."""
+    theirs = obligation.get("owed_by") == "them"
     turns = [{
         "role": "user",
         "text": f"<promise>\n{obligation['promise_text']}\n</promise>\n"
                 f"<promised_on>{obligation['created_at'][:10]}</promised_on>\n"
                 f"<was_due>{obligation['due_at'][:10]}</was_due>\n\n"
-                "Draft the update.",
+                + ("Draft the message chasing it." if theirs
+                   else "Draft the update."),
     }]
-    return _generate(NUDGE_SYSTEM, turns,
+    return _generate(CHASE_SYSTEM if theirs else OWN_NUDGE_SYSTEM, turns,
                      lambda d: validate_nudge(d, sow_text), parse_fn)
 
 
@@ -262,7 +288,7 @@ def run(project_id=1):
 
         rows = conn.execute(
             "SELECT v.label, v.confidence, v.reasoning, m.id AS message_id,"
-            " m.body, s.source_quote, s.item_text FROM verdict v"
+            " m.body, m.from_counterparty, s.source_quote, s.item_text FROM verdict v"
             " JOIN message m ON m.id = v.message_id"
             " LEFT JOIN scope_item s ON s.id = v.scope_item_id"
             " JOIN thread t ON t.id = m.thread_id"
@@ -273,9 +299,17 @@ def run(project_id=1):
         refused = 0
         for r in rows:
             if r["confidence"] == "unsure":
-                # borderline asks are the developer's call, not the agent's
+                # borderline asks are the user's call, not the agent's
                 flag(conn, r["message_id"], r["reasoning"])
                 print(f"  flag    {r['body'][:56]}")
+                continue
+            if not r["from_counterparty"]:
+                # we asked for this ourselves. There is nobody to reply to;
+                # drafting one writes a letter in the other side's voice and
+                # addresses it to us. What is useful here is the warning.
+                flag(conn, r["message_id"],
+                     "You asked for this. " + r["reasoning"])
+                print(f"  warn    {r['body'][:56]}")
                 continue
             try:
                 d = change_order(dict(r), dict(r), sow)
@@ -289,7 +323,7 @@ def run(project_id=1):
             print(f"          cites: {d.quoted_contract_text[:60]!r}")
 
         for o in conn.execute(
-            "SELECT id, promise_text, due_at, created_at FROM obligation"
+            "SELECT id, promise_text, due_at, created_at, owed_by FROM obligation"
             " WHERE project_id = ? AND status = 'overdue' ORDER BY id",
             (project_id,)
         ).fetchall():
@@ -300,7 +334,8 @@ def run(project_id=1):
                 print(f"  REFUSED {str(e)[:64]}")
                 continue
             propose(conn, "nudge", o["id"], d)
-            print(f"  nudge   {o['promise_text'][:56]}")
+            print(f"  {'chase ' if o['owed_by'] == 'them' else 'nudge '} "
+                  f"{o['promise_text'][:56]}")
 
         counts = dict(conn.execute(
             "SELECT type, COUNT(*) FROM action WHERE"

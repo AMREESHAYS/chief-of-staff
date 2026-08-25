@@ -43,8 +43,8 @@ def load_fixture(path=FIXTURE):
 def to_mime(data, msg, subject):
     """One fixture message as RFC 822, for Gmail insert."""
     mail = EmailMessage()
-    mail["To"] = data["owner_email"] if msg["from_client"] else data["client_email"]
-    mail["From"] = data["client_email"] if msg["from_client"] else data["owner_email"]
+    mail["To"] = data["owner_email"] if msg["from_counterparty"] else data["client_email"]
+    mail["From"] = data["client_email"] if msg["from_counterparty"] else data["owner_email"]
     mail["Subject"] = subject
     mail["Date"] = format_datetime(datetime.fromisoformat(msg["at"]))
     mail.set_content(msg["body"])
@@ -55,9 +55,10 @@ def seed(conn, data, sow, gmail_ids=None, cache=None):
     now = datetime.now(timezone.utc).isoformat()
     p = data["project"]
     project_id = conn.execute(
-        "INSERT INTO project (client_name, owner_tz, sow_filename, sow_text,"
-        " created_at) VALUES (?,?,?,?,?)",
-        (p["client_name"], p["owner_tz"], p["sow_filename"], sow, now),
+        "INSERT INTO project (client_name, my_role, owner_tz, sow_filename,"
+        " sow_text, created_at) VALUES (?,?,?,?,?,?)",
+        (p["client_name"], p.get("my_role", "contractor"), p["owner_tz"],
+         p["sow_filename"], sow, now),
     ).lastrowid
 
     thread_id = conn.execute(
@@ -67,13 +68,13 @@ def seed(conn, data, sow, gmail_ids=None, cache=None):
 
     for i, m in enumerate(data["messages"]):
         conn.execute(
-            "INSERT INTO message (thread_id, gmail_msg_id, sender, from_client,"
+            "INSERT INTO message (thread_id, gmail_msg_id, sender, from_counterparty,"
             " received_at, body) VALUES (?,?,?,?,?,?)",
             (
                 thread_id,
                 gmail_ids[i] if gmail_ids else None,
-                data["client_email"] if m["from_client"] else data["owner_email"],
-                m["from_client"],
+                data["client_email"] if m["from_counterparty"] else data["owner_email"],
+                m["from_counterparty"],
                 m["at"],
                 m["body"],
             ),
@@ -168,7 +169,7 @@ def snapshot(fixture=FIXTURE, project_id=None):
         ]
         rows = conn.execute(
             "SELECT o.id, m.received_at, o.promise_text, o.due_phrase,"
-            " o.due_at, o.due_confidence, o.status FROM obligation o"
+            " o.due_at, o.due_confidence, o.status, o.owed_by FROM obligation o"
             " JOIN message m ON m.id = o.message_id"
             " WHERE o.project_id = ? ORDER BY o.id", (project_id,)
         ).fetchall()
@@ -217,22 +218,27 @@ def replay(conn, project_id, fixture=FIXTURE):
     if not saved_path.exists():
         return 0
     saved = json.loads(saved_path.read_text())
+    # keyed by arrival time, carrying which side sent it: owed_by is derived
+    # from the sender, never replayed from the snapshot. The same captured run
+    # then reads correctly from either side of the contract.
     by_time = {
-        r["received_at"]: r["id"]
+        r["received_at"]: (r["id"], r["from_counterparty"])
         for r in conn.execute(
-            "SELECT m.id, m.received_at FROM message m JOIN thread t"
-            " ON t.id = m.thread_id WHERE t.project_id = ?", (project_id,)
+            "SELECT m.id, m.received_at, m.from_counterparty FROM message m"
+            " JOIN thread t ON t.id = m.thread_id WHERE t.project_id = ?",
+            (project_id,)
         )
     }
     # positions in the snapshot's own list -> the ids this database issues now
     issued = [
         conn.execute(
             "INSERT INTO obligation (project_id, message_id, promise_text,"
-            " due_phrase, due_at, due_confidence, status, created_at)"
-            " VALUES (?,?,?,?,?,?,?,?)",
-            (project_id, by_time[o["received_at"]], o["promise_text"],
+            " due_phrase, due_at, due_confidence, status, created_at, owed_by)"
+            " VALUES (?,?,?,?,?,?,?,?,?)",
+            (project_id, by_time[o["received_at"]][0], o["promise_text"],
              o["due_phrase"], o["due_at"], o["due_confidence"], o["status"],
-             o["received_at"]),
+             o["received_at"],
+             "them" if by_time[o["received_at"]][1] else "me"),
         ).lastrowid
         for o in saved["obligations"]
     ]
@@ -243,7 +249,7 @@ def replay(conn, project_id, fixture=FIXTURE):
             "INSERT INTO verdict (message_id, label, scope_item_id, reasoning,"
             " confidence, references_obligation_id, obligation_relation)"
             " VALUES (?,?,?,?,?,?,?)",
-            (by_time[v["received_at"]], v["label"], v["scope_item_id"],
+            (by_time[v["received_at"]][0], v["label"], v["scope_item_id"],
              v["reasoning"], v["confidence"],
              issued[at] if at is not None else None,
              v["obligation_relation"]),
@@ -251,7 +257,7 @@ def replay(conn, project_id, fixture=FIXTURE):
 
     for a in saved.get("actions", []):
         target = (issued[a["target"]] if a["type"] == "nudge"
-                  else by_time[a["target"]])
+                  else by_time[a["target"]][0])
         conn.execute(
             "INSERT INTO action (type, target_id, payload, state, created_at)"
             " VALUES (?,?,?,?,?)",
@@ -264,7 +270,7 @@ def replay(conn, project_id, fixture=FIXTURE):
 def check(conn, project_id, data, sow):
     """Smallest thing that fails if the load broke."""
     rows = conn.execute(
-        "SELECT m.body, m.from_client, m.received_at FROM message m"
+        "SELECT m.body, m.from_counterparty, m.received_at FROM message m"
         " JOIN thread t ON t.id = m.thread_id WHERE t.project_id = ?"
         " ORDER BY m.received_at",
         (project_id,),

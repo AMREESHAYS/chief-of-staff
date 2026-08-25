@@ -125,7 +125,7 @@ def test_render_shows_local_days():
          "due_at": "2026-08-05T03:59:59+00:00", "status": "open",
          "created_at": "2026-07-29T13:40:00Z"},
     ], "America/New_York")
-    assert "due 4 Aug" in text and "promised 29 Jul" in text
+    assert "due 4 Aug" in text and "29 Jul" in text
 
 
 def test_ambiguous_next_week_is_marked_lower_confidence():
@@ -149,26 +149,47 @@ class FakeConn:
         return SimpleNamespace(lastrowid=len(self.rows), rowcount=0)
 
 
-def test_client_promises_are_not_tracked():
-    # "Perfect, will look tomorrow" is the client's promise, not the
-    # developer's obligation
+def test_your_own_promise_is_tagged_to_you():
     conn = FakeConn()
-    msg = {"id": 1, "from_client": 1, "received_at": "2026-08-05T09:02:00Z"}
-    assert ledger.record(conn, 1, msg, verdict("will look", "tomorrow"), TZ) is None
-    assert conn.rows == []
-
-
-def test_developer_promises_are_tracked():
-    conn = FakeConn()
-    msg = {"id": 2, "from_client": 0, "received_at": "2026-08-12T13:20:00Z"}
+    msg = {"id": 2, "from_counterparty": 0, "received_at": "2026-08-12T13:20:00Z"}
     assert ledger.record(conn, 1, msg,
                          verdict("Collections page", "by Friday"), TZ) == 1
     assert conn.rows[0][6] == "open"
+    assert conn.rows[0][8] == "me"
+
+
+def test_the_other_sides_promise_is_kept_and_tagged_to_them():
+    """A shop that hired a developer cares most about the developer's
+    promises. Same row, opposite tag — the reader's side decides which half
+    matters, so neither half may be discarded."""
+    conn = FakeConn()
+    msg = {"id": 1, "from_counterparty": 1, "received_at": "2026-08-05T09:02:00Z"}
+    assert ledger.record(conn, 1, msg, verdict("will look", "tomorrow"), TZ) == 1
+    assert conn.rows[0][8] == "them"
+
+
+def test_the_two_sides_are_never_mixed():
+    conn = FakeConn()
+    for sender, expected in ((0, "me"), (1, "them")):
+        conn.rows.clear()
+        msg = {"id": 9, "from_counterparty": sender,
+               "received_at": "2026-08-12T13:20:00Z"}
+        ledger.record(conn, 1, msg, verdict("a thing", "tomorrow"), TZ)
+        assert conn.rows[0][8] == expected
+
+
+def test_render_says_who_promised():
+    text = ledger.render([
+        {"id": 2, "promise_text": "the staging link", "due_phrase": "tomorrow",
+         "due_at": "2026-08-06T18:29:59+00:00", "status": "open",
+         "created_at": "2026-08-05T05:20:00Z", "owed_by": "them"},
+    ], TZ)
+    assert "they promised" in text
 
 
 def test_a_message_with_no_promise_writes_nothing():
     conn = FakeConn()
-    msg = {"id": 3, "from_client": 0, "received_at": "2026-08-12T13:20:00Z"}
+    msg = {"id": 3, "from_counterparty": 0, "received_at": "2026-08-12T13:20:00Z"}
     assert ledger.record(conn, 1, msg, verdict(None, None), TZ) is None
     assert conn.rows == []
 
@@ -176,9 +197,10 @@ def test_a_message_with_no_promise_writes_nothing():
 def test_vague_promise_is_stored_not_dropped():
     # the whole point of the vague bucket: recorded, visible, uncounted
     conn = FakeConn()
-    msg = {"id": 4, "from_client": 0, "received_at": "2026-08-20T15:10:00Z"}
+    msg = {"id": 4, "from_counterparty": 0, "received_at": "2026-08-20T15:10:00Z"}
     ledger.record(conn, 1, msg, verdict("look at the load time", "soon"), TZ)
-    project_id, message_id, promise, phrase, due_at, conf, status, created = conn.rows[0]
+    (project_id, message_id, promise, phrase, due_at, conf, status, created,
+     owed_by) = conn.rows[0]
     assert due_at is None and status == "vague"
     assert phrase == "soon", "the words must survive for the UI to quote them"
 

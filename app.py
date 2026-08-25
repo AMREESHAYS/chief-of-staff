@@ -68,7 +68,7 @@ def load(conn, project_id=PROJECT_ID):
         return None
 
     messages = [dict(r) for r in conn.execute(
-        "SELECT m.id, m.body, m.from_client, m.received_at,"
+        "SELECT m.id, m.body, m.from_counterparty, m.received_at,"
         " v.label, v.confidence, v.reasoning, v.references_obligation_id,"
         " v.obligation_relation, s.source_quote, s.item_text, s.category"
         " FROM message m"
@@ -79,7 +79,7 @@ def load(conn, project_id=PROJECT_ID):
 
     obligations = [dict(r) for r in conn.execute(
         "SELECT id, message_id, promise_text, due_phrase, due_at, status,"
-        " created_at FROM obligation WHERE project_id = ?"
+        " created_at, owed_by FROM obligation WHERE project_id = ?"
         " ORDER BY CASE status WHEN 'overdue' THEN 0 WHEN 'vague' THEN 1"
         " WHEN 'open' THEN 2 ELSE 3 END, due_at", (project_id,))]
 
@@ -129,8 +129,13 @@ def load(conn, project_id=PROJECT_ID):
             a for _, a in nudges.get(m["id"], [])]
         m["nudged"] = [o for o, _ in nudges.get(m["id"], [])]
 
+    import classify
+
     return {
         "project": dict(project),
+        "role": classify.ROLES[project["my_role"]],
+        "mine": [o for o in obligations if o["owed_by"] == "me"],
+        "theirs": [o for o in obligations if o["owed_by"] == "them"],
         "projects": [dict(r) for r in conn.execute(
             "SELECT id, client_name FROM project ORDER BY id")],
         "messages": messages,
@@ -141,6 +146,8 @@ def load(conn, project_id=PROJECT_ID):
             "flagged": sum(1 for m in messages if m["label"] == "out_of_scope"),
             "overdue": sum(1 for o in obligations if o["status"] == "overdue"),
             "vague": sum(1 for o in obligations if o["status"] == "vague"),
+            "they_owe": sum(1 for o in obligations
+                            if o["owed_by"] == "them" and o["status"] == "overdue"),
             "waiting": sum(1 for a in actions if a["state"] == "proposed"),
             "clauses": conn.execute(
                 "SELECT COUNT(*) FROM scope_item WHERE project_id = ?",

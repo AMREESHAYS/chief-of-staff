@@ -50,8 +50,8 @@
     <article class="entry {% if m.label == 'noise' and not m.references_obligation_id %}quiet{% endif %}">
 
       <div class="margin">
-        <span class="who {% if not m.from_client %}dev{% endif %}">
-          {{ 'client' if m.from_client else 'you' }}
+        <span class="who {% if not m.from_counterparty %}dev{% endif %}">
+          {{ role.them_short if m.from_counterparty else 'you' }}
         </span>
         <span class="when">{{ m.received_at | day(project.owner_tz) }}</span>
         {% if m.label %}
@@ -103,25 +103,38 @@
   </main>
 
   <aside class="ledger">
-    <h2>What you owe</h2>
-    <p class="strap">Every promise you made in this thread, and whether you kept it.</p>
-
-    {% for o in obligations %}
-    <div class="entryline {{ o.status }}">
-      <span class="status">
-        {{ o.status }}{% if o.late_by %} · {{ o.late_by }} days late{% endif %}
-      </span>
-      <p class="promise">{{ o.promise_text }}</p>
-      {% if o.action and o.action.state != 'undone' %}
-        <span class="drafted mono">update drafted</span>
-      {% endif %}
-      {% if o.due_at %}
-        <span class="due">due {{ o.due_at | day(project.owner_tz) }}</span>
+    {% macro entries(rows, whose) %}
+      {% for o in rows %}
+      <div class="entryline {{ o.status }}">
+        <span class="status">
+          {{ o.status }}{% if o.late_by %} · {{ o.late_by }} days late{% endif %}
+        </span>
+        <p class="promise">{{ o.promise_text }}</p>
+        {% if o.action and o.action.state != 'undone' %}
+          <span class="drafted mono">
+            {{ 'chase drafted' if whose == 'them' else 'update drafted' }}
+          </span>
+        {% endif %}
+        {% if o.due_at %}
+          <span class="due">due {{ o.due_at | day(project.owner_tz) }}</span>
+        {% else %}
+          <span class="due">no date —
+            {{ 'they said' if whose == 'them' else 'you said' }}
+            <span class="said">“{{ o.due_phrase or 'nothing' }}”</span></span>
+        {% endif %}
+      </div>
       {% else %}
-        <span class="due">no date — you said <span class="said">“{{ o.due_phrase or 'nothing' }}”</span></span>
-      {% endif %}
-    </div>
-    {% endfor %}
+      <p class="strap empty">Nothing outstanding.</p>
+      {% endfor %}
+    {% endmacro %}
+
+    <h2>What you owe</h2>
+    <p class="strap">Promises you made here, and whether you kept them.</p>
+    {{ entries(mine, 'me') }}
+
+    <h2 class="second">What the {{ role.them_short }} owes you</h2>
+    <p class="strap">Their commitments, tracked the same way.</p>
+    {{ entries(theirs, 'them') }}
   </aside>
 </div>
 
