@@ -423,6 +423,12 @@ button.ghost:hover { border-color: var(--ink-soft); color: var(--ink); filter: n
   padding: 11px 14px;
 }
 
+.question .why {
+  margin: 0 0 7px;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+}
+
 .question .kind {
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: 10px;

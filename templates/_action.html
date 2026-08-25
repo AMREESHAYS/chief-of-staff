@@ -1,7 +1,13 @@
 {% set a = a if a is defined else m.action %}
 {% if a.type == 'flag' %}
   <div class="question" id="action-{{ a.id }}">
-    <span class="kind">not your agent's call</span>
+    {% if a.payload.kind == 'own_message' %}
+      <span class="kind">no reply drafted — this one is yours</span>
+      <p class="why">You wrote this, so there is nobody to answer. Flagged
+        because it touches work outside the agreement.</p>
+    {% else %}
+      <span class="kind">not your agent's call</span>
+    {% endif %}
     {{ a.payload.reason }}
   </div>
 {% else %}

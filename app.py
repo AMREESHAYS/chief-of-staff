@@ -182,9 +182,38 @@ def load(conn, project_id=PROJECT_ID):
     }
 
 
+def spell(n):
+    words = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+             7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven",
+             12: "twelve", 13: "thirteen", 14: "fourteen", 15: "fifteen", 16: "sixteen",
+             17: "seventeen", 18: "eighteen", 19: "nineteen", 20: "twenty",
+             21: "twenty-one", 22: "twenty-two", 23: "twenty-three",
+             24: "twenty-four", 25: "twenty-five"}
+    return words.get(n, str(n))
+
+
 @app.get("/", response_class=HTMLResponse)
 def landing(request: Request):
-    return templates.TemplateResponse(request, "landing.html", {})
+    """The page quotes how much real material is behind the demo. Counting it
+    rather than writing it down is the only way that claim stays true: it was
+    already wrong once, because the threads grew and the sentence did not."""
+    with db.connect() as conn:
+        rows = conn.execute(
+            "SELECT p.client_name,"
+            " (SELECT COUNT(*) FROM message m JOIN thread t ON t.id = m.thread_id"
+            "  WHERE t.project_id = p.id) AS messages"
+            " FROM project p WHERE p.my_role = 'contractor' ORDER BY p.id"
+        ).fetchall()
+    counts = [r["messages"] for r in rows]
+    if counts:
+        evidence = (f"{spell(len(counts))} real contracts, "
+                    + " and ".join([", ".join(spell(c) for c in counts[:-1]),
+                                    spell(counts[-1])]).strip(", ")
+                    + " messages, nothing mocked")
+    else:
+        evidence = "run seed.py --replay to load the worked examples"
+    return templates.TemplateResponse(request, "landing.html",
+                                      {"evidence": evidence})
 
 
 @app.get("/review", response_class=HTMLResponse)

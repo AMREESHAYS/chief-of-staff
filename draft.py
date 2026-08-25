@@ -210,13 +210,19 @@ def propose(conn, kind, target_id, draft):
     ).lastrowid
 
 
-def flag(conn, message_id, reason):
-    """An unsure verdict produces no draft. It produces a question."""
+def flag(conn, message_id, reason, kind="unsure"):
+    """No draft, for one of two different reasons.
+
+    'unsure' — the verdict was a judgement call, so it belongs to a human.
+    'own_message' — we wrote it, so there is nobody to reply to. Different
+    reasons deserve different words; one label for both misdescribes half of
+    them.
+    """
     return conn.execute(
         "INSERT INTO action (type, target_id, payload, state, created_at)"
         " VALUES (?,?,?,?,?)",
-        ("flag", message_id, json.dumps({"reason": reason}), "proposed",
-         datetime.now(timezone.utc).isoformat()),
+        ("flag", message_id, json.dumps({"reason": reason, "kind": kind}),
+         "proposed", datetime.now(timezone.utc).isoformat()),
     ).lastrowid
 
 
@@ -337,8 +343,7 @@ def run(project_id=1):
                 # we asked for this ourselves. There is nobody to reply to;
                 # drafting one writes a letter in the other side's voice and
                 # addresses it to us. What is useful here is the warning.
-                flag(conn, r["message_id"],
-                     "You asked for this. " + r["reasoning"])
+                flag(conn, r["message_id"], r["reasoning"], kind="own_message")
                 print(f"  warn    {r['body'][:56]}")
                 continue
             try:
