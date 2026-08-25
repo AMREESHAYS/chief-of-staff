@@ -58,6 +58,10 @@ commitment that goes missing.
 a proactive update for overdue promises, and *a question instead of a draft*
 when the classifier was unsure.
 
+**Amend** watches for the client agreeing, in writing, to work the contract did
+not cover — and writes that agreement into scope. See below; it is the part
+that keeps the system from being wrong a week after it was right.
+
 ---
 
 ## What it refuses to do
@@ -136,6 +140,91 @@ the same shape: **an id space assumed to be per-project when it is global.**
    rather than one.
 
 An audit for that pattern found the third before it was hit.
+
+---
+
+## The contract is not frozen at signature
+
+Scope changes by email. Somebody asks for work the agreement never covered, a
+change order answers it, a reply says yes — and from that moment the work *is*
+in scope. A system still citing the original contract is now wrong, and
+"changes agreed by email that nobody wrote down" is the most commonly cited
+cause of scope disputes.
+
+So an agreed change becomes a scope item like any other:
+
+| | |
+|---|---|
+| **17 Aug** — *"we'd like the whole site in Hindi"* | `out of scope`, citing the translation exclusion |
+| **25 Aug** — a change order goes out | still out of scope; nothing has been agreed |
+| **26 Aug** — *"we're happy to go ahead at INR 18,000 over two weeks"* | **scope changes here** |
+| **27 Aug** — *"can Hindi prices use Devanagari numerals?"* | **`in scope`** — under the amendment |
+
+What gets recorded:
+
+> The contractor will translate five pages into Hindi, add a language switch to
+> the header, and test both over a two-week period. **(Work must begin only
+> after the Collections page is completed.)**
+>
+> *their words: "we're happy to go ahead with the Hindi version at INR 18,000
+> over two weeks."*
+
+It kept the condition they attached. Agreeing on terms is not the same as
+agreeing, and an amendment that drops the terms overstates what was settled.
+
+Two rules stop this becoming a licence to invent scope:
+
+- **Only the paying side can widen it.** A contractor writing "great, I'll
+  start Monday" is enthusiasm. Enforced in code, because a model asked whether
+  someone agreed will find agreement in warmth.
+- **The citation is a verbatim span of the accepting message**, checked against
+  that message exactly as clause quotes are checked against the contract.
+
+This generalises the original invariant rather than breaking it: every scope
+item still cites a real span of a real document. Only *which* document varies.
+
+Detection is asked as its own question rather than as one field among nine in
+the verdict, because measurement showed the wide schema answered it
+unreliably. Five runs each:
+
+| | read as acceptance |
+|---|---|
+| *"we're happy to go ahead… at INR 18,000 over two weeks"* | 5/5 |
+| *"Sure, let me look into what that would take"* | 0/5 |
+| *"can you confirm the delivery date?"* | 0/5 |
+
+The middle row is the one that matters — it is the shape that would quietly
+enlarge what somebody is owed.
+
+---
+
+## Measured, not asserted
+
+```bash
+.venv/bin/python evaluate.py            # score the captured runs, free
+.venv/bin/python evaluate.py --runs 3   # re-classify live, report stability
+```
+
+Expected verdicts live beside the messages in the fixtures, written by reading
+the contract rather than by recording what the system outputs. Where two
+readings are genuinely defensible the label says so; where a human should
+decide, it is marked ambiguous and the correct behaviour is `unsure`.
+
+```
+28/39 exact · 37/39 defensible · 11/11 out-of-scope found · 0 false
+```
+
+`--runs N` re-classifies each message N times and reports how often the answer
+moved, because this project has already shipped a claim that was true once and
+not in general. A verdict that is right sixty percent of the time is not sixty
+percent right; it is unreliable, and the number that says so belongs in the
+report.
+
+The harness found a bug on its first run that ninety-three unit tests had
+missed: a Northwind message citing a clause from **Meridian's** contract.
+Snapshots stored scope-item ids, which are global and shift on every reseed, so
+a replayed verdict cited whatever now occupied that row. Every existing test
+worked on a single project and structurally could not see it.
 
 ---
 
@@ -275,7 +364,9 @@ llm.py         one structured-output call, three providers
 ingest.py      contract -> scope items with verbatim spans
 classify.py    message -> verdict, against the scope items
 ledger.py      copied words -> dates; what is owed and what is late
+amend.py       agreement by email -> scope, cited to their own words
 draft.py       proposals, and the rails that refuse unsafe ones
-app.py         the review surface
+evaluate.py    score the classifier against labelled threads
+app.py         the landing page and the review surface
 seed.py        fixtures, snapshot, replay
 ```

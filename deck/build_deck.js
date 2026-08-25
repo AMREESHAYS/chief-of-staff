@@ -197,30 +197,31 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const s = pres.addSlide();
   s.background = { color: PAPER };
   eyebrow(s, "what it does", 0.7, 0.42);
-  title(s, "Read the contract. Judge the mail.");
+  title(s, "Read it. Judge the mail. Track what changed.");
 
   const cols = [
-    ["1", "Reads the agreement", "Turns a signed contract into scope items, each carrying a span copied word for word. A quote that isn't in the document raises — it is never quietly dropped."],
+    ["1", "Reads the agreement", "Turns a signed contract into scope items, each carrying a span copied word for word. A quote that isn't in the document raises — never quietly dropped."],
     ["2", "Judges every message", "In scope, out of scope, a new commitment, or noise — with the clause that decides it and how sure it is."],
-    ["3", "Keeps the ledger", "Every promise you made, the words that set its deadline, and whether you kept it."],
+    ["3", "Keeps the ledger", "Every promise either side made, the words that set its deadline, and whether it was kept."],
+    ["4", "Tracks what changed", "When the client agrees in writing to work the contract never covered, that agreement becomes scope — cited to their own words."],
   ];
 
   cols.forEach(([n, head, body], i) => {
-    const x = 0.7 + i * 4.1;
-    card(s, x, 2.15, 3.75, 3.5);
-    dot(s, x + 0.32, 2.5, n);
+    const x = 0.7 + i * 3.08;
+    card(s, x, 2.25, 2.8, 3.45);
+    dot(s, x + 0.26, 2.56, n);
     s.addText(head, {
-      x: x + 0.32, y: 3.12, w: 3.1, h: 0.7, margin: 0,
-      fontFace: SANS, fontSize: 18, bold: true, color: INK, lineSpacing: 24,
+      x: x + 0.26, y: 3.14, w: 2.3, h: 0.72, margin: 0,
+      fontFace: SANS, fontSize: 16, bold: true, color: INK, lineSpacing: 21,
     });
     s.addText(body, {
-      x: x + 0.32, y: 3.9, w: 3.1, h: 1.6, margin: 0,
-      fontFace: SANS, fontSize: 13, color: SOFT, lineSpacing: 18,
+      x: x + 0.26, y: 3.92, w: 2.32, h: 1.65, margin: 0,
+      fontFace: SANS, fontSize: 12, color: SOFT, lineSpacing: 16,
     });
   });
 
   s.addText("It acts, but only into drafts — and never sends.", {
-    x: 0.7, y: 6.0, w: 11.9, h: 0.4, margin: 0,
+    x: 0.7, y: 6.05, w: 11.9, h: 0.4, margin: 0,
     fontFace: SANS, fontSize: 15, italic: true, color: CARBON,
   });
   s.addNotes("Three capabilities, one dependency: all of it rests on having read the contract.");
@@ -270,63 +271,65 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
     x: 7.15, y: 5.15, w: 5.1, h: 0.4, margin: 0,
     fontFace: SANS, fontSize: 14, italic: true, color: "A9A2D8",
   });
+  s.addText("“Soon” is recorded too — no date, marked vague, quoting the word you actually used. That is the promise that goes missing.", {
+    x: 0.7, y: 6.35, w: 11.9, h: 0.5, margin: 0,
+    fontFace: SANS, fontSize: 13, color: SOFT, lineSpacing: 17,
+  });
   s.addNotes("Nothing here was scripted for the demo. The link between the two messages is a field the classifier fills in: the 19 August message is conversationally noise and is also chasing a specific commitment.");
 }
 
-/* ---------------- 6 — how it works ---------------- */
+/* ---------------- 6 — the contract changes ---------------- */
 {
   const s = pres.addSlide();
   s.background = { color: PAPER };
-  eyebrow(s, "how it works", 0.7, 0.42);
-  title(s, "Four stages, and who decides what");
+  eyebrow(s, "what happens after they say yes", 0.7, 0.42);
+  title(s, "The contract does not stay signed");
+
+  s.addText("Scope changes by email. A tool that keeps citing the original document is wrong a week later.", {
+    x: 0.7, y: 1.78, w: 11.9, h: 0.4, margin: 0,
+    fontFace: SANS, fontSize: 16, color: SOFT,
+  });
 
   const steps = [
-    ["INGEST", "Contract → scope items,\neach with a verbatim span"],
-    ["CLASSIFY", "Message → verdict,\ncited to a clause"],
-    ["LEDGER", "Copied words → dates,\nresolved in code"],
-    ["DRAFT", "Proposal → your\napproval. Never sent."],
+    ["17 AUG", "“the whole site in Hindi”", "Out of scope — the contract excludes translation.", STAMP],
+    ["26 AUG", "“we're happy to go ahead at INR 18,000”", "Scope changes here. Their words become a clause.", SETTLED],
+    ["27 AUG", "“can Hindi prices use Devanagari numerals?”", "In scope — under the amendment, not the contract.", SETTLED],
   ];
 
-  steps.forEach(([head, body], i) => {
-    const x = 0.7 + i * 3.08;
-    card(s, x, 2.2, 2.75, 1.95);
-    s.addText(head, {
-      x: x + 0.24, y: 2.46, w: 2.3, h: 0.3, margin: 0,
-      fontFace: MONO, fontSize: 12, bold: true, color: CARBON, charSpacing: 1.2,
+  steps.forEach(([when, quote, gloss, color], i) => {
+    const y = 2.4 + i * 1.32;
+    card(s, 0.7, y, 7.5, 1.12, WHITE);
+    s.addText(when, {
+      x: 1.0, y: y + 0.2, w: 1.1, h: 0.28, margin: 0,
+      fontFace: MONO, fontSize: 10, bold: true, color, charSpacing: 1.1,
     });
-    s.addText(body, {
-      x: x + 0.24, y: 2.88, w: 2.35, h: 1.05, margin: 0,
-      fontFace: SANS, fontSize: 12.5, color: SOFT, lineSpacing: 17,
+    s.addText(quote, {
+      x: 2.2, y: y + 0.15, w: 5.8, h: 0.36, margin: 0,
+      fontFace: SERIF, fontSize: 15, italic: true, color: INK,
     });
-    if (i < 3) {
-      s.addText("→", {
-        x: x + 2.79, y: 2.9, w: 0.3, h: 0.4, margin: 0,
-        fontFace: SANS, fontSize: 18, color: CARBON, align: "center",
-      });
-    }
+    s.addText(gloss, {
+      x: 2.2, y: y + 0.56, w: 5.85, h: 0.44, margin: 0,
+      fontFace: SANS, fontSize: 12, color: SOFT, lineSpacing: 16,
+    });
   });
 
-  card(s, 0.7, 4.5, 5.9, 1.85, WHITE);
-  s.addText("The model copies. The code decides.", {
-    x: 1.0, y: 4.78, w: 5.3, h: 0.34, margin: 0,
-    fontFace: SANS, fontSize: 17, bold: true, color: INK,
+  card(s, 8.6, 2.4, 4.0, 3.96, CARBON_DEEP);
+  s.addText("WHO MAY WIDEN SCOPE", {
+    x: 8.9, y: 2.7, w: 3.4, h: 0.28, margin: 0,
+    fontFace: MONO, fontSize: 10, color: "A9A2D8", charSpacing: 1.3,
   });
-  s.addText("It copies “by Friday” verbatim. Code anchors that to when the message arrived, in the freelancer's timezone. A model asked for a date invents a plausible one.",
-    { x: 1.0, y: 5.2, w: 5.3, h: 1.0, margin: 0,
-      fontFace: SANS, fontSize: 12.5, color: SOFT, lineSpacing: 17 });
-
-  card(s, 6.9, 4.5, 5.7, 1.85, WHITE);
-  s.addText("“Soon” is recorded, not discarded.", {
-    x: 7.2, y: 4.78, w: 5.1, h: 0.34, margin: 0,
-    fontFace: SANS, fontSize: 17, bold: true, color: INK,
+  s.addText("Only the side that pays.", {
+    x: 8.9, y: 3.12, w: 3.45, h: 0.95, margin: 0,
+    fontFace: SERIF, fontSize: 21, color: WHITE, lineSpacing: 27,
   });
-  s.addText("A promise with no date is the one that goes missing. It is kept in the ledger, marked vague, quoting the word you actually used.",
-    { x: 7.2, y: 5.2, w: 5.1, h: 1.0, margin: 0,
-      fontFace: SANS, fontSize: 12.5, color: SOFT, lineSpacing: 17 });
-  s.addNotes("Python, SQLite, FastAPI. Provider behind one interface: Gemini shipped, Ollama for local iteration, Anthropic supported.");
+  s.addText("A contractor writing “great, I'll start Monday” is enthusiasm, not agreement. That rule is in the code, because a model asked whether somebody agreed will find agreement in warmth.", {
+    x: 8.9, y: 4.22, w: 3.45, h: 2.0, margin: 0,
+    fontFace: SANS, fontSize: 12, color: "CFC9F2", lineSpacing: 16,
+  });
+  s.addNotes("The amendment records the condition they attached — start only after the Collections page. Agreeing on terms is not the same as agreeing, and dropping the terms overstates what was settled.");
 }
 
-/* ---------------- 7 — what it refuses to do ---------------- */
+/* ---------------- 8 — what it refuses to do ---------------- */
 {
   const s = pres.addSlide();
   s.background = { color: PAPER };
@@ -341,25 +344,26 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
     ["Never sends", "Drafts are created and stop there. The Gmail scope would permit sending; the codebase has no send path, and a test asserts it."],
     ["Never invents money", "No fee or percentage may appear in a reply unless it is already in the contract."],
     ["Never picks your date", "A late-work update leaves [NEW DATE] for you. Committing you to a date you never agreed is not the agent's to do."],
+    ["Never guesses a deadline", "It copies “by Friday” verbatim; code turns that into a date in your timezone. A model asked for a date invents a plausible one."],
   ];
 
   rails.forEach(([head, body], i) => {
-    const y = 2.45 + i * 1.32;
-    card(s, 0.7, y, 7.6, 1.12, WHITE);
-    dot(s, 1.0, y + 0.34, "×", STAMP, 0.4);
+    const y = 2.4 + i * 1.05;
+    card(s, 0.7, y, 7.6, 0.92, WHITE);
+    dot(s, 1.0, y + 0.26, "×", STAMP, 0.4);
     s.addText(head, {
-      x: 1.6, y: y + 0.16, w: 6.4, h: 0.32, margin: 0,
-      fontFace: SANS, fontSize: 16.5, bold: true, color: INK,
+      x: 1.6, y: y + 0.11, w: 6.4, h: 0.3, margin: 0,
+      fontFace: SANS, fontSize: 15.5, bold: true, color: INK,
     });
     s.addText(body, {
-      x: 1.6, y: y + 0.52, w: 6.5, h: 0.52, margin: 0,
-      fontFace: SANS, fontSize: 12, color: SOFT, lineSpacing: 16,
+      x: 1.6, y: y + 0.43, w: 6.5, h: 0.44, margin: 0,
+      fontFace: SANS, fontSize: 11.5, color: SOFT, lineSpacing: 15,
     });
   });
 
-  card(s, 8.7, 2.45, 3.9, 3.99, AMBER_PALE);
+  card(s, 8.7, 2.4, 3.9, 3.85, AMBER_PALE);
   s.addText("AND WHEN IT ISN'T SURE", {
-    x: 9.0, y: 2.75, w: 3.3, h: 0.28, margin: 0,
+    x: 9.0, y: 2.7, w: 3.3, h: 0.28, margin: 0,
     fontFace: MONO, fontSize: 10, color: AMBER, charSpacing: 1.2,
   });
   s.addText("“Could the logo animate a little?”", {
@@ -373,7 +377,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   s.addNotes("Undo is free precisely because nothing was sent — at worst a draft leaves the drafts folder.");
 }
 
-/* ---------------- 8 — validation ---------------- */
+/* ---------------- 9 — validation ---------------- */
 {
   const s = pres.addSlide();
   s.background = { color: PAPER };
@@ -430,14 +434,14 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   s.addNotes("Two domains, two currencies, two timezones, one prompt. The 10/10 is five reruns per message after the catch-all fix — the earlier version of this slide claimed stability from one observation, which is exactly the mistake this project keeps catching.");
 }
 
-/* ---------------- 9 — engineering ---------------- */
+/* ---------------- 10 — engineering ---------------- */
 {
   const s = pres.addSlide();
   s.background = { color: PAPER };
   eyebrow(s, "how we know it works", 0.7, 0.42);
-  title(s, "The second contract found three bugs");
+  title(s, "We measure it, and measuring keeps finding bugs");
 
-  s.addText("Adding it was not a demo flourish. It was a test, and it failed usefully.", {
+  s.addText("Every claim on the previous slide comes from a harness, not from watching one demo go well.", {
     x: 0.7, y: 1.8, w: 11.9, h: 0.4, margin: 0,
     fontFace: SANS, fontSize: 15, color: SOFT,
   });
@@ -463,22 +467,22 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   });
 
   card(s, 9.05, 2.45, 3.55, 3.9, WHITE);
-  s.addText("77", {
-    x: 9.35, y: 2.68, w: 3.0, h: 1.0, margin: 0,
-    fontFace: SANS, fontSize: 54, bold: true, color: CARBON,
+  s.addText("28 / 39", {
+    x: 9.35, y: 2.68, w: 3.0, h: 0.8, margin: 0,
+    fontFace: SANS, fontSize: 38, bold: true, color: CARBON,
   });
-  s.addText("checks, no framework", {
-    x: 9.35, y: 3.6, w: 3.0, h: 0.3, margin: 0,
-    fontFace: MONO, fontSize: 11, color: SOFT, charSpacing: 1.1,
+  s.addText("exact, 37 defensible", {
+    x: 9.35, y: 3.45, w: 3.0, h: 0.3, margin: 0,
+    fontFace: MONO, fontSize: 11, color: SOFT, charSpacing: 1.0,
   });
-  s.addText("They cover what fails quietly: a fabricated quote, an invented price, a cache prefix that stops being stable, a due date one day out, a send path appearing where none should exist.", {
-    x: 9.35, y: 4.15, w: 3.0, h: 2.0, margin: 0,
-    fontFace: SANS, fontSize: 12, color: SOFT, lineSpacing: 17,
+  s.addText("Scored against messages labelled from the contract, not from what the system outputs. Every out-of-scope request found, none invented.\n\nThe harness caught a bug 93 unit tests missed — a citation from the wrong client's contract.", {
+    x: 9.35, y: 4.0, w: 3.05, h: 2.2, margin: 0,
+    fontFace: SANS, fontSize: 11.5, color: SOFT, lineSpacing: 15,
   });
   s.addNotes("The bug worth dwelling on is the second: it rendered a valid-looking page with a piece missing. Nothing signals check this.");
 }
 
-/* ---------------- 10 — product & close ---------------- */
+/* ---------------- 11 — product & close ---------------- */
 {
   const s = pres.addSlide();
   s.background = { color: CARBON_DEEP };
