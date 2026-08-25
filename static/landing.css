@@ -237,39 +237,82 @@ a { color: inherit; }
 .stages .n { display: block; color: var(--carbon); margin-bottom: 9px; font-weight: 500; }
 .stages p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
 
-/* ---------- contact ---------- */
+/* ---------- execution block ----------
+   A contract closes with the parties signing it. This page is a document, so
+   it closes the same way: names written over a rule, not cards in a grid. */
 
-.closing { text-align: center; }
-.closing h2, .closing .lede { margin-left: auto; margin-right: auto; }
-
-.contact-grid {
-  max-width: 1000px;
-  margin: 40px auto 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+.execution {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 84px 40px 96px;
+  border-top: 1px solid var(--rule);
 }
 
-.contact-card {
+.execution .clause-mark {
   display: block;
-  text-align: left;
-  text-decoration: none;
-  padding: 22px 24px;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  background: var(--paper-lift);
+  color: var(--carbon);
+  margin-bottom: 14px;
 }
 
-.contact-card:hover { border-color: var(--carbon); background: var(--carbon-pale); }
-.contact-card .label { display: block; color: var(--carbon); margin-bottom: 8px; }
-.contact-card .value { font-size: 15px; word-break: break-word; }
+.execution h2 {
+  margin: 0;
+  font-family: Spectral, Georgia, serif;
+  font-size: clamp(25px, 3vw, 33px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.execution .preamble {
+  max-width: 660px;
+  margin: 16px 0 0;
+  color: var(--ink-soft);
+}
+
+.signatures {
+  margin-top: 58px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 44px 56px;
+}
+
+.sig { display: block; text-decoration: none; }
+
+/* the signature itself: serif, because on this page serif means a document
+   speaking for itself */
+.sig .hand {
+  display: block;
+  font-family: Spectral, Georgia, serif;
+  font-size: clamp(19px, 2.1vw, 25px);
+  font-style: italic;
+  color: var(--ink);
+  padding-bottom: 10px;
+  word-break: break-word;
+}
+
+.sig .sig-rule {
+  display: block;
+  height: 1px;
+  background: var(--ink-soft);
+}
+
+.sig .sig-label {
+  display: block;
+  margin-top: 10px;
+  color: var(--ink-soft);
+}
+
+.sig:hover .hand { color: var(--carbon); }
+.sig:hover .sig-rule { background: var(--carbon); height: 2px; margin-top: -1px; }
+.sig:hover .sig-label { color: var(--carbon); }
 
 .honest {
-  max-width: 620px;
-  margin: 32px auto 0;
+  max-width: 660px;
+  margin: 56px 0 0;
   color: var(--ink-soft);
   font-size: 14px;
 }
+
+.honest a { color: var(--carbon); }
 
 footer {
   padding: 30px 40px 44px;
