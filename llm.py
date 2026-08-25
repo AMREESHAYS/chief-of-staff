@@ -120,6 +120,9 @@ def _gemini(client, model, system, turns, schema, max_tokens):
             response_mime_type="application/json",
             response_schema=schema,
             max_output_tokens=max_tokens,
+            # a verdict about someone's contract should not change between two
+            # runs of the same thread
+            temperature=0,
         ),
     )
     usage = response.usage_metadata

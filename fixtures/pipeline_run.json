@@ -4,7 +4,7 @@
    "received_at": "2026-07-13T13:20:00Z",
    "label": "in_scope",
    "scope_item_id": 23,
-   "reasoning": "Providing read-only credentials for the operations database directly fulfills the Company's obligation under scope item [23].",
+   "reasoning": "This message directly relates to providing read access to the operational database, which is explicitly required under the contract terms.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -13,7 +13,7 @@
    "received_at": "2026-07-13T15:40:00Z",
    "label": "new_commitment",
    "scope_item_id": 15,
-   "reasoning": "You are committing to having the nightly shipment table load set up by the end of the month, which aligns with the reporting pipeline deliverable in scope item 15.",
+   "reasoning": "You confirmed connection to the database and committed to completing the nightly shipment table refresh pipeline by the end of the month.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -22,7 +22,7 @@
    "received_at": "2026-07-16T14:05:00Z",
    "label": "in_scope",
    "scope_item_id": 15,
-   "reasoning": "Calculating average dwell time is explicitly part of the internal reporting pipeline and operations dashboards scope defined in item 15.",
+   "reasoning": "Refining the calculation logic for dwell time is part of building the reporting pipeline and operations dashboards covering average dwell time.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -31,7 +31,7 @@
    "received_at": "2026-07-16T16:30:00Z",
    "label": "in_scope",
    "scope_item_id": 15,
-   "reasoning": "Adjusting the dwell time calculation logic in the pipeline transformation falls directly within building the internal reporting pipeline and dashboards under scope item 15.",
+   "reasoning": "Adjusting the dwell time calculation logic is part of building the pipeline and operations dashboards covering average dwell time.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -40,16 +40,16 @@
    "received_at": "2026-07-17T12:10:00Z",
    "label": "out_of_scope",
    "scope_item_id": 16,
-   "reasoning": "Giving shippers access to view their own shipments is explicitly excluded under scope item 16, which states that tools or dashboards intended for external parties or shippers fall outside this agreement.",
+   "reasoning": "Tools or dashboards intended for viewing by external parties such as shippers are explicitly excluded from this engagement.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
   },
   {
    "received_at": "2026-07-17T18:45:00Z",
-   "label": "new_commitment",
+   "label": "noise",
    "scope_item_id": null,
-   "reasoning": "You promised to think about what external shipper access involves and get back to the client.",
+   "reasoning": "This is a holding response acknowledging the client's inquiry without taking any formal scope position yet.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -58,7 +58,7 @@
    "received_at": "2026-07-21T13:00:00Z",
    "label": "in_scope",
    "scope_item_id": 15,
-   "reasoning": "This update concerns the dwell time calculation for the internal reporting pipeline, which is covered under scope item 15.",
+   "reasoning": "Updating the dwell time calculation logic forms part of building the internal reporting pipeline and operational dashboards for dwell time.",
    "confidence": "certain",
    "obligation_relation": "fulfils",
    "references_obligation_at": 1
@@ -67,7 +67,7 @@
    "received_at": "2026-07-22T11:15:00Z",
    "label": "out_of_scope",
    "scope_item_id": 22,
-   "reasoning": "Requesting paging and monitoring for pipeline failures is explicitly excluded under scope item 22.",
+   "reasoning": "The contract explicitly excludes monitoring, paging, out-of-hours availability, and any form of on-call rotation.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -76,7 +76,7 @@
    "received_at": "2026-07-23T14:20:00Z",
    "label": "out_of_scope",
    "scope_item_id": 22,
-   "reasoning": "Adding a failure alert falls under monitoring and paging services, which are explicitly excluded by scope item 22.",
+   "reasoning": "The contract explicitly excludes monitoring, paging, out-of-hours availability, and failure alerts from the engagement.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -85,8 +85,8 @@
    "received_at": "2026-07-24T10:30:00Z",
    "label": "out_of_scope",
    "scope_item_id": 15,
-   "reasoning": "Scope item 15 explicitly limits the dashboard metrics to on-time delivery rate, average dwell time, and carrier cost per shipment, so adding cost per mile is an additional metric.",
-   "confidence": "unsure",
+   "reasoning": "The contract specifies that the internal dashboards cover on-time delivery rate, average dwell time, and carrier cost per shipment, so adding cost per mile is an additional metric outside the agreed scope.",
+   "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
   },
@@ -94,7 +94,7 @@
    "received_at": "2026-07-28T15:50:00Z",
    "label": "out_of_scope",
    "scope_item_id": 24,
-   "reasoning": "Scope item 24 explicitly excludes restructuring or altering the operational database itself.",
+   "reasoning": "Restructuring or altering the operational database is explicitly excluded from the scope of work.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -103,16 +103,16 @@
    "received_at": "2026-07-29T13:40:00Z",
    "label": "in_scope",
    "scope_item_id": 17,
-   "reasoning": "Providing handover documentation is an explicit deliverable covered under scope item 17.",
+   "reasoning": "Providing handover documentation is an explicit deliverable specified in the agreement.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
   },
   {
    "received_at": "2026-07-31T12:25:00Z",
-   "label": "noise",
-   "scope_item_id": null,
-   "reasoning": "This is a routine status inquiry chasing progress on the scheduled nightly pipeline load.",
+   "label": "in_scope",
+   "scope_item_id": 15,
+   "reasoning": "The client is inquiring about the status of the nightly reporting pipeline deliverable covered by the agreement.",
    "confidence": "certain",
    "obligation_relation": "chases",
    "references_obligation_at": 0
@@ -121,7 +121,7 @@
    "received_at": "2026-08-04T14:00:00Z",
    "label": "noise",
    "scope_item_id": null,
-   "reasoning": "This message is a scheduling update regarding team availability and contains no scope requests or promises.",
+   "reasoning": "This is a scheduling and availability update from the client that does not concern any deliverables or contract obligations.",
    "confidence": "certain",
    "obligation_relation": null,
    "references_obligation_at": null
@@ -130,7 +130,7 @@
    "received_at": "2026-08-06T16:10:00Z",
    "label": "noise",
    "scope_item_id": null,
-   "reasoning": "The client is following up to ask for an update on your previous commitment regarding shipper logins.",
+   "reasoning": "This message is a follow-up on a previous status inquiry rather than a request for new work.",
    "confidence": "certain",
    "obligation_relation": "chases",
    "references_obligation_at": 2
@@ -139,7 +139,7 @@
    "received_at": "2026-08-07T13:30:00Z",
    "label": "in_scope",
    "scope_item_id": 15,
-   "reasoning": "The developer confirms that the nightly pipeline load described in scope item 15 is built and operational.",
+   "reasoning": "The developer confirms that the nightly reporting pipeline is live, which forms part of the agreed pipeline deliverable.",
    "confidence": "certain",
    "obligation_relation": "fulfils",
    "references_obligation_at": 0
@@ -148,7 +148,7 @@
  "obligations": [
   {
    "received_at": "2026-07-13T15:40:00Z",
-   "promise_text": "I'll have the shipment table loading nightly",
+   "promise_text": "I'll have the shipment table loading nightly by end of the month",
    "due_phrase": "by end of the month",
    "due_at": "2026-08-01T03:59:59+00:00",
    "due_confidence": 0.8,
@@ -156,7 +156,7 @@
   },
   {
    "received_at": "2026-07-16T16:30:00Z",
-   "promise_text": "I'll fix it in 3 days.",
+   "promise_text": "I'll fix it",
    "due_phrase": "in 3 days",
    "due_at": "2026-07-20T03:59:59+00:00",
    "due_confidence": 0.9,
@@ -164,7 +164,7 @@
   },
   {
    "received_at": "2026-07-17T18:45:00Z",
-   "promise_text": "think about what that involves and come back to you",
+   "promise_text": "come back to you",
    "due_phrase": null,
    "due_at": null,
    "due_confidence": null,
@@ -190,37 +190,37 @@
  "actions": [
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"That sounds like a great way to save your team time and keep your shippers happy. Regarding our project scope, our agreement states: \\\"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\\\" Since this feature provides access to an external party, it sits outside our current agreement. I would be happy to build this for you as a next step. I can draft a written change order with a separate price for your review. Let me know if you would like me to put that together!\", \"quoted_contract_text\": \"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\"}",
+   "payload": "{\"body\": \"That sounds like a great way to save your team time and streamline things with your shippers. Looking at our agreement, it notes: \\\"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\\\" Since this work sits outside our current agreement, the next step would be a written change order with a separate price. Let me know if you would like me to put that together for you!\", \"quoted_contract_text\": \"Anything intended for viewing by the Company's customers, shippers, or other external parties falls outside this engagement and would be quoted separately.\"}",
    "state": "proposed",
    "target": "2026-07-17T12:10:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for asking about that. I completely understand wanting to catch pipeline issues as soon as they happen. Looking at our current contract, it specifies: \\\"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\\\" Since setting up paging sits outside our current agreement, I can draft a written change order for a separate support arrangement. That will outline how on-call coverage works along with the pricing for it. Let me know if you'd like me to send that over.\", \"quoted_contract_text\": \"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\"}",
+   "payload": "{\"body\": \"Thanks for asking about this. I completely understand wanting immediate alerts when the pipeline drops. For reference, our agreement notes: \\\"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\\\" Because on-call paging sits outside our current agreement, I can put together a written change order with pricing for a support arrangement. Let me know if you would like me to draft that for you.\", \"quoted_contract_text\": \"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\"}",
    "state": "proposed",
    "target": "2026-07-22T11:15:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for reaching out! Adding failure alerts sounds like a helpful addition. To keep us aligned with our agreement, the contract notes: \\\"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\\\" This work sits outside our current agreement. I would be happy to set this up for you, though! I can prepare a written change order with a separate price for your review. Let me know if you would like me to send that over.\", \"quoted_contract_text\": \"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\"}",
+   "payload": "{\"body\": \"Hi there, thanks for the update regarding the failure alerts. I'd be glad to help set this up, but this work sits outside our current agreement. As our contract states: \\\"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\\\" As a next step, I can send over a written change order with a separate price for your review. Let me know if you would like me to draft that for you!\", \"quoted_contract_text\": \"Monitoring, paging, out-of-hours availability, and any form of on-call rotation are not part of this agreement; the Company understands that a pipeline failure at 2am will be looked at during the Contractor's next working day unless a separate support arrangement has been agreed.\"}",
    "state": "proposed",
    "target": "2026-07-23T14:20:00Z"
   },
   {
-   "type": "flag",
-   "payload": "{\"reason\": \"Scope item 15 explicitly limits the dashboard metrics to on-time delivery rate, average dwell time, and carrier cost per shipment, so adding cost per mile is an additional metric.\"}",
+   "type": "draft_reply",
+   "payload": "{\"body\": \"Thanks for reaching out about adding cost per mile to the carrier cost dashboard. Checking our signed agreement, our scope covers: \\\"The Contractor will design and build an internal reporting pipeline that consolidates the Company's shipment records from its existing operational database into a warehouse table refreshed nightly, together with a set of internal dashboards for the operations team covering on-time delivery rate, average dwell time, and carrier cost per shipment.\\\" Because this adds a new metric, this work sits outside our current agreement. I can draft a quick change order with a separate price to add this feature. Let me know if you would like me to send that over!\", \"quoted_contract_text\": \"The Contractor will design and build an internal reporting pipeline that consolidates the Company's shipment records from its existing operational database into a warehouse table refreshed nightly, together with a set of internal dashboards for the operations team covering on-time delivery rate, average dwell time, and carrier cost per shipment.\"}",
    "state": "proposed",
    "target": "2026-07-24T10:30:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for reaching out about this! I completely understand wanting to speed up the ops database. Since this touches production architecture, it falls outside our current agreement. Our contract states: \\\"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\\\" I am more than happy to help optimize it for you. The next step is for me to send over a written change order detailing the work, with a separate price following in that document. Let me know if you would like me to draft that up!\", \"quoted_contract_text\": \"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\"}",
+   "payload": "{\"body\": \"Thanks for reaching out about this! I completely understand why getting the shipments table restructured and indexed would help speed up your ops database. Looking at our agreement, it notes: \\\"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\\\" Since this sits outside our current agreement, the next step would be for me to draft a written change order with a separate price for this work. Let me know if you would like me to prepare that for you!\", \"quoted_contract_text\": \"The Contractor will not migrate, restructure, or otherwise alter the operational database itself, and any work touching production systems beyond reading from them requires the Company's written approval in advance.\"}",
    "state": "proposed",
    "target": "2026-07-28T15:50:00Z"
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"Hi, I am writing to update you on the handover documentation that was due on August 5, 2026. I missed this deadline and apologize for not notifying you sooner. I am currently completing this and will send it over to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": null}",
+   "payload": "{\"body\": \"Hi, I missed the August 5, 2026 deadline to send over the handover documentation. I apologize for not updating you sooner. I am finalizing the document and will send it to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": \"I'll send over the handover documentation\"}",
    "state": "proposed",
    "target": 4
   }

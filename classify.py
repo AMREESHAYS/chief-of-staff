@@ -53,8 +53,12 @@ label — how the message relates to the contract:
 scope_item_id — the id of the scope item that decides the verdict. Required for
 out_of_scope and in_scope. Null for noise.
 
-reasoning — one sentence, addressed to the developer. For out_of_scope, say
-which scope item is contradicted and how.
+reasoning — one sentence, addressed to the developer, explaining the verdict.
+Never mention scope item numbers or ids. They are internal database keys, they
+mean nothing to the person reading this, and the interface already shows the
+contract line itself directly above your sentence. Refer to what the clause
+says, not to its number: "the agreement excludes e-commerce entirely", never
+"contradicts scope item 9".
 
 confidence — exactly one of: certain, likely, unsure.
   certain  the message plainly matches or plainly contradicts a scope item,
@@ -65,6 +69,13 @@ confidence — exactly one of: certain, likely, unsure.
              - it is a small addition that might sit inside an existing
                deliverable or might not, and the contract does not say
              - no scope item shares clear subject matter with the request
+             - the ONLY clause that covers it is a general one about work not
+               described in the agreement, or about changes requiring written
+               agreement. A catch-all clause is not evidence that a specific
+               request is out of scope; it is what you fall back on when no
+               specific clause speaks to it, which is precisely the case a
+               human should decide. Certainty requires a clause about the
+               subject matter of the request itself.
            When one of those holds, return unsure. Do not resolve the
            ambiguity yourself — unsure routes it to the developer, which is
            the correct outcome and not a failure.
@@ -240,6 +251,20 @@ def run(project_id=1):
             )
         ]
 
+        # order matters: verdict holds a foreign key into obligation, and a
+        # nudge points at one by id. Clearing obligations first fails outright;
+        # leaving the actions behind would leave them pointing at ids that are
+        # about to be reissued.
+        conn.execute(
+            "DELETE FROM action WHERE (type = 'nudge' AND target_id IN"
+            "  (SELECT id FROM obligation WHERE project_id = ?))"
+            " OR (type != 'nudge' AND target_id IN"
+            "  (SELECT m.id FROM message m JOIN thread t ON t.id = m.thread_id"
+            "   WHERE t.project_id = ?))", (project_id, project_id))
+        conn.execute(
+            "DELETE FROM verdict WHERE message_id IN"
+            " (SELECT m.id FROM message m JOIN thread t ON t.id = m.thread_id"
+            "  WHERE t.project_id = ?)", (project_id,))
         conn.execute("DELETE FROM obligation WHERE project_id = ?", (project_id,))
         cached, rejected = 0, 0
         for n, target in enumerate(messages):
