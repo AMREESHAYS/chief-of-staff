@@ -18,6 +18,7 @@ label, not a fifth label value.
 """
 import json
 import sys
+from types import SimpleNamespace
 
 from pydantic import BaseModel
 
@@ -347,6 +348,14 @@ def run(project_id=1):
                 rejected += 1
                 print(f"x {'rejected':15} {str(e)[:38]:8} {target['body'][:46]}")
                 continue
+            # the wide verdict schema answers this unreliably, so when it
+            # could matter the question is asked on its own
+            if (pending and not verdict.accepts_change_to
+                    and amend.widens_scope(SimpleNamespace(accepts_change_to=1),
+                                           target, project["my_role"])):
+                verdict.accepts_change_to = amend.detect_acceptance(
+                    target["body"], pending)
+
             store(conn, target["id"], verdict)
             ledger.record(conn, project_id, target, verdict, project["owner_tz"])
             # only the party who made a promise can deliver it. Before both

@@ -18,82 +18,123 @@
   {
    "at": "2026-07-13T13:20:00Z",
    "from_counterparty": 1,
-   "body": "Read-only creds for the ops database are in your inbox from IT. Anything else blocking you?"
+   "body": "Read-only creds for the ops database are in your inbox from IT. Anything else blocking you?",
+   "expect": "in_scope",
+   "also": [
+    "noise"
+   ]
   },
   {
    "at": "2026-07-13T15:40:00Z",
    "from_counterparty": 0,
-   "body": "Got them, connected fine. I'll have the shipment table loading nightly by end of the month."
+   "body": "Got them, connected fine. I'll have the shipment table loading nightly by end of the month.",
+   "expect": "new_commitment"
   },
   {
    "at": "2026-07-16T14:05:00Z",
    "from_counterparty": 1,
-   "body": "One thing the ops leads asked about — dwell time is currently calculated from the gate-in scan. Should be from the gate-out scan. Can that be changed?"
+   "body": "One thing the ops leads asked about — dwell time is currently calculated from the gate-in scan. Should be from the gate-out scan. Can that be changed?",
+   "expect": "in_scope"
   },
   {
    "at": "2026-07-16T16:30:00Z",
    "from_counterparty": 0,
-   "body": "Yes, that's just the definition in the transform. I'll fix it in 3 days."
+   "body": "Yes, that's just the definition in the transform. I'll fix it in 3 days.",
+   "expect": "new_commitment",
+   "also": [
+    "in_scope"
+   ]
   },
   {
    "at": "2026-07-17T12:10:00Z",
    "from_counterparty": 1,
-   "body": "Our biggest shipper keeps asking for visibility into their own loads. Could we give them a login to see just their shipments? Would save us a lot of phone calls."
+   "body": "Our biggest shipper keeps asking for visibility into their own loads. Could we give them a login to see just their shipments? Would save us a lot of phone calls.",
+   "expect": "out_of_scope"
   },
   {
    "at": "2026-07-17T18:45:00Z",
    "from_counterparty": 0,
-   "body": "Let me think about what that involves and come back to you."
+   "body": "Let me think about what that involves and come back to you.",
+   "expect": "new_commitment",
+   "also": [
+    "out_of_scope"
+   ]
   },
   {
    "at": "2026-07-21T13:00:00Z",
    "from_counterparty": 0,
-   "body": "Dwell time now uses gate-out. Pushed this morning, numbers look right against the manual spot check."
+   "body": "Dwell time now uses gate-out. Pushed this morning, numbers look right against the manual spot check.",
+   "expect": "in_scope"
   },
   {
    "at": "2026-07-22T11:15:00Z",
    "from_counterparty": 1,
-   "body": "Confirmed on our side too, thanks. Separate question — the pipeline died Saturday night and nobody noticed until Monday. Can you get paged when that happens?"
+   "body": "Confirmed on our side too, thanks. Separate question — the pipeline died Saturday night and nobody noticed until Monday. Can you get paged when that happens?",
+   "expect": "out_of_scope"
   },
   {
    "at": "2026-07-23T14:20:00Z",
    "from_counterparty": 0,
-   "body": "I'll add a failure alert into the run. I'll get to it when I get a chance."
+   "body": "I'll add a failure alert into the run. I'll get to it when I get a chance.",
+   "expect": "out_of_scope",
+   "also": [
+    "new_commitment"
+   ]
   },
   {
    "at": "2026-07-24T10:30:00Z",
    "from_counterparty": 1,
-   "body": "Small one — can the carrier cost dashboard show cost per mile as well as cost per shipment? Same data, just another column."
+   "body": "Small one — can the carrier cost dashboard show cost per mile as well as cost per shipment? Same data, just another column.",
+   "expect": "out_of_scope",
+   "also": [
+    "in_scope"
+   ],
+   "ambiguous": true
   },
   {
    "at": "2026-07-28T15:50:00Z",
    "from_counterparty": 1,
-   "body": "Also, while you're in there — our ops database has grown to the point it's slow. Could you restructure the shipments table and add some indexes? You know it better than anyone here now."
+   "body": "Also, while you're in there — our ops database has grown to the point it's slow. Could you restructure the shipments table and add some indexes? You know it better than anyone here now.",
+   "expect": "out_of_scope"
   },
   {
    "at": "2026-07-29T13:40:00Z",
    "from_counterparty": 0,
-   "body": "I'll send over the handover documentation next Tuesday so you have it well before we wrap."
+   "body": "I'll send over the handover documentation next Tuesday so you have it well before we wrap.",
+   "expect": "new_commitment",
+   "also": [
+    "in_scope"
+   ]
   },
   {
    "at": "2026-07-31T12:25:00Z",
    "from_counterparty": 1,
-   "body": "Any word on the nightly load? You'd said end of July and we're building the ops review around it."
+   "body": "Any word on the nightly load? You'd said end of July and we're building the ops review around it.",
+   "expect": "noise",
+   "also": [
+    "in_scope"
+   ]
   },
   {
    "at": "2026-08-04T14:00:00Z",
    "from_counterparty": 1,
-   "body": "Team is out Thursday and Friday for the carrier conference, so don't expect quick replies."
+   "body": "Team is out Thursday and Friday for the carrier conference, so don't expect quick replies.",
+   "expect": "noise"
   },
   {
    "at": "2026-08-06T16:10:00Z",
    "from_counterparty": 1,
-   "body": "Where did we land on the shipper login? They asked again on our call this morning and I'd like to give them an answer."
+   "body": "Where did we land on the shipper login? They asked again on our call this morning and I'd like to give them an answer.",
+   "expect": "noise",
+   "also": [
+    "out_of_scope"
+   ]
   },
   {
    "at": "2026-08-07T13:30:00Z",
    "from_counterparty": 0,
-   "body": "Nightly load is live and has run clean four nights running. Docs are still coming."
+   "body": "Nightly load is live and has run clean four nights running. Docs are still coming.",
+   "expect": "in_scope"
   }
  ]
 }

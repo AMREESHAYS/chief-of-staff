@@ -3,232 +3,232 @@
   {
    "received_at": "2026-08-03T04:35:00Z",
    "label": "new_commitment",
-   "scope_item_id": null,
-   "reasoning": "The client promises to send the logo files and shop photos today, which is operational logistics and raises no scope questions.",
+   "reasoning": "The client promises to send the logo files and shop photos today without raising any scope questions.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": null
   },
   {
    "received_at": "2026-08-03T06:10:00Z",
-   "label": "new_commitment",
-   "scope_item_id": null,
-   "reasoning": "You are making a commitment to start work on the Home and Collections layouts this week while confirming the general delivery timeline.",
+   "label": "in_scope",
+   "reasoning": "This confirms the delivery schedule of four weeks from signing as outlined in the contract.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 11
   },
   {
    "received_at": "2026-08-05T05:20:00Z",
    "label": "new_commitment",
-   "scope_item_id": null,
-   "reasoning": "You are promising to provide a staging link by tomorrow for the client to review the home page.",
+   "reasoning": "This message is a progress update that offers a new commitment to provide a staging link tomorrow, raising no scope questions.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": null
   },
   {
    "received_at": "2026-08-05T09:02:00Z",
    "label": "noise",
-   "scope_item_id": null,
-   "reasoning": "This message is a routine acknowledgement of the staging link timeline and does not affect the contract scope.",
+   "reasoning": "This is an acknowledgement confirming the client will review the staging link when it is available tomorrow.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": null
   },
   {
    "received_at": "2026-08-06T07:45:00Z",
    "label": "in_scope",
-   "scope_item_id": 2,
-   "reasoning": "This message provides a staging link for the website build, which forms part of the deliverable to build the five-page static website.",
+   "reasoning": "You are sharing a staging link to review progress on the five-page static website deliverable.",
    "confidence": "certain",
    "obligation_relation": "fulfils",
    "accepts_change_at": null,
-   "references_obligation_at": 2
+   "references_obligation_at": 2,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-08-07T04:50:00Z",
    "label": "in_scope",
-   "scope_item_id": 2,
-   "reasoning": "Design adjustments to header text size and image presentation on the Home page fall within the deliverable to build the five-page static website.",
+   "reasoning": "Feedback and minor styling adjustments on the Home page fall under building the five-page static marketing website.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-08-10T05:15:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 9,
    "reasoning": "The agreement explicitly excludes online payments, shopping carts, and all e-commerce functionality.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 8
   },
   {
    "received_at": "2026-08-10T11:30:00Z",
    "label": "new_commitment",
-   "scope_item_id": null,
-   "reasoning": "You are promising to investigate the requirements and get back to the client without agreeing to or changing any contract scope.",
+   "reasoning": "You are promising to investigate the request and follow up, which creates a commitment without taking a stance on scope.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": null
   },
   {
    "received_at": "2026-08-11T06:00:00Z",
    "label": "in_scope",
-   "scope_item_id": 13,
-   "reasoning": "The contract explicitly accounts for the delivery of client content and specifies how it affects the overall timeline.",
+   "reasoning": "The contract explicitly addresses the delivery of client content and specifies how timeline adjustments apply when content is provided.",
    "confidence": "certain",
    "obligation_relation": "fulfils",
    "accepts_change_at": null,
-   "references_obligation_at": 0
+   "references_obligation_at": 0,
+   "scope_item_at": 12
   },
   {
    "received_at": "2026-08-12T13:20:00Z",
    "label": "in_scope",
-   "scope_item_id": 2,
-   "reasoning": "The Collections page is one of the five pages explicitly included in the contract's scope of work.",
+   "reasoning": "The Collections page is explicitly included as one of the five pages in the agreed website scope.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-08-13T05:40:00Z",
    "label": "in_scope",
-   "scope_item_id": 2,
-   "reasoning": "This message asks about the Store Locator page, which is one of the five pages explicitly included in the agreed project scope.",
+   "reasoning": "This question concerns the Store Locator page, which is explicitly included as one of the five pages in the site scope.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-08-13T08:15:00Z",
    "label": "in_scope",
-   "scope_item_id": 2,
-   "reasoning": "This message details what will be included on the Store Locator page, which is one of the five pages specified in the website agreement.",
+   "reasoning": "The Store Locator page is explicitly listed as one of the five pages included in the website scope.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-08-17T04:25:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 10,
-   "reasoning": "The agreement explicitly excludes content translation and multi-language versions of the website.",
+   "reasoning": "The contract explicitly excludes content translation and multi-language versions of the site.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 9
   },
   {
    "received_at": "2026-08-17T04:31:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 14,
-   "reasoning": "The agreement does not explicitly address site animations, so additions beyond the defined deliverables require a written change order and separate fee agreement.",
+   "reasoning": "Logo animation is not detailed in the agreed scope of work and requires a written change order.",
    "confidence": "unsure",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 13
   },
   {
    "received_at": "2026-08-18T06:50:00Z",
    "label": "in_scope",
-   "scope_item_id": 5,
-   "reasoning": "Providing page titles and meta descriptions is explicitly covered under the basic on-page search engine optimisation included in the agreement.",
+   "reasoning": "Basic on-page search engine optimisation, including page titles and meta descriptions, is already covered under the agreement.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 4
   },
   {
    "received_at": "2026-08-19T05:05:00Z",
    "label": "noise",
-   "scope_item_id": null,
-   "reasoning": "This is a routine follow-up chasing the status of the promised Collections page deliverable.",
+   "reasoning": "This message is a routine follow-up on the progress of a previously promised deliverable rather than a request for new work.",
    "confidence": "certain",
    "obligation_relation": "chases",
    "accepts_change_at": null,
-   "references_obligation_at": 4
+   "references_obligation_at": 4,
+   "scope_item_at": null
   },
   {
    "received_at": "2026-08-20T15:10:00Z",
-   "label": "in_scope",
-   "scope_item_id": 2,
-   "reasoning": "Work on the Collections page is part of the agreement to build a five-page static marketing website.",
+   "label": "new_commitment",
+   "reasoning": "You are promising to check the Collections page load time, which pertains to building the agreed five-page website.",
    "confidence": "certain",
    "obligation_relation": "chases",
    "accepts_change_at": null,
-   "references_obligation_at": 4
+   "references_obligation_at": 4,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-08-21T10:40:00Z",
    "label": "noise",
-   "scope_item_id": null,
-   "reasoning": "This message provides logistical information regarding office closure for a holiday and does not concern contractual scope or deliverables.",
+   "reasoning": "The message provides logistical information about store holiday closures and does not request work or alter scope.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": null
   },
   {
    "received_at": "2026-08-24T04:20:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 9,
-   "reasoning": "The agreement explicitly excludes online payments, shopping cart, and e-commerce functionality.",
+   "reasoning": "The contract explicitly excludes online payments, shopping carts, and e-commerce functionality.",
    "confidence": "certain",
    "obligation_relation": "chases",
    "accepts_change_at": null,
-   "references_obligation_at": 3
+   "references_obligation_at": 3,
+   "scope_item_at": 8
   },
   {
    "received_at": "2026-08-24T04:26:00Z",
    "label": "in_scope",
-   "scope_item_id": 12,
-   "reasoning": "The message asks to confirm the delivery date, which relates directly to the contractual timeline requiring delivery within four weeks of signing.",
+   "reasoning": "The message inquires about the project delivery timeline agreed upon in the contract.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 11
   },
   {
    "received_at": "2026-08-25T05:10:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 10,
-   "reasoning": "The contract explicitly excludes content translation and multi-language versions of the website.",
+   "reasoning": "The contract explicitly excludes content translation and multi-language versions of the site.",
    "confidence": "certain",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 9
   },
   {
    "received_at": "2026-08-26T04:40:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 10,
-   "reasoning": "The agreement explicitly excludes content translation and multi-language versions of the website.",
+   "reasoning": "The contract explicitly excludes content translation and multi-language versions of the website.",
    "confidence": "certain",
    "obligation_relation": null,
-   "accepts_change_at": "2026-08-17T04:25:00Z",
-   "references_obligation_at": null
+   "accepts_change_at": null,
+   "references_obligation_at": null,
+   "scope_item_at": 9
   },
   {
    "received_at": "2026-08-27T06:15:00Z",
    "label": "in_scope",
-   "scope_item_id": 15,
-   "reasoning": "This request specifies formatting details for the agreed Hindi version of the website.",
-   "confidence": "certain",
+   "reasoning": "The agreement covers translating five pages into Hindi, but does not explicitly specify whether prices should be formatted using Devanagari numerals.",
+   "confidence": "unsure",
    "obligation_relation": null,
    "accepts_change_at": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 14
   }
  ],
  "obligations": [
@@ -252,7 +252,7 @@
   },
   {
    "received_at": "2026-08-05T05:20:00Z",
-   "promise_text": "I'll have a staging link up for you tomorrow",
+   "promise_text": "I'll have a staging link up for you tomorrow so you can click through it",
    "due_phrase": "tomorrow",
    "due_at": "2026-08-06T18:29:59+00:00",
    "due_confidence": 0.95,
@@ -279,7 +279,7 @@
   },
   {
    "received_at": "2026-08-18T06:50:00Z",
-   "promise_text": "I'll send over the SEO titles and meta descriptions by end of this week for you to approve",
+   "promise_text": "I'll send over the SEO titles and meta descriptions by end of this week for you to approve.",
    "due_phrase": "end of this week",
    "due_at": "2026-08-21T18:29:59+00:00",
    "due_confidence": 0.8,
@@ -288,7 +288,7 @@
   },
   {
    "received_at": "2026-08-20T15:10:00Z",
-   "promise_text": "I'll look at the load time on the Collections page soon",
+   "promise_text": "I'll look at the load time on the Collections page soon.",
    "due_phrase": "soon",
    "due_at": null,
    "due_confidence": null,
@@ -299,62 +299,62 @@
  "actions": [
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Hi there, That sounds like a great feature for your customers and makes total sense for the business. Looking back at our signed agreement, it states: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because of that, setting up online checkout sits outside our current project scope. I would be happy to build this for you, though. I can draft a written change order with a separate price for the extra work. Let me know if you would like me to prepare that for you!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
+   "payload": "{\"body\": \"That makes total sense\\u2014giving customers a direct way to buy online would be a great addition to the site. Looking at our signed contract, the scope specifies: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because setting up online payments sits outside our current agreement, I can put together a written change order with a separate price for this work. Let me know if you would like me to prepare that for you!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
    "state": "proposed",
    "target": "2026-08-10T05:15:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Hi! Adding Hindi support sounds like a great way to connect with more of your audience. Looking back at our agreement, it specifies that \\\"Content translation and multi-language versions of the site are excluded.\\\" Because of this, adding a Hindi version sits outside our current agreement. I would be happy to draft a written change order with a separate price for this extra work. Let me know if you would like me to send that over for you to review!\", \"quoted_contract_text\": \"Content translation and multi-language versions of the site are excluded.\"}",
+   "payload": "{\"body\": \"Thanks for reaching out! Adding a Hindi version sounds like a great feature for your audience. Looking at our agreement, it mentions: \\\"Content translation and multi-language versions of the site are excluded.\\\" Since multi-language support sits outside our current scope, the next step would be for me to prepare a written change order. I will outline the details and include a separate price in that document once ready. Let me know if you would like me to put that together for you!\", \"quoted_contract_text\": \"Content translation and multi-language versions of the site are excluded.\"}",
    "state": "proposed",
    "target": "2026-08-17T04:25:00Z"
   },
   {
    "type": "flag",
-   "payload": "{\"reason\": \"The agreement does not explicitly address site animations, so additions beyond the defined deliverables require a written change order and separate fee agreement.\"}",
+   "payload": "{\"reason\": \"Logo animation is not detailed in the agreed scope of work and requires a written change order.\"}",
    "state": "proposed",
    "target": "2026-08-17T04:31:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Hi there, thanks for reaching out. I definitely see why having a payment option on the site would be helpful. Looking at our contract, it specifies: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because of this, adding payments sits outside our current scope of work. I would be happy to add this for you as a new feature. I can put together a written change order with a separate price for your review. Let me know if you would like me to send that over!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
+   "payload": "{\"body\": \"Thanks for reaching out! I understand you would like to get payments set up on the site. Looking back at our signed agreement, it states: \\\"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\\\" Because this sits outside our current agreement, I can certainly help you add it as an extra feature. The next step is for me to send over a written change order with a separate price for your review. Let me know if you would like me to put that together!\", \"quoted_contract_text\": \"Online payments, shopping cart, and any e-commerce functionality are excluded from this agreement.\"}",
    "state": "proposed",
    "target": "2026-08-24T04:20:00Z"
   },
   {
    "type": "flag",
-   "payload": "{\"reason\": \"You asked for this. The contract explicitly excludes content translation and multi-language versions of the website.\"}",
+   "payload": "{\"reason\": \"You asked for this. The contract explicitly excludes content translation and multi-language versions of the site.\"}",
    "state": "proposed",
    "target": "2026-08-25T05:10:00Z"
   },
   {
    "type": "draft_reply",
-   "payload": "{\"body\": \"Thanks for the update! Adding a Hindi version sounds like a great direction for the project. Looking back at our signed agreement, it notes: \\\"Content translation and multi-language versions of the site are excluded.\\\" Because this work sits outside our current scope, the next step is to put together a written change order with a separate price. Once we finish the Collections page, I can send that change order over with the full scope and pricing for your review. Let me know if you would like me to prepare that for you!\", \"quoted_contract_text\": \"Content translation and multi-language versions of the site are excluded.\"}",
+   "payload": "{\"body\": \"Thanks for the update! Adding a Hindi version sounds like a great step for the project. Checking our signed agreement, it notes: \\\"Content translation and multi-language versions of the site are excluded.\\\" Because this work sits outside our current agreement, I will need to put together a written change order with a separate price for the additional language. Once we finish the Collections page, I can send that change order over for your review so we can move forward. Let me know if that works for you!\", \"quoted_contract_text\": \"Content translation and multi-language versions of the site are excluded.\"}",
    "state": "proposed",
    "target": "2026-08-26T04:40:00Z"
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"I am following up regarding the Home and Collections layouts, which I promised to start by August 7, 2026. I missed this deadline. I am actively working on these now and will deliver them to you by [NEW DATE].\", \"quoted_contract_text\": \"Starting on the Home and Collections layouts this week\"}",
+   "payload": "{\"body\": \"Hi, I missed the August 7, 2026 deadline to start work on the Home and Collections layouts. I am currently working on this and will send you a progress update by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": null}",
    "state": "proposed",
    "target": 1
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"I missed the deadline of Friday, August 14th to deliver the Collections page. I am working to complete this and will have it to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": null}",
+   "payload": "{\"body\": \"I missed the deadline to send you the Collections page by Friday, August 14. I am working on it now and will deliver it to you by [NEW DATE].\", \"quoted_contract_text\": \"I'll get the Collections page to you by Friday\"}",
    "state": "proposed",
    "target": 4
   },
   {
    "type": "nudge",
-   "payload": "{\"body\": \"I am following up on the SEO titles and meta descriptions I promised to send by August 21, 2026. I missed this deadline and apologize for not reaching out sooner. I will have the completed work over to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": null}",
+   "payload": "{\"body\": \"Hi, I promised to send over the SEO titles and meta descriptions for your approval by August 21, 2026, but I missed that deadline. I am finishing them now and will have them to you by [NEW DATE]. Thank you for your patience.\", \"quoted_contract_text\": null}",
    "state": "proposed",
    "target": 5
   }
  ],
  "amendments": [
   {
-   "item_text": "The contractor will build a Hindi version of the website for INR 18,000 over two weeks. (Work must start only once the Collections page is done.)",
+   "item_text": "The contractor will translate five pages into Hindi, add a language switch to the header, and test both over a two-week period. (Work must begin only after the Collections page is completed.)",
    "source_quote": "we're happy to go ahead with the Hindi version at INR 18,000 over two weeks.",
    "category": "amendment",
    "agreed_at": "2026-08-26T04:40:00Z",

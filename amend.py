@@ -50,6 +50,48 @@ a deadline, a limit. Null if unconditional. Do not invent a condition that was \
 not stated."""
 
 
+ACCEPTANCE_SYSTEM = """You are given one message and a numbered list of \
+requests that are still awaiting an answer. Decide whether this message \
+accepts one of them.
+
+Accepting means committing: a decision the other side could reasonably rely \
+on and begin work against.
+
+  accepts     "go ahead", "approved", "yes, do it at that price", "we're happy \
+              to proceed", "confirmed"
+  does not    "sounds good, let me think", "how much would that be", "I'll \
+              check with my partner", "interesting", "noted", or any question
+
+If it accepts one, give that request's number. If it accepts none of them — \
+which is the usual answer — give null. When you are unsure, give null: a wrong \
+yes quietly enlarges what somebody is owed, and a missed yes is caught the next \
+time they mention it."""
+
+
+class Acceptance(BaseModel):
+    """Deliberately one field. Asked on its own, this question is answered far
+    more reliably than it is as one field among nine in a larger verdict."""
+    accepts_request_id: int | None
+
+
+def detect_acceptance(message_body, requests, parse_fn=None):
+    """Which pending request, if any, this message agrees to."""
+    if not requests:
+        return None
+    parse_fn = parse_fn or llm.parse
+    result = parse_fn(
+        ACCEPTANCE_SYSTEM,
+        [{"role": "user",
+          "text": f"<awaiting_an_answer>\n{render(requests)}\n"
+                  f"</awaiting_an_answer>\n\n<message>\n{message_body}\n"
+                  "</message>\n\nDoes this message accept one of them?"}],
+        Acceptance,
+    )
+    answer = result.parsed.accepts_request_id
+    # a number that is not one of the offered requests is not an answer
+    return answer if answer in {r["id"] for r in requests} else None
+
+
 class Amendment(BaseModel):
     item_text: str
     source_quote: str      # verbatim span of the accepting message

@@ -3,146 +3,146 @@
   {
    "received_at": "2026-07-13T13:20:00Z",
    "label": "in_scope",
-   "scope_item_id": 23,
    "reasoning": "This message concerns the contract requirement for the company to provide read access to the operational database.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 8
   },
   {
    "received_at": "2026-07-13T15:40:00Z",
    "label": "in_scope",
-   "scope_item_id": 15,
    "reasoning": "Loading shipment records into a nightly refreshed warehouse table is part of the agreed internal reporting pipeline deliverable.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 0
   },
   {
    "received_at": "2026-07-16T14:05:00Z",
    "label": "in_scope",
-   "scope_item_id": 15,
    "reasoning": "Clarifying or adjusting the calculation logic for average dwell time falls directly under the agreed deliverable to design and build the pipeline and dashboards covering average dwell time.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 0
   },
   {
    "received_at": "2026-07-16T16:30:00Z",
    "label": "in_scope",
-   "scope_item_id": 15,
    "reasoning": "Adjusting the average dwell time calculation is covered by the deliverable for the internal reporting pipeline and operations dashboards.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 0
   },
   {
    "received_at": "2026-07-17T12:10:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 16,
    "reasoning": "Tools or logins intended for viewing by external shippers are explicitly excluded under the agreement and must be quoted separately.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-07-17T18:45:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 16,
    "reasoning": "Dashboards or tools intended for viewing by customers, shippers, or external parties are explicitly excluded from the scope of work.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-07-21T13:00:00Z",
    "label": "in_scope",
-   "scope_item_id": 15,
    "reasoning": "The developer is confirming completion of the updated dwell time calculation, which is part of the agreed reporting pipeline deliverable.",
    "confidence": "certain",
    "obligation_relation": "fulfils",
-   "references_obligation_at": 1
+   "references_obligation_at": 1,
+   "scope_item_at": 0
   },
   {
    "received_at": "2026-07-22T11:15:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 22,
    "reasoning": "Paging, monitoring, and out-of-hours notification services are explicitly excluded from the scope of work under the agreement.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 7
   },
   {
    "received_at": "2026-07-23T14:20:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 22,
    "reasoning": "The agreement explicitly excludes monitoring, paging, out-of-hours availability, and on-call alerting setup from this engagement.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 7
   },
   {
    "received_at": "2026-07-24T10:30:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 15,
    "reasoning": "The contract specifies building dashboards covering carrier cost per shipment, but does not explicitly mention cost per mile as a required metric.",
    "confidence": "unsure",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 0
   },
   {
    "received_at": "2026-07-28T15:50:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 24,
    "reasoning": "Restructuring or altering the operational database is explicitly excluded by the contract.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 9
   },
   {
    "received_at": "2026-07-29T13:40:00Z",
    "label": "in_scope",
-   "scope_item_id": 17,
    "reasoning": "Providing handover documentation is an explicit deliverable defined in the contract.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": 2
   },
   {
    "received_at": "2026-07-31T12:25:00Z",
    "label": "in_scope",
-   "scope_item_id": 15,
    "reasoning": "The client is asking about the status of the nightly pipeline load, which is part of the core reporting deliverable.",
    "confidence": "certain",
    "obligation_relation": "chases",
-   "references_obligation_at": 0
+   "references_obligation_at": 0,
+   "scope_item_at": 0
   },
   {
    "received_at": "2026-08-04T14:00:00Z",
    "label": "noise",
-   "scope_item_id": null,
    "reasoning": "This message provides a routine logistical update regarding team availability and does not involve project deliverables or scope.",
    "confidence": "certain",
    "obligation_relation": null,
-   "references_obligation_at": null
+   "references_obligation_at": null,
+   "scope_item_at": null
   },
   {
    "received_at": "2026-08-06T16:10:00Z",
    "label": "out_of_scope",
-   "scope_item_id": 16,
    "reasoning": "The agreement explicitly excludes dashboards, tools, or logins intended for viewing by external shippers or customers.",
    "confidence": "certain",
    "obligation_relation": "chases",
-   "references_obligation_at": 2
+   "references_obligation_at": 2,
+   "scope_item_at": 1
   },
   {
    "received_at": "2026-08-07T13:30:00Z",
    "label": "in_scope",
-   "scope_item_id": 15,
    "reasoning": "Confirming that the nightly data pipeline is live relates directly to the deliverable for building a nightly refreshed reporting pipeline.",
    "confidence": "certain",
    "obligation_relation": "fulfils",
-   "references_obligation_at": 0
+   "references_obligation_at": 0,
+   "scope_item_at": 0
   }
  ],
  "obligations": [

@@ -157,6 +157,16 @@ def snapshot(fixture=FIXTURE, project_id=None):
             project_id = conn.execute(
                 "SELECT id FROM project WHERE client_name = ?",
                 (data["project"]["client_name"],)).fetchone()[0]
+        # scope item ids are global and shift on every reseed, exactly like
+        # obligation ids. Stored raw, a replayed verdict cites whatever now
+        # occupies that row — which can be a clause from a different client's
+        # contract, rendered as a perfectly plausible citation.
+        scope_at = {
+            r["id"]: i
+            for i, r in enumerate(conn.execute(
+                "SELECT id FROM scope_item WHERE project_id = ? ORDER BY id",
+                (project_id,)))
+        }
         verdicts = [
             dict(r)
             for r in conn.execute(
@@ -183,6 +193,7 @@ def snapshot(fixture=FIXTURE, project_id=None):
         for v in verdicts:
             v["references_obligation_at"] = position.get(
                 v.pop("references_obligation_id"))
+            v["scope_item_at"] = scope_at.get(v.pop("scope_item_id"))
 
         actions = []
         for a in conn.execute(
@@ -215,6 +226,12 @@ def snapshot(fixture=FIXTURE, project_id=None):
                 " WHERE s.project_id = ? AND s.origin = 'amendment'"
                 " ORDER BY s.agreed_at", (project_id,))
         ]
+
+    if not verdicts:
+        # an empty run would silently overwrite a good capture with nothing
+        raise SystemExit(
+            f"refusing to snapshot: no verdicts for {fixture.name}."
+            " Run the pipeline first, or --replay to restore one.")
 
     run_snapshot(fixture).write_text(
         json.dumps({"verdicts": verdicts, "obligations": obligations,
@@ -265,13 +282,19 @@ def replay(conn, project_id, fixture=FIXTURE):
             (project_id, a["item_text"], a["source_quote"], a["category"],
              by_time[a["received_at"]][0], a["agreed_at"]))
 
+    scope_ids = [r["id"] for r in conn.execute(
+        "SELECT id FROM scope_item WHERE project_id = ? ORDER BY id",
+        (project_id,))]
+
     for v in saved["verdicts"]:
         at = v.get("references_obligation_at")
+        cited = v.get("scope_item_at")
         conn.execute(
             "INSERT INTO verdict (message_id, label, scope_item_id, reasoning,"
             " confidence, references_obligation_id, obligation_relation,"
             " accepts_change_to) VALUES (?,?,?,?,?,?,?,?)",
-            (by_time[v["received_at"]][0], v["label"], v["scope_item_id"],
+            (by_time[v["received_at"]][0], v["label"],
+             scope_ids[cited] if cited is not None else None,
              v["reasoning"], v["confidence"],
              issued[at] if at is not None else None,
              v["obligation_relation"],
