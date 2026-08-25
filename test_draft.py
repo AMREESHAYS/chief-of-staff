@@ -190,6 +190,16 @@ def test_an_unsure_verdict_produces_a_question_not_a_draft():
     assert params[0] == "flag" and params[3] == "proposed"
 
 
+def test_a_discarded_draft_can_be_restored():
+    """The UI offers Restore on a discarded draft. Without 'undone' in the
+    match, that button renders, posts, and silently changes nothing."""
+    conn = FakeConn()
+    draft.approve(conn, 1)
+    sql, _ = conn.sql[0]
+    assert "'undone'" in sql, "Restore would be a no-op"
+    assert "'executed'" not in sql, "an action already in Gmail is not re-approved"
+
+
 def test_pushing_an_unapproved_action_is_refused():
     conn = FakeConn(row={"type": "draft_reply", "payload": "{}",
                          "state": "proposed"})

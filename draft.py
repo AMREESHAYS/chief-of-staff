@@ -195,8 +195,10 @@ def flag(conn, message_id, reason):
 
 
 def approve(conn, action_id):
+    """Proposed or previously discarded — both can be approved. An action that
+    has already reached Gmail is not re-approved here; undo it first."""
     conn.execute("UPDATE action SET state = 'approved' WHERE id = ? AND"
-                 " state = 'proposed'", (action_id,))
+                 " state IN ('proposed', 'undone')", (action_id,))
 
 
 def push(conn, action_id, service):
