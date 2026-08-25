@@ -16,8 +16,9 @@
   <div>
     <h1><a href="/" class="home" title="Chief of Staff">{{ project.client_name }}</a></h1>
     <div class="provenance mono">
-      read against {{ project.sow_filename }} · {{ counts.clauses }} clauses ·
-      {{ messages|length }} messages
+      read against {{ project.sow_filename }} · {{ counts.clauses }} clauses{%
+        if counts.amendments %} + {{ counts.amendments }} agreed by email{%
+        endif %} · {{ messages|length }} messages
     </div>
   </div>
   {% if projects | length > 1 %}
@@ -65,7 +66,19 @@
       <div class="body">
         <p style="margin:0">{{ m.body }}</p>
 
-        {% if m.label == 'out_of_scope' and m.source_quote %}
+        {% if m.accepts_change_to %}
+          {% set added = amendments | selectattr('origin_message_id', 'equalto', m.id) | first %}
+          {% if added %}
+          <div class="excerpt is-amendment">
+            <span class="clause">scope changed here — by agreement, not by contract</span>
+            <p class="added">{{ added.item_text }}</p>
+            <p class="reading">
+              Written into scope on {{ m.received_at | day(project.owner_tz) }},
+              on the strength of their own words above.
+            </p>
+          </div>
+          {% endif %}
+        {% elif m.label == 'out_of_scope' and m.source_quote %}
           {% if m.citation_is_repeat %}
           <div class="excerpt is-echo">
             <span class="clause">same clause as above</span>
@@ -78,6 +91,14 @@
             <p class="reading">{{ m.reasoning }}</p>
           </div>
           {% endif %}
+        {% endif %}
+
+        {% if m.label == 'in_scope' and m.origin == 'amendment' %}
+        <div class="excerpt is-amendment">
+          <span class="clause">in scope — agreed {{ m.agreed_at | day(project.owner_tz) }}, not in the original contract</span>
+          <blockquote>{{ m.source_quote }}</blockquote>
+          <p class="reading">{{ m.reasoning }}</p>
+        </div>
         {% endif %}
 
         {% if m.references_obligation_id %}

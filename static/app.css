@@ -237,6 +237,21 @@ a { color: inherit; }
   font-size: 14px;
 }
 
+/* scope that was agreed by email rather than signed. A different colour
+   because its authority is different: they wrote it, not the contract. */
+.excerpt.is-amendment {
+  border-left-color: var(--settled);
+  background: #F1F7F3;
+}
+
+.excerpt.is-amendment .clause { color: var(--settled); }
+
+.excerpt.is-amendment .added {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 500;
+}
+
 /* a clause already quoted just above: point back, do not repeat it */
 .excerpt.is-echo {
   border-left-style: dotted;

@@ -113,6 +113,21 @@
    "at": "2026-08-24T04:26:00Z",
    "from_counterparty": 1,
    "body": "And can you confirm the delivery date? We were told four weeks and that's tomorrow."
+  },
+  {
+   "at": "2026-08-25T05:10:00Z",
+   "from_counterparty": 0,
+   "body": "On the Hindi version — I've put together a change order. Translating all five pages, a language switch in the header, and testing both. INR 18,000 and two weeks, starting after the Collections page is signed off. Say the word and I'll begin."
+  },
+  {
+   "at": "2026-08-26T04:40:00Z",
+   "from_counterparty": 1,
+   "body": "Discussed with my father and we're happy to go ahead with the Hindi version at INR 18,000 over two weeks. Please start it once the Collections page is done, not before."
+  },
+  {
+   "at": "2026-08-27T06:15:00Z",
+   "from_counterparty": 1,
+   "body": "For the Hindi pages, can the prices show in Devanagari numerals rather than Latin ones? My father thinks the older customers would prefer it."
   }
  ]
 }

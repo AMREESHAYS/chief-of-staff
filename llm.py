@@ -175,18 +175,43 @@ def _ollama(host, model, system, turns, schema, max_tokens):
                   model=model)
 
 
-def parse(system, turns, schema, model=None, name=None, max_tokens=16000):
+# a provider being briefly busy is not a reason to abandon a run half way
+# through a thread. These are the transient shapes worth waiting out.
+TRANSIENT = ("503", "429", "UNAVAILABLE", "RESOURCE_EXHAUSTED", "overloaded",
+             "high demand", "Timeout", "Connection")
+
+
+def _is_transient(error):
+    text = f"{type(error).__name__}: {error}"
+    return any(marker in text for marker in TRANSIENT)
+
+
+def parse(system, turns, schema, model=None, name=None, max_tokens=16000,
+          attempts=4):
     """Send one request, get back a validated `schema` instance.
 
     system: plain string, must be identical across calls to stay cacheable
     turns:  [{"role": "user"|"assistant", "text": str}, ...]
     schema: a pydantic BaseModel subclass
     """
+    import time
+
     name = (name or provider()).lower()
     model = model or model_for(name)
     client = _client(name)
     impl = {"anthropic": _anthropic, "gemini": _gemini, "ollama": _ollama}[name]
-    result = impl(client, model, system, turns, schema, max_tokens)
+
+    for attempt in range(attempts):
+        try:
+            result = impl(client, model, system, turns, schema, max_tokens)
+            break
+        except Exception as e:
+            if attempt == attempts - 1 or not _is_transient(e):
+                raise
+            wait = 2 ** attempt * 5          # 5s, 10s, 20s
+            print(f"    {name} busy ({type(e).__name__}), retrying in {wait}s",
+                  flush=True)
+            time.sleep(wait)
     if result.parsed is None:
         raise RuntimeError(
             f"{name}/{model} returned no parseable output — the response did "

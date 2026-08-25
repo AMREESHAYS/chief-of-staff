@@ -129,6 +129,18 @@ def test_unparseable_response_raises():
         llm._gemini, llm._client = original, original_client
 
 
+def test_a_busy_provider_is_waited_out_not_abandoned():
+    """A 503 halfway through a thread used to end the whole run."""
+    assert llm._is_transient(RuntimeError("503 UNAVAILABLE high demand"))
+    assert llm._is_transient(RuntimeError("429 RESOURCE_EXHAUSTED"))
+
+
+def test_a_real_failure_is_not_retried():
+    # retrying a bad request just spends quota to fail again
+    assert not llm._is_transient(ValueError("400 INVALID_ARGUMENT"))
+    assert not llm._is_transient(KeyError("GEMINI_API_KEY"))
+
+
 def test_unknown_provider_names_the_valid_ones():
     try:
         llm._client("openai")

@@ -14,14 +14,25 @@ CREATE TABLE IF NOT EXISTS project (
     created_at    TEXT NOT NULL
 );
 
--- ground truth. source_quote is a VERBATIM span of project.sow_text;
--- every citation the agent shows a user comes from here.
+-- ground truth. source_quote is always a VERBATIM span of a real document —
+-- of project.sow_text for a clause that was signed, and of the message body
+-- for one the parties agreed later in writing. Which document it must be
+-- checked against is what `origin` records.
+--
+-- A contract is not frozen at signature. It is amended by email, and an
+-- amendment nobody wrote down is the single most common cause of a scope
+-- dispute, so an agreed change becomes a scope item like any other.
 CREATE TABLE IF NOT EXISTS scope_item (
     id            INTEGER PRIMARY KEY,
     project_id    INTEGER NOT NULL REFERENCES project(id),
     item_text     TEXT NOT NULL,
     source_quote  TEXT NOT NULL,
-    category      TEXT
+    category      TEXT,
+    origin        TEXT NOT NULL DEFAULT 'contract'
+                  CHECK (origin IN ('contract','amendment')),
+    -- the message that agreed it, for an amendment. NULL for signed clauses.
+    origin_message_id INTEGER REFERENCES message(id),
+    agreed_at     TEXT
 );
 
 CREATE TABLE IF NOT EXISTS thread (
@@ -61,7 +72,9 @@ CREATE TABLE IF NOT EXISTS verdict (
     references_obligation_id INTEGER REFERENCES obligation(id),
     -- chases: asking about it. fulfils: delivering it. Without this every
     -- delivered promise stays open and the ledger reports false overdues.
-    obligation_relation TEXT CHECK (obligation_relation IN ('chases','fulfils'))
+    obligation_relation TEXT CHECK (obligation_relation IN ('chases','fulfils')),
+    -- the out-of-scope request this message agreed to, if any
+    accepts_change_to INTEGER REFERENCES message(id)
 );
 
 CREATE TABLE IF NOT EXISTS obligation (

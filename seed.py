@@ -161,7 +161,9 @@ def snapshot(fixture=FIXTURE, project_id=None):
             dict(r)
             for r in conn.execute(
                 "SELECT m.received_at, v.label, v.scope_item_id, v.reasoning,"
-                " v.confidence, v.references_obligation_id, v.obligation_relation"
+                " v.confidence, v.references_obligation_id, v.obligation_relation,"
+                " (SELECT received_at FROM message WHERE id = v.accepts_change_to)"
+                "   AS accepts_change_at"
                 " FROM verdict v JOIN message m ON m.id = v.message_id"
                 " JOIN thread t ON t.id = m.thread_id"
                 " WHERE t.project_id = ? ORDER BY m.received_at", (project_id,)
@@ -203,12 +205,24 @@ def snapshot(fixture=FIXTURE, project_id=None):
             del a["target_id"]
             actions.append(a)
 
+        # scope agreed by email is part of the run, not part of the contract
+        amendments = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT s.item_text, s.source_quote, s.category, s.agreed_at,"
+                " m.received_at FROM scope_item s"
+                " JOIN message m ON m.id = s.origin_message_id"
+                " WHERE s.project_id = ? AND s.origin = 'amendment'"
+                " ORDER BY s.agreed_at", (project_id,))
+        ]
+
     run_snapshot(fixture).write_text(
         json.dumps({"verdicts": verdicts, "obligations": obligations,
-                    "actions": actions}, indent=1, ensure_ascii=False)
+                    "actions": actions, "amendments": amendments},
+                   indent=1, ensure_ascii=False)
     )
     print(f"snapshot: {len(verdicts)} verdicts, {len(obligations)} obligations,"
-          f" {len(actions)} actions")
+          f" {len(actions)} actions, {len(amendments)} amendments")
 
 
 def replay(conn, project_id, fixture=FIXTURE):
@@ -243,16 +257,26 @@ def replay(conn, project_id, fixture=FIXTURE):
         for o in saved["obligations"]
     ]
 
+    for a in saved.get("amendments", []):
+        conn.execute(
+            "INSERT INTO scope_item (project_id, item_text, source_quote,"
+            " category, origin, origin_message_id, agreed_at)"
+            " VALUES (?,?,?,?,'amendment',?,?)",
+            (project_id, a["item_text"], a["source_quote"], a["category"],
+             by_time[a["received_at"]][0], a["agreed_at"]))
+
     for v in saved["verdicts"]:
         at = v.get("references_obligation_at")
         conn.execute(
             "INSERT INTO verdict (message_id, label, scope_item_id, reasoning,"
-            " confidence, references_obligation_id, obligation_relation)"
-            " VALUES (?,?,?,?,?,?,?)",
+            " confidence, references_obligation_id, obligation_relation,"
+            " accepts_change_to) VALUES (?,?,?,?,?,?,?,?)",
             (by_time[v["received_at"]][0], v["label"], v["scope_item_id"],
              v["reasoning"], v["confidence"],
              issued[at] if at is not None else None,
-             v["obligation_relation"]),
+             v["obligation_relation"],
+             (by_time[v["accepts_change_at"]][0]
+              if v.get("accepts_change_at") else None)),
         )
 
     for a in saved.get("actions", []):

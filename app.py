@@ -83,7 +83,8 @@ def load(conn, project_id=PROJECT_ID):
     messages = [dict(r) for r in conn.execute(
         "SELECT m.id, m.body, m.from_counterparty, m.received_at,"
         " v.label, v.confidence, v.reasoning, v.references_obligation_id,"
-        " v.obligation_relation, s.source_quote, s.item_text, s.category"
+        " v.obligation_relation, v.accepts_change_to,"
+        " s.source_quote, s.item_text, s.category, s.origin, s.agreed_at"
         " FROM message m"
         " JOIN thread t ON t.id = m.thread_id"
         " LEFT JOIN verdict v ON v.message_id = m.id"
@@ -144,9 +145,15 @@ def load(conn, project_id=PROJECT_ID):
 
     import classify
 
+    amendments = [dict(r) for r in conn.execute(
+        "SELECT id, item_text, source_quote, origin_message_id, agreed_at"
+        " FROM scope_item WHERE project_id = ? AND origin = 'amendment'"
+        " ORDER BY agreed_at", (project_id,))]
+
     return {
         "project": dict(project),
         "role": classify.ROLES[project["my_role"]],
+        "amendments": amendments,
         "mine": [o for o in obligations if o["owed_by"] == "me"],
         "theirs": [o for o in obligations if o["owed_by"] == "them"],
         "projects": [dict(r) for r in conn.execute(
@@ -163,8 +170,9 @@ def load(conn, project_id=PROJECT_ID):
                             if o["owed_by"] == "them" and o["status"] == "overdue"),
             "waiting": sum(1 for a in actions if a["state"] == "proposed"),
             "clauses": conn.execute(
-                "SELECT COUNT(*) FROM scope_item WHERE project_id = ?",
-                (project_id,)).fetchone()[0],
+                "SELECT COUNT(*) FROM scope_item WHERE project_id = ?"
+                " AND origin = 'contract'", (project_id,)).fetchone()[0],
+            "amendments": len(amendments),
         },
     }
 
