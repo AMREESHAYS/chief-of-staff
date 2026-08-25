@@ -13,7 +13,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -42,17 +42,30 @@ def days_between(a, b):
     return (fmt(b) - fmt(a)).days
 
 
-def with_placeholder(body):
-    """Mark the spot the developer must fill in.
+def with_placeholder(body, action):
+    """Render the spot the agent refused to fill.
 
-    Escape first, then substitute Markup — Markup.replace() escapes a plain
-    string replacement, which renders the span as visible text instead of
-    applying it.
+    The draft keeps [NEW DATE] verbatim for the whole life of the action — the
+    agent never writes a date, and the audit trail should still show that after
+    a human picks one. The chosen date lives beside the body, not inside it,
+    and is substituted only for display.
+
+    Escape first, then substitute Markup: Markup.replace() escapes a plain
+    string replacement, so the control would render as visible text.
     """
-    return Markup(escape(body).replace(
-        draft.DATE_PLACEHOLDER,
-        Markup('<span class="placeholder">[you choose the date]</span>'),
-    ))
+    chosen = action["payload"].get("chosen_date")
+    if chosen:
+        pretty = datetime.fromisoformat(chosen).strftime("%-d %B %Y")
+        control = Markup(
+            f'<span class="placeholder is-set" title="You chose this date; '
+            f'the agent left it blank.">{escape(pretty)}</span>')
+    else:
+        control = Markup(
+            f'<input type="date" name="date" class="date-input" '
+            f'aria-label="Choose the new delivery date" '
+            f'hx-post="/action/{action["id"]}/date" hx-trigger="change" '
+            f'hx-target="#action-{action["id"]}" hx-swap="outerHTML">')
+    return Markup(escape(body).replace(draft.DATE_PLACEHOLDER, control))
 
 
 templates.env.filters["day"] = day
@@ -180,6 +193,16 @@ def _one_action(conn, action_id):
 def approve(request: Request, action_id: int):
     with db.connect() as conn:
         draft.approve(conn, action_id)
+        action = _one_action(conn, action_id)
+    return templates.TemplateResponse(request, "_action.html", {"a": action})
+
+
+@app.post("/action/{action_id}/date", response_class=HTMLResponse)
+def set_date(request: Request, action_id: int, date: str = Form("")):
+    """The one thing the agent would not decide. Stored beside the draft so the
+    body it wrote stays intact in the record."""
+    with db.connect() as conn:
+        draft.set_date(conn, action_id, date)
         action = _one_action(conn, action_id)
     return templates.TemplateResponse(request, "_action.html", {"a": action})
 

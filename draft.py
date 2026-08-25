@@ -220,11 +220,41 @@ def flag(conn, message_id, reason):
     ).lastrowid
 
 
+def set_date(conn, action_id, iso_date):
+    """Record the date a human chose. Empty clears it."""
+    row = conn.execute("SELECT payload FROM action WHERE id = ?",
+                       (action_id,)).fetchone()
+    payload = json.loads(row["payload"])
+    if iso_date:
+        datetime.fromisoformat(iso_date)   # reject anything not a real date
+        payload["chosen_date"] = iso_date
+    else:
+        payload.pop("chosen_date", None)
+    conn.execute("UPDATE action SET payload = ? WHERE id = ?",
+                 (json.dumps(payload), action_id))
+
+
+def needs_a_date(action_type, payload):
+    """An update about late work is not ready while the date is still blank."""
+    return (DATE_PLACEHOLDER in payload.get("body", "")
+            and not payload.get("chosen_date"))
+
+
 def approve(conn, action_id):
     """Proposed or previously discarded — both can be approved. An action that
-    has already reached Gmail is not re-approved here; undo it first."""
+    has already reached Gmail is not re-approved here; undo it first.
+
+    A draft still carrying the date placeholder cannot be approved: the whole
+    point of leaving it blank is that a human fills it, and approving around
+    that would send "[NEW DATE]" to a client.
+    """
+    row = conn.execute("SELECT type, payload FROM action WHERE id = ?",
+                       (action_id,)).fetchone()
+    if row and needs_a_date(row["type"], json.loads(row["payload"])):
+        return False
     conn.execute("UPDATE action SET state = 'approved' WHERE id = ? AND"
                  " state IN ('proposed', 'undone')", (action_id,))
+    return True
 
 
 def push(conn, action_id, service):

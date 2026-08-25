@@ -225,9 +225,46 @@ def test_a_discarded_draft_can_be_restored():
     match, that button renders, posts, and silently changes nothing."""
     conn = FakeConn()
     draft.approve(conn, 1)
-    sql, _ = conn.sql[0]
+    sql = next(q for q, _ in conn.sql if "UPDATE action SET state" in q)
     assert "'undone'" in sql, "Restore would be a no-op"
     assert "'executed'" not in sql, "an action already in Gmail is not re-approved"
+
+
+def test_an_update_cannot_be_approved_with_the_date_still_blank():
+    """The agent leaves the date for a human. Approving around that would put
+    the literal placeholder in front of a client."""
+    payload = json.dumps({"body": f"Due by {DATE_PLACEHOLDER}."})
+    conn = FakeConn(row={"type": "nudge", "payload": payload})
+    assert draft.approve(conn, 1) is False
+    assert not any("UPDATE action SET state" in sql for sql, _ in conn.sql)
+
+
+def test_a_filled_date_unlocks_approval():
+    payload = json.dumps({"body": f"Due by {DATE_PLACEHOLDER}.",
+                          "chosen_date": "2026-09-05"})
+    conn = FakeConn(row={"type": "nudge", "payload": payload})
+    assert draft.approve(conn, 1) is True
+
+
+def test_the_chosen_date_never_rewrites_the_draft():
+    """Provenance: the agent's words stay as it wrote them, so the record
+    still shows it declined to pick a date."""
+    conn = FakeConn(row={"payload": json.dumps({"body": f"By {DATE_PLACEHOLDER}."})})
+    draft.set_date(conn, 1, "2026-09-05")
+    _, params = conn.sql[-1]
+    stored = json.loads(params[0])
+    assert stored["chosen_date"] == "2026-09-05"
+    assert DATE_PLACEHOLDER in stored["body"]
+
+
+def test_a_date_that_is_not_a_date_is_rejected():
+    conn = FakeConn(row={"payload": json.dumps({"body": "x"})})
+    try:
+        draft.set_date(conn, 1, "next tuesday")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("free text accepted as a date")
 
 
 def test_pushing_an_unapproved_action_is_refused():

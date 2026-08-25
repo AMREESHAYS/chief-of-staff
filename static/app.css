@@ -321,6 +321,40 @@ a { color: inherit; }
 
 .proposal.is-undone .draft-body { opacity: 0.45; }
 
+/* the one field the agent refuses to fill */
+.date-input {
+  font: 500 13.5px "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--amber);
+  background: var(--amber-pale);
+  border: 1px solid var(--amber);
+  border-radius: 3px;
+  padding: 1px 6px;
+  vertical-align: baseline;
+}
+
+.date-input:hover { background: #F6EBCF; }
+
+.placeholder.is-set {
+  background: #EFF5F1;
+  border-bottom: 1.5px solid var(--settled);
+  color: var(--settled);
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+.needs-date {
+  margin: 0 14px 10px;
+  font-size: 12.5px;
+  color: var(--amber);
+}
+
+button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button[disabled]:hover { filter: none; }
+
 .placeholder {
   background: var(--amber-pale);
   border-bottom: 1.5px solid var(--amber);

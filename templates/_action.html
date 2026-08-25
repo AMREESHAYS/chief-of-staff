@@ -15,11 +15,19 @@
       </span>
     </header>
 
-    <div class="draft-body">{{ a.payload.body | with_placeholder }}</div>
+    <div class="draft-body">{{ a.payload.body | with_placeholder(a) }}</div>
+
+    {% if '[NEW DATE]' in a.payload.body and not a.payload.chosen_date %}
+      <p class="needs-date">
+        The agent left the date blank on purpose. Pick one to approve this.
+      </p>
+    {% endif %}
 
     <div class="controls">
       {% if a.state == 'proposed' %}
-        <button hx-post="/action/{{ a.id }}/approve"
+        <button {% if '[NEW DATE]' in a.payload.body
+                   and not a.payload.chosen_date %}disabled{% endif %}
+                hx-post="/action/{{ a.id }}/approve"
                 hx-target="#action-{{ a.id }}" hx-swap="outerHTML">
           Approve draft
         </button>
