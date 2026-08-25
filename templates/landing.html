@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chief of Staff — read your contract, not just your inbox</title>
+<meta name="description" content="Reads client email against the agreement that was signed. Every out-of-scope flag cites a verbatim clause; every promise is tracked with the words that set its deadline.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/landing.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <span class="wordmark">Chief of Staff</span>
+  <div class="links">
+    <a href="/review">See it working</a>
+    <a href="https://github.com/AMREESHAYS/chief-of-staff">Source</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <p class="eyebrow mono">For people who bill by scope</p>
+  <h1>Gmail has your inbox.<br>It does not have your contract.</h1>
+  <p class="standfirst">
+    Every inbox tool can summarise a message. None can tell you the request
+    inside it was never part of the deal — because none of them have read the
+    agreement you signed.
+  </p>
+  <a class="cta" href="/review">Open a worked example →</a>
+  <p class="cta-note mono">Two real contracts, sixteen and twenty messages, nothing mocked</p>
+</header>
+
+<section class="demo-strip">
+  <div class="msg">
+    <span class="who mono">Client · 10 August</span>
+    <p>“Customers keep calling to ask if they can just buy the rings directly
+       from the website. Nothing fancy, just a buy button.”</p>
+    <span class="stamp mono">Out of scope</span>
+  </div>
+  <div class="verdict">
+    <span class="clause mono">The agreement you both signed</span>
+    <blockquote>
+      Online payments, shopping cart, and any e-commerce functionality are
+      excluded from this agreement.
+    </blockquote>
+    <p class="gloss">
+      Quoted word for word into the reply, so the client can check it against
+      their own copy.
+    </p>
+  </div>
+</section>
+
+<section class="band">
+  <h2>Two things go wrong, and neither lives in the inbox</h2>
+  <div class="pair">
+    <article>
+      <h3>Scope creep arrives politely</h3>
+      <p>Nobody writes “I would like to change the contract.” They write “can
+         you also just…”, it reads as a favour, and it gets done for free.</p>
+    </article>
+    <article>
+      <h3>Promises go quiet</h3>
+      <p>“I'll get that to you by Friday” is buried under forty messages a week
+         later. The client remembers it. You don't.</p>
+    </article>
+  </div>
+</section>
+
+<section class="band alt">
+  <h2>What it actually does</h2>
+  <ol class="stages">
+    <li>
+      <span class="n mono">Ingest</span>
+      <p>Turns the signed contract into scope items, each carrying a span
+         copied character for character. A quote that isn't in the document
+         raises an error rather than being quietly dropped.</p>
+    </li>
+    <li>
+      <span class="n mono">Classify</span>
+      <p>Reads each message against those clauses. In scope, outside it, a new
+         commitment, or noise — with the line that decides it.</p>
+    </li>
+    <li>
+      <span class="n mono">Ledger</span>
+      <p>Tracks every promise either side made, resolves “by Friday” into a
+         date in your timezone, and marks what is late.</p>
+    </li>
+    <li>
+      <span class="n mono">Draft</span>
+      <p>Writes the change-order reply, or the update you owe. Into drafts.
+         Never sent.</p>
+    </li>
+  </ol>
+</section>
+
+<section class="band">
+  <h2>What it refuses to do</h2>
+  <p class="lede">Three limits, enforced in code and covered by tests — not
+     requested politely in a prompt.</p>
+  <div class="rails">
+    <article>
+      <h3>It never sends</h3>
+      <p>Drafts are created and stop there. The Gmail permission it holds
+         <em>would</em> allow sending. The code has no path that does, and a
+         test fails if one appears.</p>
+    </article>
+    <article>
+      <h3>It never invents a number</h3>
+      <p>No fee, price, or percentage reaches a client unless that figure is
+         already in the contract.</p>
+    </article>
+    <article>
+      <h3>It never picks your date</h3>
+      <p>An update about late work leaves the date blank for you. Committing
+         you to a delivery date you never agreed is not its call to make.</p>
+    </article>
+  </div>
+</section>
+
+<section class="band alt sides">
+  <h2>Both sides of the same table</h2>
+  <p class="lede">
+    A freelancer owes the work. The shop that hired them is owed it. Same
+    contract, same thread, opposite reading of who is late — and the same
+    engine answers both, because whether a request is in scope turns out to be
+    a property of the request, not of who is reading it.
+  </p>
+  <div class="pair">
+    <article>
+      <h3>If you do the work</h3>
+      <p>What you promised, what slipped, and which requests were never part of
+         the fee.</p>
+    </article>
+    <article>
+      <h3>If you paid for it</h3>
+      <p>What they promised, what is late, and whether you are about to be
+         billed for something you thought was included.</p>
+    </article>
+  </div>
+</section>
+
+<section class="band closing" id="contact">
+  <h2>Get in touch</h2>
+  <p class="lede">
+    Built for the AI Builders Hackathon 2026. It is a working system, not a
+    mockup — the source is public and the examples in it run end to end.
+  </p>
+  <div class="contact-grid">
+    <a class="contact-card" href="mailto:ays702480@gmail.com?subject=Chief%20of%20Staff">
+      <span class="label mono">Email</span>
+      <span class="value">ays702480@gmail.com</span>
+    </a>
+    <a class="contact-card" href="https://github.com/AMREESHAYS/chief-of-staff">
+      <span class="label mono">Source</span>
+      <span class="value">github.com/AMREESHAYS/chief-of-staff</span>
+    </a>
+    <a class="contact-card" href="/review">
+      <span class="label mono">Try it</span>
+      <span class="value">Open the worked examples</span>
+    </a>
+  </div>
+  <p class="honest">
+    Mail goes to a person, not a queue. There is no signup yet and no data of
+    yours is stored anywhere — the examples ship with the code, and the people
+    in them are invented.
+  </p>
+</section>
+
+<footer>
+  <span class="mono">Chief of Staff · 2026</span>
+</footer>
+
+</body>
+</html>

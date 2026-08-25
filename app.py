@@ -170,6 +170,11 @@ def load(conn, project_id=PROJECT_ID):
 
 
 @app.get("/", response_class=HTMLResponse)
+def landing(request: Request):
+    return templates.TemplateResponse(request, "landing.html", {})
+
+
+@app.get("/review", response_class=HTMLResponse)
 def index(request: Request, project: int = PROJECT_ID):
     with db.connect() as conn:
         data = load(conn, project)

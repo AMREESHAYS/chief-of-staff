@@ -1,0 +1,294 @@
+/* Landing page. Same identity as the review surface: carbon-copy violet on
+   cool photocopy stock, and the rule that contract text is set in a serif and
+   nothing else is. */
+
+:root {
+  --paper:      #F2F3F7;
+  --paper-lift: #FBFBFD;
+  --ink:        #16171D;
+  --ink-soft:   #5B6072;
+  --rule:       #D6D9E3;
+  --carbon:     #4B3F9E;
+  --carbon-deep:#2E2569;
+  --carbon-pale:#EDEBF8;
+  --stamp:      #B3341F;
+  --stamp-pale: #FBEDEA;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 16px/1.6 Archivo, ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--carbon);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- nav ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-lift);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.wordmark { font-weight: 600; letter-spacing: -0.015em; }
+
+.topbar .links { margin-left: auto; display: flex; gap: 26px; }
+
+.topbar .links a {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink-soft);
+  padding-bottom: 2px;
+  border-bottom: 1.5px solid transparent;
+}
+
+.topbar .links a:hover { color: var(--carbon); border-bottom-color: var(--carbon); }
+
+/* ---------- hero ---------- */
+
+.hero {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 92px 40px 60px;
+  text-align: center;
+}
+
+.hero .eyebrow { color: var(--carbon); display: block; margin-bottom: 22px; }
+
+.hero h1 {
+  margin: 0;
+  font-family: Spectral, Georgia, serif;
+  font-size: clamp(34px, 5.4vw, 60px);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+}
+
+.standfirst {
+  max-width: 640px;
+  margin: 26px auto 0;
+  color: var(--ink-soft);
+  font-size: 17px;
+}
+
+.cta {
+  display: inline-block;
+  margin-top: 38px;
+  padding: 13px 26px;
+  border-radius: 4px;
+  background: var(--carbon);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.cta:hover { background: var(--carbon-deep); }
+
+.cta-note { display: block; margin-top: 14px; color: var(--ink-soft); }
+
+/* ---------- the worked example, the page's one piece of evidence ---------- */
+
+.demo-strip {
+  max-width: 1060px;
+  margin: 20px auto 90px;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.demo-strip .msg,
+.demo-strip .verdict {
+  background: var(--paper-lift);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 22px 24px 24px;
+}
+
+.demo-strip .who { display: block; color: var(--ink-soft); margin-bottom: 12px; }
+.demo-strip .msg p { margin: 0 0 16px; font-size: 16px; }
+
+.demo-strip .stamp {
+  display: inline-block;
+  padding: 3px 9px;
+  border: 1px solid var(--stamp);
+  border-radius: 2px;
+  background: var(--stamp-pale);
+  color: var(--stamp);
+  font-weight: 500;
+}
+
+.demo-strip .verdict { border-left: 3px solid var(--carbon); }
+.demo-strip .clause { display: block; color: var(--carbon); margin-bottom: 12px; }
+
+.demo-strip blockquote {
+  margin: 0;
+  font-family: Spectral, Georgia, serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.demo-strip .gloss {
+  margin: 14px 0 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+/* ---------- bands ---------- */
+
+.band { padding: 72px 40px; border-top: 1px solid var(--rule); }
+.band.alt { background: var(--paper-lift); }
+
+.band h2 {
+  max-width: 1060px;
+  margin: 0 auto;
+  font-family: Spectral, Georgia, serif;
+  font-size: clamp(25px, 3vw, 33px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* the lede sits under its own heading, so it shares the heading's measure
+   rather than being centred on the page */
+.band .lede {
+  max-width: 1060px;
+  margin: 16px auto 0;
+  color: var(--ink-soft);
+}
+
+.band .lede > * { max-width: 700px; }
+
+.closing .lede { max-width: 640px; }
+
+.band h2, .band .lede { width: 100%; }
+
+.pair, .rails {
+  max-width: 1060px;
+  margin: 38px auto 0;
+  display: grid;
+  gap: 26px;
+}
+
+.pair { grid-template-columns: repeat(2, 1fr); }
+.rails { grid-template-columns: repeat(3, 1fr); }
+
+.pair article, .rails article {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 24px 26px 26px;
+}
+
+.band.alt .pair article { background: var(--paper-lift); }
+
+.pair h3, .rails h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.pair p, .rails p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+
+/* ---------- stages ---------- */
+
+.stages {
+  max-width: 1060px;
+  margin: 38px auto 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.stages li {
+  border-top: 2px solid var(--carbon);
+  padding-top: 16px;
+}
+
+.stages .n { display: block; color: var(--carbon); margin-bottom: 9px; font-weight: 500; }
+.stages p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+
+/* ---------- contact ---------- */
+
+.closing { text-align: center; }
+.closing h2, .closing .lede { margin-left: auto; margin-right: auto; }
+
+.contact-grid {
+  max-width: 1000px;
+  margin: 40px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.contact-card {
+  display: block;
+  text-align: left;
+  text-decoration: none;
+  padding: 22px 24px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--paper-lift);
+}
+
+.contact-card:hover { border-color: var(--carbon); background: var(--carbon-pale); }
+.contact-card .label { display: block; color: var(--carbon); margin-bottom: 8px; }
+.contact-card .value { font-size: 15px; word-break: break-word; }
+
+.honest {
+  max-width: 620px;
+  margin: 32px auto 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+footer {
+  padding: 30px 40px 44px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .demo-strip, .pair, .rails, .stages, .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero { padding: 60px 24px 44px; }
+  .band { padding: 54px 24px; }
+  .demo-strip { padding: 0 24px; margin-bottom: 60px; }
+  .topbar { padding: 14px 20px; gap: 14px; }
+  .topbar .links { gap: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

@@ -14,7 +14,7 @@
 
 <header class="masthead">
   <div>
-    <h1>{{ project.client_name }}</h1>
+    <h1><a href="/" class="home" title="Chief of Staff">{{ project.client_name }}</a></h1>
     <div class="provenance mono">
       read against {{ project.sow_filename }} · {{ counts.clauses }} clauses ·
       {{ messages|length }} messages
@@ -23,7 +23,7 @@
   {% if projects | length > 1 %}
   <nav class="switch" aria-label="Contract">
     {% for p in projects %}
-      <a href="/?project={{ p.id }}"
+      <a href="/review?project={{ p.id }}"
          {% if p.id == project.id %}aria-current="page"{% endif %}>
         {{ p.client_name }}
       </a>

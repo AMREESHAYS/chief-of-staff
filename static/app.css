@@ -69,6 +69,9 @@ a { color: inherit; }
   align-items: baseline;
 }
 
+.masthead h1 a.home { text-decoration: none; }
+.masthead h1 a.home:hover { color: var(--carbon); }
+
 .masthead h1 {
   margin: 0;
   font-size: 21px;
