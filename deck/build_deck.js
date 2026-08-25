@@ -35,7 +35,7 @@ function eyebrow(slide, text, x, y, color = CARBON) {
 
 function title(slide, text, opts = {}) {
   slide.addText(text, {
-    x: 0.7, y: opts.y || 0.72, w: opts.w || 11.9, h: opts.h || 1.0, margin: 0,
+    x: 0.7, y: opts.y || 0.72, w: opts.w || 11.9, h: opts.h || 1.4, margin: 0,
     fontFace: SERIF, fontSize: opts.size || 38, bold: true,
     color: opts.color || INK, valign: "top",
   });
@@ -113,7 +113,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const s = pres.addSlide();
   s.background = { color: PAPER };
   eyebrow(s, "the freelancer's problem", 0.7, 0.42);
-  title(s, "Two things go wrong, and neither lives in the inbox");
+  title(s, "Two things go wrong, neither in the inbox");
 
   const items = [
     ["Scope creep arrives politely", STAMP,
@@ -123,7 +123,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   ];
 
   items.forEach(([head, color, body], i) => {
-    const y = 2.05 + i * 1.95;
+    const y = 2.2 + i * 1.95;
     card(s, 0.7, y, 7.4, 1.6);
     dot(s, 1.0, y + 0.32, i === 0 ? "!" : "?", color);
     s.addText(head, {
@@ -136,17 +136,17 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
     });
   });
 
-  card(s, 8.55, 2.05, 4.05, 3.55, CARBON_DEEP);
+  card(s, 8.55, 2.2, 4.05, 3.55, CARBON_DEEP);
   s.addText("The cost", {
-    x: 8.85, y: 2.35, w: 3.4, h: 0.3, margin: 0,
+    x: 8.85, y: 2.5, w: 3.4, h: 0.3, margin: 0,
     fontFace: MONO, fontSize: 11, color: "A9A2D8", charSpacing: 1.4,
   });
   s.addText("Unpaid work,\nand a client who\nstops trusting\nyour dates.", {
-    x: 8.85, y: 2.8, w: 3.5, h: 1.9, margin: 0,
+    x: 8.85, y: 2.95, w: 3.5, h: 1.9, margin: 0,
     fontFace: SERIF, fontSize: 24, color: WHITE, lineSpacing: 33,
   });
   s.addText("Every freelancer eats both.", {
-    x: 8.85, y: 4.95, w: 3.5, h: 0.4, margin: 0,
+    x: 8.85, y: 5.1, w: 3.5, h: 0.4, margin: 0,
     fontFace: SANS, fontSize: 13, italic: true, color: "A9A2D8",
   });
   s.addNotes("Both problems are invisible to an inbox because the inbox has no idea what was agreed.");
@@ -197,7 +197,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const s = pres.addSlide();
   s.background = { color: PAPER };
   eyebrow(s, "what it does", 0.7, 0.42);
-  title(s, "Read the contract. Judge the mail. Track the promises.");
+  title(s, "Read the contract. Judge the mail.");
 
   const cols = [
     ["1", "Reads the agreement", "Turns a signed contract into scope items, each carrying a span copied word for word. A quote that isn't in the document raises — it is never quietly dropped."],
@@ -231,7 +231,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const s = pres.addSlide();
   s.background = { color: PAPER };
   eyebrow(s, "the moment that sells it", 0.7, 0.42);
-  title(s, "It flagged the slip a week before the client did");
+  title(s, "It flagged the slip before the client did");
 
   card(s, 0.7, 2.15, 5.75, 1.85, WHITE);
   s.addText("YOU · 12 AUGUST", {
@@ -278,7 +278,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const s = pres.addSlide();
   s.background = { color: PAPER };
   eyebrow(s, "how it works", 0.7, 0.42);
-  title(s, "Four stages, and a rule about who decides what");
+  title(s, "Four stages, and who decides what");
 
   const steps = [
     ["INGEST", "Contract → scope items,\neach with a verbatim span"],
@@ -378,7 +378,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const s = pres.addSlide();
   s.background = { color: PAPER };
   eyebrow(s, "did you overfit to your own demo?", 0.7, 0.42);
-  title(s, "Two unrelated contracts. No prompt changes.");
+  title(s, "Two contracts. No prompt changes.");
 
   s.addText("The second was written to break the first one's assumptions: prose instead of lists, exclusions buried mid-paragraph under no heading, dollars instead of rupees, a timezone west of UTC.", {
     x: 0.7, y: 1.78, w: 11.9, h: 0.6, margin: 0,
@@ -423,9 +423,9 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
     x: 9.72, y: 2.88, w: 2.65, h: 0.7, margin: 0,
     fontFace: SANS, fontSize: 34, bold: true, color: WHITE,
   });
-  s.addText("The borderline message in each thread returns “unsure” — five consecutive runs each, temperature pinned. We first claimed this from a single run, then re-ran it and found it was not true yet.", {
-    x: 9.72, y: 3.66, w: 2.65, h: 2.0, margin: 0,
-    fontFace: SANS, fontSize: 11.5, color: "CFC9F2", lineSpacing: 16,
+  s.addText("The borderline message in each thread returns “unsure”. Five consecutive runs each, temperature pinned.\n\nWe first claimed this from one run. Re-running proved it wasn't true yet.", {
+    x: 9.72, y: 3.66, w: 2.65, h: 2.3, margin: 0,
+    fontFace: SANS, fontSize: 11.5, color: "CFC9F2", lineSpacing: 15,
   });
   s.addNotes("Two domains, two currencies, two timezones, one prompt. The 10/10 is five reruns per message after the catch-all fix — the earlier version of this slide claimed stability from one observation, which is exactly the mistake this project keeps catching.");
 }
@@ -445,7 +445,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const bugs = [
     ["Dates off by one, west of UTC", "End-of-day stored in UTC reads as the next day at −4:00. A +5:30 demo hid it completely."],
     ["A page that rendered fine, with a piece missing", "Row ids assumed to be per-project were global, so replaying the second contract silently dropped every link between a chase and its promise."],
-    ["A claim that was true once, not always", "We said the confidence band held, on one run. Re-running gave a different answer. A catch-all clause let the model be certain about anything, so nothing was ever ambiguous — the fix was a rule, not a retry."],
+    ["A claim that was true once, not always", "We said the confidence band held. Re-running gave a different answer — a catch-all clause let the model be certain about anything."],
   ];
 
   bugs.forEach(([head, body], i) => {
@@ -463,8 +463,8 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   });
 
   card(s, 9.05, 2.45, 3.55, 3.9, WHITE);
-  s.addText("67", {
-    x: 9.35, y: 2.72, w: 3.0, h: 0.85, margin: 0,
+  s.addText("77", {
+    x: 9.35, y: 2.68, w: 3.0, h: 1.0, margin: 0,
     fontFace: SANS, fontSize: 54, bold: true, color: CARBON,
   });
   s.addText("checks, no framework", {
