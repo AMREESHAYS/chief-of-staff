@@ -419,15 +419,15 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   });
 
   card(s, 9.45, 2.62, 3.15, 3.06, CARBON_DEEP);
-  s.addText("The unsure band held", {
-    x: 9.72, y: 2.92, w: 2.65, h: 0.6, margin: 0,
-    fontFace: SANS, fontSize: 15, bold: true, color: WHITE, lineSpacing: 20,
+  s.addText("10 / 10", {
+    x: 9.72, y: 2.88, w: 2.65, h: 0.7, margin: 0,
+    fontFace: SANS, fontSize: 34, bold: true, color: WHITE,
   });
-  s.addText("“Could the logo animate?” and “just another column” are the same shape — and each was the single unsure verdict in its thread.", {
-    x: 9.72, y: 3.66, w: 2.65, h: 1.8, margin: 0,
-    fontFace: SANS, fontSize: 12, color: "CFC9F2", lineSpacing: 17,
+  s.addText("The borderline message in each thread returns “unsure” — five consecutive runs each, temperature pinned. We first claimed this from a single run, then re-ran it and found it was not true yet.", {
+    x: 9.72, y: 3.66, w: 2.65, h: 2.0, margin: 0,
+    fontFace: SANS, fontSize: 11.5, color: "CFC9F2", lineSpacing: 16,
   });
-  s.addNotes("This pre-empts the most obvious skeptical question. Two domains, two currencies, two timezones, one prompt.");
+  s.addNotes("Two domains, two currencies, two timezones, one prompt. The 10/10 is five reruns per message after the catch-all fix — the earlier version of this slide claimed stability from one observation, which is exactly the mistake this project keeps catching.");
 }
 
 /* ---------------- 9 — engineering ---------------- */
@@ -445,7 +445,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const bugs = [
     ["Dates off by one, west of UTC", "End-of-day stored in UTC reads as the next day at −4:00. A +5:30 demo hid it completely."],
     ["A page that rendered fine, with a piece missing", "Row ids assumed to be per-project were global, so replaying the second contract silently dropped every link between a chase and its promise."],
-    ["One project's run wiping another's", "Same root cause. Once we saw the shape twice, we audited for it and found a third instance before it bit."],
+    ["A claim that was true once, not always", "We said the confidence band held, on one run. Re-running gave a different answer. A catch-all clause let the model be certain about anything, so nothing was ever ambiguous — the fix was a rule, not a retry."],
   ];
 
   bugs.forEach(([head, body], i) => {
@@ -494,8 +494,8 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
 
   const facts = [
     ["Who", "Freelance developers and consultants who bill by scope — people who lose money to unpaid extras, not to lack of leads."],
-    ["Model", "Per-seat subscription. Paid inference, not a free tier: a real statement of work carries client names and fees."],
-    ["Built", "Contract ingestion, message classification, obligation ledger, drafting with safety rails, and the review surface — running end to end on two contracts."],
+    ["Both sides", "The shop that hired them has the same problem inverted, and the same engine answers it. One contract, one thread, two readings of who is late. Growth without becoming a thinner product."],
+    ["Built", "Contract ingestion, message classification, obligation ledger, drafting with safety rails, and the review surface — end to end, on two contracts, from either side."],
   ];
 
   facts.forEach(([head, body], i) => {

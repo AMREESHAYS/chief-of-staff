@@ -2,8 +2,8 @@
 
 **Gmail has your inbox. It does not have your contract.**
 
-An agent that reads a freelancer's client email against the agreement they
-signed, and answers two questions an inbox cannot:
+An agent that reads client email against the agreement that was signed, and
+answers two questions an inbox cannot:
 
 1. **Is this request inside what we agreed?** — and if not, *which line* says so.
 2. **What did I promise, and did I do it?**
@@ -47,7 +47,8 @@ label, because one message often does two things at once:
   conversationally noise *and* is the client chasing a specific overdue
   promise.
 
-**Ledger** turns the copied words into dates. Resolution happens in code, not
+**Ledger** tracks both sides' promises, tagged with who made them, and turns
+the copied words into dates. Resolution happens in code, not
 in the model: the classifier copies "by Friday", and the ledger anchors it to
 when the message arrived, in the project owner's timezone. A promise with no
 resolvable date is stored as `vague`, not discarded — "soon" is exactly the
@@ -101,10 +102,27 @@ hourly USD billing instead of a fixed INR fee, and a timezone west of UTC.
 | Obligation tiebacks | 3 | 4 |
 | Drafts refused by rails | 0 | 0 |
 
-The `unsure` band held across domains. *"Could the logo animate a little?"* and
-*"Same data, just another column"* are structural twins — small additions that
-might sit inside an existing deliverable — and each was the single `unsure`
-verdict in its thread.
+### The confidence band, and how it was nearly wrong
+
+An earlier version of this file claimed the `unsure` band "held across
+domains" on the strength of a single run. Re-running the same message gave
+`certain`, `unsure`, `unsure` — even at temperature 0. The claim described one
+observation, not the system.
+
+The cause was a design flaw rather than noise. Both contracts contain a
+catch-all clause — *"any work not described in Section 1 requires a written
+change order"*. With a catch-all present nothing is ever ambiguous: any small
+unmentioned request can be called certainly out of scope by citing it. The
+model was not wrong, but the answer was useless, because the band exists to
+route genuine judgement calls to a human.
+
+The rule now: **a catch-all clause is not evidence about a specific request.**
+Certainty requires a clause about the subject matter of the request itself.
+
+Verified after the change at five consecutive runs per message, temperature 0:
+**10 of 10 `unsure`** across both contracts. *"Could the logo animate a
+little?"* and *"Same data, just another column"* are structural twins, and each
+is now reliably the single `unsure` verdict in its thread.
 
 The second contract also exposed three defects the first could not reach, all
 the same shape: **an id space assumed to be per-project when it is global.**
@@ -120,6 +138,36 @@ the same shape: **an id space assumed to be per-project when it is global.**
 An audit for that pattern found the third before it was hit.
 
 ---
+
+## Either side of the contract
+
+A freelancer owes the work. A shop that hired one is owed it. Same contract,
+same thread, opposite reading of who is late.
+
+Whether a request is in scope turned out to be a property of the request, not
+of who is reading it, so verdicts are side-neutral: a captured run replays
+correctly from either perspective without reclassification. Only obligation
+attribution depends on the side, and that derives from who sent the message.
+
+`project.my_role` is `contractor` or `buyer`. The ledger splits into what you
+owe and what they owe you. Late work becomes two different letters — an update
+you send because you slipped, or a chase because they did. Apologising to a
+supplier for their own delay is worse than sending nothing.
+
+An out-of-scope request that *you* made produces a warning rather than a
+drafted reply. There is nobody to reply to, and drafting one writes a letter in
+the other side's voice and addresses it to you.
+
+The repository ships all three views of two contracts:
+
+```bash
+.venv/bin/python seed.py --replay                                        # contractor
+.venv/bin/python seed.py --fixture fixtures/pipeline.json --add --replay # contractor
+.venv/bin/python seed.py --fixture fixtures/meridian_shop.json --add --replay  # buyer
+```
+
+The third replays the *same captured run* as the first. Same twenty verdicts,
+same clause citations, opposite ledger.
 
 ## Running it
 
@@ -207,7 +255,9 @@ that trains on submitted data.
 ## Limits
 
 - One thread per project. Multi-thread and multi-client inboxes are not built.
-- Only the developer's promises enter the ledger; the client's are ignored.
+- The buyer view reuses a run captured from the contractor's side, so it
+  carries the contractor's promises but not the buyer's own. Both sides are
+  tracked when a thread is classified fresh.
 - Approving an action marks it approved. Pushing it to Gmail is a separate
   explicit call, and it creates a draft.
 - Prompt caching is only meaningful on providers that expose it. The system
