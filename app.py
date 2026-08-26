@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
@@ -22,6 +22,7 @@ from markupsafe import Markup, escape
 import db
 import draft
 import ledger
+import oauth
 
 HERE = Path(__file__).parent
 app = FastAPI()
@@ -284,6 +285,54 @@ def undo(request: Request, action_id: int):
         draft.undo(conn, action_id)
         action = _one_action(conn, action_id)
     return templates.TemplateResponse(request, "_action.html", {"a": action})
+
+
+@app.get("/connect", response_class=HTMLResponse)
+def connect(request: Request):
+    """The page a person uses to link their mailbox."""
+    return templates.TemplateResponse(request, "connect.html", {
+        "configured": oauth.configured(),
+        "accounts": oauth.connected(),
+        "scopes": oauth.SCOPES,
+    })
+
+
+@app.get("/connect/start")
+def connect_start(request: Request):
+    if not oauth.configured():
+        return RedirectResponse("/connect", status_code=303)
+    return RedirectResponse(
+        oauth.begin(str(request.url_for("connect_callback"))), status_code=303)
+
+
+@app.get("/connect/callback", response_class=HTMLResponse, name="connect_callback")
+def connect_callback(request: Request, state: str = "", error: str = ""):
+    """Google sends the person back here. Nothing is trusted until the state
+    we issued comes back with them."""
+    if error:
+        return templates.TemplateResponse(request, "connect.html", {
+            "configured": oauth.configured(), "accounts": oauth.connected(),
+            "scopes": oauth.SCOPES,
+            "problem": f"Google returned: {error}. Nothing was connected."})
+    try:
+        email = oauth.finish(state, str(request.url),
+                             str(request.url_for("connect_callback")))
+    except PermissionError as e:
+        return templates.TemplateResponse(request, "connect.html", {
+            "configured": oauth.configured(), "accounts": oauth.connected(),
+            "scopes": oauth.SCOPES, "problem": str(e)})
+    return templates.TemplateResponse(request, "connect.html", {
+        "configured": True, "accounts": oauth.connected(),
+        "scopes": oauth.SCOPES, "just_connected": email})
+
+
+@app.post("/connect/{email}/disconnect", response_class=HTMLResponse)
+def connect_remove(request: Request, email: str):
+    revoked = oauth.disconnect(email)
+    return templates.TemplateResponse(request, "connect.html", {
+        "configured": oauth.configured(), "accounts": oauth.connected(),
+        "scopes": oauth.SCOPES,
+        "removed": email, "revoked": revoked})
 
 
 @app.get("/audit", response_class=HTMLResponse)

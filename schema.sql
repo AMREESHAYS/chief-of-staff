@@ -109,3 +109,13 @@ CREATE TABLE IF NOT EXISTS action (
 CREATE INDEX IF NOT EXISTS idx_message_thread ON message(thread_id, received_at);
 CREATE INDEX IF NOT EXISTS idx_obligation_status ON obligation(project_id, status);
 CREATE INDEX IF NOT EXISTS idx_action_target ON action(type, target_id);
+
+-- A Gmail account the user has connected through the browser. The refresh
+-- token lives here and nowhere else: never in a cookie, never in a URL, never
+-- in the page. Deleting the row is the whole of disconnecting.
+CREATE TABLE IF NOT EXISTS account (
+    email        TEXT PRIMARY KEY,
+    token        TEXT NOT NULL,
+    scopes       TEXT NOT NULL,
+    connected_at TEXT NOT NULL
+);
