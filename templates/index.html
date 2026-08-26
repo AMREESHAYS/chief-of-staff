@@ -127,38 +127,40 @@
   </main>
 
   <aside class="ledger">
-    {% macro entries(rows, whose) %}
-      {% for o in rows %}
-      <div class="entryline {{ o.status }}">
-        <span class="status">
-          {{ o.status }}{% if o.late_by %} · {{ o.late_by }} days late{% endif %}
-        </span>
-        <p class="promise">{{ o.promise_text }}</p>
-        {% if o.action and o.action.state != 'undone' %}
-          <span class="drafted mono">
-            {{ 'chase drafted' if whose == 'them' else 'update drafted' }}
+    <div class="ledger-inner">
+      {% macro entries(rows, whose) %}
+        {% for o in rows %}
+        <div class="entryline {{ o.status }}">
+          <span class="status">
+            {{ o.status }}{% if o.late_by %} · {{ o.late_by }} days late{% endif %}
           </span>
-        {% endif %}
-        {% if o.due_at %}
-          <span class="due">due {{ o.due_at | day(project.owner_tz) }}</span>
+          <p class="promise">{{ o.promise_text }}</p>
+          {% if o.action and o.action.state != 'undone' %}
+            <span class="drafted mono">
+              {{ 'chase drafted' if whose == 'them' else 'update drafted' }}
+            </span>
+          {% endif %}
+          {% if o.due_at %}
+            <span class="due">due {{ o.due_at | day(project.owner_tz) }}</span>
+          {% else %}
+            <span class="due">no date —
+              {{ 'they said' if whose == 'them' else 'you said' }}
+              <span class="said">“{{ o.due_phrase or 'nothing' }}”</span></span>
+          {% endif %}
+        </div>
         {% else %}
-          <span class="due">no date —
-            {{ 'they said' if whose == 'them' else 'you said' }}
-            <span class="said">“{{ o.due_phrase or 'nothing' }}”</span></span>
-        {% endif %}
-      </div>
-      {% else %}
-      <p class="strap empty">Nothing outstanding.</p>
-      {% endfor %}
-    {% endmacro %}
+        <p class="strap empty">Nothing outstanding.</p>
+        {% endfor %}
+      {% endmacro %}
 
-    <h2>What you owe</h2>
-    <p class="strap">Promises you made here, and whether you kept them.</p>
-    {{ entries(mine, 'me') }}
+      <h2>What you owe</h2>
+      <p class="strap">Promises you made here, and whether you kept them.</p>
+      {{ entries(mine, 'me') }}
 
-    <h2 class="second">What the {{ role.them_short }} owes you</h2>
-    <p class="strap">Their commitments, tracked the same way.</p>
-    {{ entries(theirs, 'them') }}
+      <h2 class="second">What the {{ role.them_short }} owes you</h2>
+      <p class="strap">Their commitments, tracked the same way.</p>
+      {{ entries(theirs, 'them') }}
+    </div>
   </aside>
 </div>
 

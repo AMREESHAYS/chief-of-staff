@@ -466,15 +466,41 @@ button.ghost:hover { border-color: var(--ink-soft); color: var(--ink); filter: n
 
 /* ---------- ledger rail ---------- */
 
+/* The rail is two things. The aside is the column: it runs the full height of
+   the thread so the border and background read as a rail. The inner block is
+   what actually sticks.
+
+   Sticky positioning only holds an element still while the element is shorter
+   than the viewport. The aside stretches to the height of the thread — four
+   thousand pixels — so it was sticky in name and scrolled away in practice. */
 .ledger {
   border-left: 1px solid var(--rule);
   background: var(--paper-lift);
-  padding: 20px 24px 60px;
+  align-self: stretch;
+}
+
+.ledger-inner {
   position: sticky;
   top: 0;
-  align-self: stretch;
-  min-height: 100vh;
+  /* the audit bar is fixed to the bottom of the window; the rail stops above
+     it rather than running underneath */
+  margin-bottom: 44px;
+  /* a long ledger scrolls within itself rather than growing past the viewport
+     and taking the whole rail with it */
+  max-height: calc(100vh - 44px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 24px 32px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
 }
+
+.ledger-inner::-webkit-scrollbar { width: 8px; }
+.ledger-inner::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: 4px;
+}
+.ledger-inner::-webkit-scrollbar-track { background: transparent; }
 
 .ledger h2.second {
   margin-top: 30px;
@@ -542,7 +568,10 @@ button.ghost:hover { border-color: var(--ink-soft); color: var(--ink); filter: n
 
 .auditbar {
   position: fixed;
-  left: 0; right: 330px; bottom: 0;
+  /* full width. The old `right: 330px` assumed the frame filled the window,
+     but the frame is centred at max-width, so on a wide screen the bar
+     stopped ninety pixels inside the rail and covered its bottom. */
+  left: 0; right: 0; bottom: 0;
   border-top: 1px solid var(--rule);
   background: var(--paper-lift);
   padding: 10px 32px;
@@ -577,8 +606,11 @@ details.audit summary {
 
 @media (max-width: 940px) {
   .frame { grid-template-columns: minmax(0, 1fr); }
-  .ledger { position: static; min-height: 0; border-left: 0;
-            border-top: 1px solid var(--rule); }
+  .ledger { border-left: 0; border-top: 1px solid var(--rule); }
+  /* on a phone the rail sits under the thread, so it should not trap scroll
+     inside a viewport-height box */
+  .ledger-inner { position: static; max-height: none; overflow: visible;
+                  padding: 20px 18px 40px; }
   .auditbar { right: 0; }
   .entry { grid-template-columns: 84px minmax(0, 1fr); gap: 14px; }
   :root { --margin-w: 84px; }
