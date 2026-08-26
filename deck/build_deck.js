@@ -343,7 +343,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   const rails = [
     ["Never sends", "Drafts are created and stop there. The Gmail scope would permit sending; the codebase has no send path, and a test asserts it."],
     ["Never invents money", "No fee or percentage may appear in a reply unless it is already in the contract."],
-    ["Never picks your date", "A late-work update leaves [NEW DATE] for you. Committing you to a date you never agreed is not the agent's to do."],
+    ["Never picks your date", "A late-work update leaves the date blank for you, and Approve stays disabled until you fill it. Committing you to a date you never agreed is not the agent's to do."],
     ["Never guesses a deadline", "It copies “by Friday” verbatim; code turns that into a date in your timezone. A model asked for a date invents a plausible one."],
   ];
 

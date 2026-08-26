@@ -73,6 +73,9 @@ Three rails, enforced in code and covered by tests — not asked for in a prompt
 | A change-order reply must contain the contract line it relies on, verbatim, in the body the client reads | `validate_change_order` |
 | No fee, price, or percentage may appear unless it is already in the contract | `invented_figures` |
 | A late-work update must leave `[NEW DATE]` for the developer rather than commit them to a date | `validate_nudge` |
+| An update still carrying an unfilled date cannot be approved at all | `draft.needs_a_date` |
+| Only the paying side can widen the scope; a contractor's enthusiasm is not agreement | `amend.widens_scope` |
+| An amendment must quote the accepting message verbatim | `amend.validate` |
 
 A draft that breaks a rail is regenerated once with the violation named, then
 refused and counted. **No draft is better than an unsafe one.**
@@ -315,13 +318,29 @@ OAuth desktop client at `credentials.json`, then:
 ## Tests
 
 ```bash
-for t in test_llm test_ingest test_classify test_ledger test_draft; do .venv/bin/python $t.py; done
+for t in test_llm test_ingest test_classify test_ledger test_draft test_amend; do
+  .venv/bin/python $t.py
+done
 ```
 
-No framework, no fixtures, no API calls. They cover the things that fail
+93 checks across six suites. No framework, no fixtures, no API calls. They cover the things that fail
 *quietly*: a fabricated contract quote, an invented price, a cache prefix that
 stops being stable, a due date one day out, a send path appearing in
 `draft.py`.
+
+---
+
+## The one field it will not fill
+
+An update about late work leaves the date blank, and the page renders that
+blank as a real date picker rather than as text. **Approve stays disabled until
+a person chooses one** — the point of leaving it empty is that a human decides,
+and approving around that would put the literal placeholder in front of a
+client.
+
+The chosen date is stored beside the draft rather than written into it, so the
+agent's words keep `[NEW DATE]` for the life of the record. The audit trail
+still shows that the agent declined to pick a date and a person did.
 
 ---
 
