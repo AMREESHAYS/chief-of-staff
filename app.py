@@ -204,6 +204,29 @@ def landing(request: Request):
             "  WHERE t.project_id = p.id) AS messages"
             " FROM project p WHERE p.my_role = 'contractor' ORDER BY p.id"
         ).fetchall()
+    # the sheets on the landing page are real verdicts, pulled live. Writing
+    # them into the template would let them drift from what the system does,
+    # which is how the message count went wrong.
+    with db.connect() as conn:
+        sheets = [dict(r) for r in conn.execute("""
+            SELECT m.body, m.received_at, m.from_counterparty, v.label,
+                   v.confidence,
+                   (SELECT 1 FROM scope_item s
+                    WHERE s.origin_message_id = m.id) AS amended
+            FROM verdict v JOIN message m ON m.id = v.message_id
+            JOIN thread t ON t.id = m.thread_id
+            WHERE t.project_id = 1 AND m.received_at IN (
+                '2026-08-10T05:15:00Z',   -- the buy button, out of scope
+                '2026-08-12T13:20:00Z',   -- a promise with a date
+                '2026-08-17T04:31:00Z',   -- the borderline ask
+                '2026-08-19T05:05:00Z',   -- the client chasing the slip
+                '2026-08-26T04:40:00Z')   -- the moment scope changed
+            ORDER BY m.received_at""")]
+    for sh in sheets:
+        sh["stamp"] = ("agreed" if sh["amended"]
+                       else "unsure" if sh["confidence"] == "unsure"
+                       else sh["label"])
+
     counts = [r["messages"] for r in rows]
     if counts:
         evidence = (f"{spell(len(counts))} real contracts, "
@@ -212,8 +235,8 @@ def landing(request: Request):
                     + " messages, nothing mocked")
     else:
         evidence = "run seed.py --replay to load the worked examples"
-    return templates.TemplateResponse(request, "landing.html",
-                                      {"evidence": evidence})
+    return templates.TemplateResponse(
+        request, "landing.html", {"evidence": evidence, "sheets": sheets})
 
 
 @app.get("/review", response_class=HTMLResponse)

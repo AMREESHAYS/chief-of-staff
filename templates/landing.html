@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/landing.css">
+<script src="/static/landing.js" defer></script>
 </head>
 <body>
 
@@ -33,27 +34,52 @@
   <p class="cta-note mono">{{ evidence }}</p>
 </header>
 
-<section class="demo-strip">
-  <div class="msg">
-    <span class="who mono">Client · 10 August</span>
-    <p>“Customers keep calling to ask if they can just buy the rings directly
-       from the website. Nothing fancy, just a buy button.”</p>
-    <span class="stamp mono">Out of scope</span>
+<!-- the contract was always underneath the email. Scrolling lifts the sheet
+     off it. -->
+<section class="reveal-pair" aria-label="A message and the clause beneath it">
+  <div class="stage">
+    <article class="sheet email">
+      <span class="who mono">Client · 10 August</span>
+      <p>“Customers keep calling to ask if they can just buy the rings directly
+         from the website. Nothing fancy, just a buy button.”</p>
+      <span class="stamp mono">Out of scope</span>
+    </article>
+    <article class="sheet clause-sheet">
+      <span class="clause mono">The agreement you both signed</span>
+      <blockquote>
+        Online payments, shopping cart, and any e-commerce functionality are
+        excluded from this agreement.
+      </blockquote>
+      <p class="gloss">
+        Quoted word for word into the reply, so the client can check it against
+        their own copy.
+      </p>
+    </article>
   </div>
-  <div class="verdict">
-    <span class="clause mono">The agreement you both signed</span>
-    <blockquote>
-      Online payments, shopping cart, and any e-commerce functionality are
-      excluded from this agreement.
-    </blockquote>
-    <p class="gloss">
-      Quoted word for word into the reply, so the client can check it against
-      their own copy.
-    </p>
-  </div>
+  <p class="stage-note mono">The clause was underneath all along</p>
 </section>
 
-<section class="band">
+{% if sheets %}
+<section class="band deck-band">
+  <h2>Every message, read against the agreement</h2>
+  <p class="lede">Five of the twenty-three, with the verdict the system
+     actually returned — pulled from the same database the app reads.</p>
+  <div class="deck">
+    {% for sh in sheets %}
+    <article class="sheet leaf is-{{ sh.stamp }}" style="--i: {{ loop.index0 }}">
+      <span class="who mono">
+        {{ 'Client' if sh.from_counterparty else 'You' }} ·
+        {{ sh.received_at | day('Asia/Kolkata') }}
+      </span>
+      <p>“{{ sh.body }}”</p>
+      <span class="stamp mono">{{ sh.stamp.replace('_', ' ') }}</span>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="band reveal">
   <h2>Two things go wrong, and neither lives in the inbox</h2>
   <div class="pair">
     <article>
@@ -69,7 +95,7 @@
   </div>
 </section>
 
-<section class="band alt">
+<section class="band reveal alt">
   <h2>What it actually does</h2>
   <ol class="stages">
     <li>
@@ -96,7 +122,7 @@
   </ol>
 </section>
 
-<section class="band">
+<section class="band reveal">
   <h2>What it refuses to do</h2>
   <p class="lede">Three limits, enforced in code and covered by tests — not
      requested politely in a prompt.</p>
@@ -120,7 +146,7 @@
   </div>
 </section>
 
-<section class="band alt sides">
+<section class="band reveal alt sides">
   <h2>Both sides of the same table</h2>
   <p class="lede">
     A freelancer owes the work. The shop that hired them is owed it. Same

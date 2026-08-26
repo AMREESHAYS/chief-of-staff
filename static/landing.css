@@ -113,54 +113,164 @@ a { color: inherit; }
 
 .cta-note { display: block; margin-top: 14px; color: var(--ink-soft); }
 
-/* ---------- the worked example, the page's one piece of evidence ---------- */
+/* ---------- sheets ----------
+   Everything on this page that carries content is a sheet of paper. Paper has
+   weight and a shadow, sits slightly askew, and slides. It does not spin,
+   bounce, or fly in from off-screen. */
 
-.demo-strip {
-  max-width: 1060px;
-  margin: 20px auto 90px;
-  padding: 0 40px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  align-items: start;
-}
-
-.demo-strip .msg,
-.demo-strip .verdict {
+.sheet {
   background: var(--paper-lift);
   border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 22px 24px 24px;
+  border-radius: 3px;
+  padding: 24px 26px 26px;
+  box-shadow: 0 1px 2px rgba(22, 23, 29, 0.04),
+              0 8px 24px -12px rgba(22, 23, 29, 0.18);
 }
 
-.demo-strip .who { display: block; color: var(--ink-soft); margin-bottom: 12px; }
-.demo-strip .msg p { margin: 0 0 16px; font-size: 16px; }
+.sheet .who { display: block; color: var(--ink-soft); margin-bottom: 12px; }
+.sheet p { margin: 0 0 16px; font-size: 16px; }
 
-.demo-strip .stamp {
+.sheet .stamp {
   display: inline-block;
   padding: 3px 9px;
-  border: 1px solid var(--stamp);
+  border: 1px solid currentColor;
   border-radius: 2px;
-  background: var(--stamp-pale);
-  color: var(--stamp);
   font-weight: 500;
 }
 
-.demo-strip .verdict { border-left: 3px solid var(--carbon); }
-.demo-strip .clause { display: block; color: var(--carbon); margin-bottom: 12px; }
+/* --- the email lifting off the clause it rests on --- */
 
-.demo-strip blockquote {
+.reveal-pair {
+  max-width: 1060px;
+  margin: 8px auto 72px;
+  padding: 0 40px;
+}
+
+.stage {
+  position: relative;
+  /* room for the two sheets once they have separated: the lower sheet sits
+     88px down and is about 190 tall, so this is what they occupy, not a
+     guess with a hundred pixels of dead air after it */
+  min-height: 372px;
+  perspective: 1400px;
+  perspective-origin: 50% 30%;
+}
+
+.stage .sheet {
+  position: absolute;
+  /* narrow enough that the two clear each other once separated: overlapping
+     sheets clipped the start of the clause's own label */
+  width: min(462px, 90%);
+  transition: none;
+  will-change: transform;
+}
+
+/* the email starts squarely on top and slides up-left as you scroll */
+.stage .email {
+  top: 0;
+  left: 0;
+  z-index: 2;
+  transform:
+    translate3d(calc(var(--lift, 0) * -2%), calc(var(--lift, 0) * -14px), 0)
+    rotateX(calc((1 - var(--lift, 0)) * 5deg))
+    rotate(calc(var(--lift, 0) * -1.1deg));
+}
+
+.stage .email .stamp {
+  color: var(--stamp);
+  background: var(--stamp-pale);
+}
+
+/* the clause is underneath from the start, and emerges */
+/* tucked under the email at rest, sliding out to its own ground as you read */
+.stage .clause-sheet {
+  top: 96px;
+  right: 0;
+  z-index: 1;
+  border-left: 3px solid var(--carbon);
+  opacity: calc(0.18 + var(--lift, 0) * 0.82);
+  transform:
+    translate3d(calc((1 - var(--lift, 0)) * -300px),
+                calc((1 - var(--lift, 0)) * -66px), 0)
+    scale(calc(0.94 + var(--lift, 0) * 0.06))
+    rotate(calc(var(--lift, 0) * 0.8deg));
+}
+
+.stage .clause { display: block; color: var(--carbon); margin-bottom: 12px; }
+
+.stage blockquote {
   margin: 0;
   font-family: Spectral, Georgia, serif;
   font-size: 18px;
   line-height: 1.5;
 }
 
-.demo-strip .gloss {
-  margin: 14px 0 0;
+.stage .gloss { margin: 14px 0 0; color: var(--ink-soft); font-size: 14px; }
+
+.stage-note {
+  margin: 26px 0 0;
+  text-align: center;
   color: var(--ink-soft);
-  font-size: 14px;
+  /* no transition: this opacity is already driven by scroll position, and a
+     transition on top of that chases the value instead of settling on it */
+  opacity: var(--lift, 0);
 }
+
+/* --- the deck of verdicts --- */
+
+.deck-band { border-top: 1px solid var(--rule); }
+
+.deck {
+  max-width: 1060px;
+  margin: 44px auto 0;
+  perspective: 1600px;
+  perspective-origin: 50% 40%;
+  display: grid;
+  gap: 18px;
+}
+
+.deck .leaf {
+  --slide: calc(var(--fan, 0) * 1);
+  transform-origin: left center;
+  transform:
+    translate3d(calc((1 - var(--slide)) * (var(--i) * -26px)), 0, 0)
+    rotateY(calc((1 - var(--slide)) * 9deg))
+    rotate(calc((1 - var(--slide)) * (var(--i) - 2) * 0.5deg));
+  opacity: calc(0.35 + var(--slide) * 0.65);
+  will-change: transform;
+}
+
+.deck .leaf p {
+  font-size: 15.5px;
+  margin-bottom: 14px;
+}
+
+.deck .leaf .stamp { font-size: 10px; }
+
+.deck .is-out_of_scope .stamp { color: var(--stamp); background: var(--stamp-pale); }
+.deck .is-out_of_scope { border-left: 3px solid var(--stamp); }
+.deck .is-new_commitment .stamp { color: var(--carbon); background: var(--carbon-pale); }
+.deck .is-new_commitment { border-left: 3px solid var(--carbon); }
+.deck .is-in_scope .stamp { color: #2F6B4F; background: #EFF5F1; }
+.deck .is-noise .stamp { color: var(--ink-soft); }
+.deck .is-unsure .stamp {
+  color: #8A6516;
+  background: #FAF2DF;
+  border-style: dashed;
+}
+.deck .is-unsure { border-left: 3px dashed #8A6516; }
+.deck .is-agreed .stamp { color: #2F6B4F; background: #EAF3EE; }
+.deck .is-agreed { border-left: 3px solid #2F6B4F; }
+
+/* --- sections arriving --- */
+
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 0.7, 0.3, 1);
+}
+
+.reveal.shown { opacity: 1; transform: none; }
 
 /* ---------- bands ---------- */
 
@@ -332,6 +442,23 @@ footer {
   .topbar .links { gap: 16px; }
 }
 
+@media (max-width: 900px) {
+  /* stacked sheets need room the phone does not have: lay them out plainly */
+  .stage { min-height: 0; perspective: none; }
+  .stage .sheet { position: static; width: 100%; transform: none; opacity: 1; }
+  .stage .clause-sheet { margin-top: 18px; }
+  .stage-note { opacity: 1; }
+  .deck .leaf { transform: none; opacity: 1; }
+  .reveal-pair { padding: 0 24px; margin-bottom: 60px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+  /* motion off means the page is static, not that content is missing */
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .stage .sheet, .deck .leaf { transform: none !important; opacity: 1 !important; }
+  .stage { min-height: 0; }
+  .stage .sheet { position: static; width: 100%; }
+  .stage .clause-sheet { margin-top: 18px; }
+  .stage-note { opacity: 1 !important; }
 }
