@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create an account — Chief of Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/landing.css">
+</head>
+<body class="gate-page">
+
+<div class="gate">
+  <a class="gate-mark" href="/">Chief of Staff</a>
+  <h1>Create an account</h1>
+
+  {% if problem %}<p class="notice is-problem">{{ problem }}</p>{% endif %}
+
+  <form method="post" action="/signup" class="gate-form">
+    <label>
+      <span class="mono">Your name</span>
+      <input name="display_name" value="{{ display_name or '' }}"
+             autocomplete="name" autofocus>
+    </label>
+    <label>
+      <span class="mono">Username</span>
+      <input name="username" value="{{ username or '' }}" autocomplete="username"
+             required minlength="3">
+    </label>
+    <label>
+      <span class="mono">Password</span>
+      <input name="password" type="password" autocomplete="new-password"
+             required minlength="10">
+      <span class="hint">At least ten characters. A few ordinary words beat a
+        short password with symbols in it.</span>
+    </label>
+    <button type="submit">Create account</button>
+  </form>
+
+  <p class="gate-alt">Already have one? <a href="/signin">Sign in</a>.</p>
+  <p class="gate-fine">
+    Your password is never stored — only a scrypt hash of it, which cannot be
+    turned back into what you typed.
+  </p>
+</div>
+
+</body>
+</html>

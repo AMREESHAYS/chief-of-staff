@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from markupsafe import Markup, escape
 
+import accounts
 import db
 import draft
 import ledger
@@ -30,6 +31,25 @@ app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 templates = Jinja2Templates(directory=HERE / "templates")
 
 PROJECT_ID = 1
+
+
+def signed_in(request):
+    """The current user, or None. Read from the cookie on every request; there
+    is no in-memory session state to go stale."""
+    return accounts.user_for(request.cookies.get(accounts.COOKIE))
+
+
+def require(request):
+    """The current user, or a redirect to the sign-in page. Every route that
+    touches somebody's data goes through this."""
+    user = signed_in(request)
+    if not user:
+        raise NotSignedIn()
+    return user
+
+
+class NotSignedIn(Exception):
+    pass
 
 
 def day(iso, tz="UTC"):
@@ -193,6 +213,11 @@ def spell(n):
     return words.get(n, str(n))
 
 
+@app.exception_handler(NotSignedIn)
+def _to_sign_in(request: Request, exc):
+    return RedirectResponse("/signin", status_code=303)
+
+
 @app.get("/", response_class=HTMLResponse)
 def landing(request: Request):
     """The page quotes how much real material is behind the demo. Counting it
@@ -241,14 +266,37 @@ def landing(request: Request):
 
 
 @app.get("/review", response_class=HTMLResponse)
-def index(request: Request, project: int = PROJECT_ID):
+def index(request: Request, project: int = 0):
+    user = require(request)
     with db.connect() as conn:
+        mine = accounts.projects_of(conn, user["id"])
+        if not mine:
+            return templates.TemplateResponse(request, "empty.html",
+                                              {"user": user})
+        # a project id in the URL is a request, not a permission
+        project = project or mine[0]["id"]
+        if not accounts.owns(conn, user["id"], project):
+            raise NotSignedIn()
         data = load(conn, project)
-    if not data:
-        return HTMLResponse(
-            "<p style='font:16px system-ui;padding:3rem'>No project loaded. "
-            "Run <code>python seed.py --replay</code>.</p>")
+    data["user"] = user
+    data["projects"] = mine
     return templates.TemplateResponse(request, "index.html", data)
+
+
+def _owned_action(conn, user_id, action_id):
+    """An action belongs to a project, which belongs to a person. Without this
+    an action id — a small integer — is all somebody needs to approve or read a
+    draft written for another customer."""
+    row = conn.execute(
+        "SELECT 1 FROM action a WHERE a.id = ? AND ("
+        " (a.type = 'nudge' AND a.target_id IN"
+        "   (SELECT o.id FROM obligation o JOIN project p ON p.id = o.project_id"
+        "    WHERE p.user_id = ?))"
+        " OR (a.type != 'nudge' AND a.target_id IN"
+        "   (SELECT m.id FROM message m JOIN thread t ON t.id = m.thread_id"
+        "    JOIN project p ON p.id = t.project_id WHERE p.user_id = ?)))",
+        (action_id, user_id, user_id)).fetchone()
+    return row is not None
 
 
 def _one_action(conn, action_id):
@@ -262,7 +310,10 @@ def _one_action(conn, action_id):
 
 @app.post("/action/{action_id}/approve", response_class=HTMLResponse)
 def approve(request: Request, action_id: int):
+    user = require(request)
     with db.connect() as conn:
+        if not _owned_action(conn, user["id"], action_id):
+            raise NotSignedIn()
         draft.approve(conn, action_id)
         action = _one_action(conn, action_id)
     return templates.TemplateResponse(request, "_action.html", {"a": action})
@@ -272,7 +323,10 @@ def approve(request: Request, action_id: int):
 def set_date(request: Request, action_id: int, date: str = Form("")):
     """The one thing the agent would not decide. Stored beside the draft so the
     body it wrote stays intact in the record."""
+    user = require(request)
     with db.connect() as conn:
+        if not _owned_action(conn, user["id"], action_id):
+            raise NotSignedIn()
         draft.set_date(conn, action_id, date)
         action = _one_action(conn, action_id)
     return templates.TemplateResponse(request, "_action.html", {"a": action})
@@ -280,17 +334,105 @@ def set_date(request: Request, action_id: int, date: str = Form("")):
 
 @app.post("/action/{action_id}/undo", response_class=HTMLResponse)
 def undo(request: Request, action_id: int):
+    user = require(request)
     with db.connect() as conn:
+        if not _owned_action(conn, user["id"], action_id):
+            raise NotSignedIn()
         # no Gmail service passed: nothing was pushed, so nothing to delete
         draft.undo(conn, action_id)
         action = _one_action(conn, action_id)
     return templates.TemplateResponse(request, "_action.html", {"a": action})
 
 
+def _set_cookie(response, token, request):
+    """httponly so no script can read it; samesite=lax so another site cannot
+    ride it; secure whenever we are not on plain-http localhost."""
+    response.set_cookie(
+        accounts.COOKIE, token, httponly=True, samesite="lax",
+        max_age=accounts.SESSION_DAYS * 86400,
+        secure=request.url.scheme == "https")
+    return response
+
+
+@app.get("/signin", response_class=HTMLResponse)
+def signin_page(request: Request):
+    if signed_in(request):
+        return RedirectResponse("/review", status_code=303)
+    return templates.TemplateResponse(request, "signin.html", {})
+
+
+@app.post("/signin", response_class=HTMLResponse)
+def signin(request: Request, username: str = Form(""), password: str = Form("")):
+    user_id = accounts.authenticate(username, password)
+    if not user_id:
+        # one message for both halves: saying which was wrong tells an attacker
+        # which usernames exist
+        return templates.TemplateResponse(
+            request, "signin.html",
+            {"problem": "That username and password do not match.",
+             "username": username}, status_code=401)
+    token = accounts.start_session(user_id)
+    user = accounts.user_for(token)
+    where = "/review" if user["onboarded_at"] else "/welcome"
+    return _set_cookie(RedirectResponse(where, status_code=303), token, request)
+
+
+@app.get("/signup", response_class=HTMLResponse)
+def signup_page(request: Request):
+    return templates.TemplateResponse(request, "signup.html", {})
+
+
+@app.post("/signup", response_class=HTMLResponse)
+def signup(request: Request, username: str = Form(""), password: str = Form(""),
+           display_name: str = Form("")):
+    try:
+        user_id = accounts.create(username, password, display_name)
+    except accounts.Problem as e:
+        return templates.TemplateResponse(
+            request, "signup.html",
+            {"problem": str(e), "username": username,
+             "display_name": display_name}, status_code=400)
+    token = accounts.start_session(user_id)
+    return _set_cookie(RedirectResponse("/welcome", status_code=303),
+                       token, request)
+
+
+@app.post("/signout")
+def signout(request: Request):
+    accounts.end_session(request.cookies.get(accounts.COOKIE))
+    response = RedirectResponse("/", status_code=303)
+    response.delete_cookie(accounts.COOKIE)
+    return response
+
+
+@app.get("/welcome", response_class=HTMLResponse)
+def welcome(request: Request):
+    """What a new account sees first. It explains what the thing will need from
+    them and what it will refuse to do, because that is the promise they are
+    buying rather than a feature list."""
+    user = require(request)
+    with db.connect() as conn:
+        mine = accounts.projects_of(conn, user["id"])
+    return templates.TemplateResponse(request, "welcome.html", {
+        "user": user, "projects": mine,
+        "mailboxes": oauth.connected(),
+        "oauth_ready": oauth.configured(),
+    })
+
+
+@app.post("/welcome/done")
+def welcome_done(request: Request):
+    user = require(request)
+    accounts.mark_onboarded(user["id"])
+    return RedirectResponse("/review", status_code=303)
+
+
 @app.get("/connect", response_class=HTMLResponse)
 def connect(request: Request):
     """The page a person uses to link their mailbox."""
+    user = require(request)
     return templates.TemplateResponse(request, "connect.html", {
+        "user": user,
         "configured": oauth.configured(),
         "accounts": oauth.connected(),
         "scopes": oauth.SCOPES,
@@ -337,7 +479,10 @@ def connect_remove(request: Request, email: str):
 
 @app.get("/audit", response_class=HTMLResponse)
 def audit(request: Request, project: int = PROJECT_ID):
+    user = require(request)
     with db.connect() as conn:
+        if not accounts.owns(conn, user["id"], project):
+            raise NotSignedIn()
         data = load(conn, project)
     return templates.TemplateResponse(request, "_audit.html", data)
 

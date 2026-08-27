@@ -20,6 +20,9 @@ import db
 
 FIXTURE = Path(__file__).parent / "fixtures" / "thread.json"
 
+# the demo login for the shipped examples. Public on purpose; see demo_user().
+DEMO_PASSWORD = "meridian demo 2026"
+
 
 def scope_cache(fixture):
     """Scope items already extracted by the shipped provider, cached per
@@ -51,14 +54,35 @@ def to_mime(data, msg, subject):
     return base64.urlsafe_b64encode(mail.as_bytes()).decode()
 
 
+def demo_user(conn):
+    """The account the shipped examples belong to.
+
+    Projects are owned by somebody now, so the fixtures need an owner or the
+    signed-in surface has nothing to show. The password is written here in
+    plain sight on purpose: this is a demo login for public examples, not a
+    credential worth protecting, and pretending otherwise would be worse.
+    """
+    row = conn.execute("SELECT id FROM user WHERE username = 'demo'").fetchone()
+    if row:
+        return row["id"]
+    import accounts
+
+    salt, digest = accounts.hash_password(DEMO_PASSWORD)
+    return conn.execute(
+        "INSERT INTO user (username, salt, password_hash, display_name,"
+        " created_at, onboarded_at) VALUES (?,?,?,?,?,?)",
+        ("demo", salt, digest, "Demo account",
+         datetime.now(timezone.utc).isoformat(), None)).lastrowid
+
+
 def seed(conn, data, sow, gmail_ids=None, cache=None):
     now = datetime.now(timezone.utc).isoformat()
     p = data["project"]
     project_id = conn.execute(
-        "INSERT INTO project (client_name, my_role, owner_tz, sow_filename,"
-        " sow_text, created_at) VALUES (?,?,?,?,?,?)",
-        (p["client_name"], p.get("my_role", "contractor"), p["owner_tz"],
-         p["sow_filename"], sow, now),
+        "INSERT INTO project (user_id, client_name, my_role, owner_tz,"
+        " sow_filename, sow_text, created_at) VALUES (?,?,?,?,?,?,?)",
+        (demo_user(conn), p["client_name"], p.get("my_role", "contractor"),
+         p["owner_tz"], p["sow_filename"], sow, now),
     ).lastrowid
 
     thread_id = conn.execute(
@@ -134,7 +158,7 @@ def main():
     with db.connect() as conn:
         if not args.add:
             for table in ("action", "verdict", "obligation", "message",
-                          "thread", "scope_item", "project"):
+                          "thread", "scope_item", "project", "session", "user"):
                 conn.execute(f"DELETE FROM {table}")
         project_id = seed(conn, data, sow, gmail_ids, scope_cache(fixture))
         check(conn, project_id, data, sow)

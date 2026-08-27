@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome — Chief of Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/landing.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <span class="wordmark">Chief of Staff</span>
+  <div class="links">
+    <span class="mono" style="color:var(--ink-soft)">{{ user.display_name }}</span>
+    <form method="post" action="/signout" style="display:inline">
+      <button class="linkish mono" type="submit">Sign out</button>
+    </form>
+  </div>
+</nav>
+
+<!-- The opening of a signed document: who this is between, and from when. -->
+<header class="deed">
+  <span class="deed-mark mono">This agreement</span>
+  <h1>Welcome, {{ user.display_name }}.</h1>
+  <p class="deed-line">
+    Between <strong>you</strong> and <strong>Chief of Staff</strong>, from today.
+  </p>
+  <p class="deed-body">
+    Most tools open on an empty dashboard and leave you to work out what they
+    are for. This one is easier to say plainly: from here on, no client asks you
+    for something outside your contract without you being told which line it
+    falls outside, and no promise you make goes quietly past its date.
+  </p>
+</header>
+
+<section class="band">
+  <h2>What it will do for you</h2>
+  <ol class="stages">
+    <li>
+      <span class="n mono">Read your agreement</span>
+      <p>Every clause becomes something the system can point at, quoted word
+         for word. Nothing is paraphrased.</p>
+    </li>
+    <li>
+      <span class="n mono">Watch the thread</span>
+      <p>Each message is judged against those clauses — in scope, outside it, a
+         promise, or noise — with the line that decides it.</p>
+    </li>
+    <li>
+      <span class="n mono">Keep the ledger</span>
+      <p>What you promised, when it was due, and what slipped. Including the
+         ones where you only said “soon”.</p>
+    </li>
+    <li>
+      <span class="n mono">Draft, never send</span>
+      <p>The reply is written and waits for you. Nothing leaves your account
+         without you sending it yourself.</p>
+    </li>
+  </ol>
+</section>
+
+<!-- The promises are the product. They belong before the feature tour, not
+     buried in a settings page nobody opens. -->
+<section class="band alt">
+  <h2>What it will never do</h2>
+  <p class="lede">These are enforced in the code and covered by tests, not
+     asked for politely in a prompt.</p>
+  <div class="rails">
+    <article>
+      <h3>Never send on your behalf</h3>
+      <p>Drafts are created and stop there. There is no send path in this
+         software at all, and a test fails if one ever appears.</p>
+    </article>
+    <article>
+      <h3>Never invent a number</h3>
+      <p>No fee or percentage reaches a client unless that figure is already in
+         your contract.</p>
+    </article>
+    <article>
+      <h3>Never pick your date</h3>
+      <p>When work is late, the update leaves the date blank. You cannot even
+         approve it until you have chosen one.</p>
+    </article>
+  </div>
+</section>
+
+<section class="execution">
+  <span class="clause-mark mono">To begin</span>
+  <h2>Two things, and you are running</h2>
+
+  <div class="steps">
+    <div class="step {% if mailboxes %}is-done{% endif %}">
+      <span class="step-n mono">{{ 'done' if mailboxes else 'first' }}</span>
+      <div>
+        <h3>Connect the mailbox your clients write to</h3>
+        {% if mailboxes %}
+          <p>Connected: {% for m in mailboxes %}<strong>{{ m.email }}</strong>{% if not loop.last %}, {% endif %}{% endfor %}.</p>
+        {% else %}
+          <p>Read and draft only. You can disconnect it at any time, and doing
+             so withdraws the permission at Google too.</p>
+          <p><a class="cta" href="/connect">Connect Gmail →</a></p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="step {% if projects %}is-done{% endif %}">
+      <span class="step-n mono">{{ 'done' if projects else 'then' }}</span>
+      <div>
+        <h3>Add the agreement it should be read against</h3>
+        {% if projects %}
+          <p>{{ projects | length }} contract{{ '' if projects | length == 1 else 's' }} loaded.</p>
+        {% else %}
+          <p>A signed statement of work, a proposal, an engagement letter — the
+             document that says what you owe. Everything else follows from it,
+             which is why there is nothing useful to show you until it is
+             there.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <form method="post" action="/welcome/done" style="margin-top:44px">
+    <button class="cta-button" type="submit">Take me in →</button>
+  </form>
+
+  <p class="honest">
+    Your contracts and correspondence belong to your account and are visible to
+    nobody else. Your password is stored only as a hash that cannot be reversed.
+  </p>
+</section>
+
+<footer><span class="mono">Chief of Staff · 2026</span></footer>
+
+</body>
+</html>

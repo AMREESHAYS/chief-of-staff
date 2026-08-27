@@ -2,6 +2,7 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS project (
     id            INTEGER PRIMARY KEY,
+    user_id       INTEGER REFERENCES user(id),
     client_name   TEXT NOT NULL,          -- the other party, whoever they are
     -- which side of this contract the user is on. A freelancer owes the work;
     -- a shop that hired one is owed it. Same contract, same thread, opposite
@@ -119,3 +120,27 @@ CREATE TABLE IF NOT EXISTS account (
     scopes       TEXT NOT NULL,
     connected_at TEXT NOT NULL
 );
+
+-- A person who pays for this. Passwords are never stored: what is kept is a
+-- scrypt hash and the salt it used, which cannot be turned back into the
+-- password the person typed.
+CREATE TABLE IF NOT EXISTS user (
+    id            INTEGER PRIMARY KEY,
+    username      TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    salt          TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    display_name  TEXT,
+    created_at    TEXT NOT NULL,
+    onboarded_at  TEXT              -- NULL until they finish the welcome
+);
+
+-- A signed-in browser. The cookie holds a random token; this table holds only
+-- its hash, so reading the database does not hand anyone a live session.
+CREATE TABLE IF NOT EXISTS session (
+    token_hash  TEXT PRIMARY KEY,
+    user_id     INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    created_at  TEXT NOT NULL,
+    expires_at  TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_user ON session(user_id);
