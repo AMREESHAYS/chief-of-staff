@@ -203,7 +203,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
     ["1", "Reads the agreement", "Turns a signed contract into scope items, each carrying a span copied word for word. A quote that isn't in the document raises — never quietly dropped."],
     ["2", "Judges every message", "In scope, out of scope, a new commitment, or noise — with the clause that decides it and how sure it is."],
     ["3", "Keeps the ledger", "Every promise either side made, the words that set its deadline, and whether it was kept."],
-    ["4", "Tracks what changed", "When the client agrees in writing to work the contract never covered, that agreement becomes scope — cited to their own words."],
+    ["4", "Checks the bill", "Every line on an invoice against the agreement as it now stands: payable under the contract, payable because it was agreed by email, or payable by nobody."],
   ];
 
   cols.forEach(([n, head, body], i) => {
@@ -323,10 +323,18 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
     fontFace: SERIF, fontSize: 21, color: WHITE, lineSpacing: 27,
   });
   s.addText("A contractor writing “great, I'll start Monday” is enthusiasm, not agreement. That rule is in the code, because a model asked whether somebody agreed will find agreement in warmth.", {
-    x: 8.9, y: 4.22, w: 3.45, h: 2.0, margin: 0,
+    x: 8.9, y: 4.2, w: 3.45, h: 1.3, margin: 0,
     fontFace: SANS, fontSize: 12, color: "CFC9F2", lineSpacing: 16,
   });
-  s.addNotes("The amendment records the condition they attached — start only after the Collections page. Agreeing on terms is not the same as agreeing, and dropping the terms overstates what was settled.");
+  s.addText("AND WHEN THE BILL ARRIVES", {
+    x: 8.9, y: 5.5, w: 3.4, h: 0.26, margin: 0,
+    fontFace: MONO, fontSize: 10, color: "A9A2D8", charSpacing: 1.3,
+  });
+  s.addText("That line is payable — cited to their email, not the contract.", {
+    x: 8.9, y: 5.82, w: 3.45, h: 0.6, margin: 0,
+    fontFace: SANS, fontSize: 12, color: WHITE, lineSpacing: 16,
+  });
+  s.addNotes("The amendment records the condition they attached — start only after the Collections page. Agreeing on terms is not the same as agreeing, and dropping the terms overstates what was settled. The same record is what lets the invoice check clear that line instead of disputing it.");
 }
 
 /* ---------------- 8 — what it refuses to do ---------------- */

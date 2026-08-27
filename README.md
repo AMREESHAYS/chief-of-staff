@@ -54,6 +54,12 @@ when the message arrived, in the project owner's timezone. A promise with no
 resolvable date is stored as `vague`, not discarded — "soon" is exactly the
 commitment that goes missing.
 
+**Invoice** asks the same question of a bill, with three answers instead of
+two: covered by the contract, covered by something agreed later in writing, or
+covered by nothing. The middle answer is why this belongs beside amendments — a
+line for translation work sits outside the signed contract and is perfectly
+payable, because the client wrote that they were happy to go ahead.
+
 **Draft** proposes a change-order reply for confidently out-of-scope requests,
 a proactive update for overdue promises, and *a question instead of a draft*
 when the classifier was unsure.
@@ -76,6 +82,8 @@ Three rails, enforced in code and covered by tests — not asked for in a prompt
 | An update still carrying an unfilled date cannot be approved at all | `draft.needs_a_date` |
 | Only the paying side can widen the scope; a contractor's enthusiasm is not agreement | `amend.widens_scope` |
 | An amendment must quote the accepting message verbatim | `amend.validate` |
+| An invoice line must be copied from the invoice, amount included | `invoice.validate_lines` |
+| A charge it is unsure about is never cleared for payment | `invoice.totals` |
 
 A draft that breaks a rail is regenerated once with the violation named, then
 refused and counted. **No draft is better than an unsafe one.**
@@ -231,6 +239,27 @@ worked on a single project and structurally could not see it.
 
 ---
 
+## Checking a bill against the agreement
+
+```
++  payable    INR 85,000  Five-page static marketing website     [contract]
++  payable    INR 18,000  Hindi version of the site              [agreed by email 26 Aug]
+!  query      INR 22,000  Online payment integration             [contract]
+!  query       INR 9,000  Hosting and twelve months maintenance  [contract]
+?  decide      INR 3,000  Animated logo treatment                [contract]
+
+payable 103,000 · challenge 31,000 · decide 3,000
+```
+
+The second line is the point. It is outside the signed contract and it is
+payable anyway, cited to the email that agreed it. Without amendments, the
+honest verdict on every amended line would be a false accusation.
+
+Amounts are read from the invoice, never computed, and a line the system is
+unsure about lands in neither bucket — it waits for a person.
+
+---
+
 ## Either side of the contract
 
 A freelancer owes the work. A shop that hired one is owed it. Same contract,
@@ -318,12 +347,13 @@ OAuth desktop client at `credentials.json`, then:
 ## Tests
 
 ```bash
-for t in test_llm test_ingest test_classify test_ledger test_draft test_amend; do
+for t in test_llm test_ingest test_classify test_ledger test_draft test_amend \
+         test_invoice test_oauth test_accounts; do
   .venv/bin/python $t.py
 done
 ```
 
-93 checks across six suites. No framework, no fixtures, no API calls. They cover the things that fail
+123 checks across nine suites. No framework, no fixtures, no API calls. They cover the things that fail
 *quietly*: a fabricated contract quote, an invented price, a cache prefix that
 stops being stable, a due date one day out, a send path appearing in
 `draft.py`.
@@ -341,6 +371,58 @@ client.
 The chosen date is stored beside the draft rather than written into it, so the
 agent's words keep `[NEW DATE]` for the life of the record. The audit trail
 still shows that the agent declined to pick a date and a person did.
+
+---
+
+## Accounts
+
+Each person signs in and sees only their own contracts. That is not a nicety
+here: this project has found the same class of bug four times in a smaller
+form, where an id space was assumed to be scoped and was not. Between paying
+customers the same mistake means one person reads another's client
+correspondence, so most of `test_accounts.py` is about isolation rather than
+about logging in.
+
+An action id is a small integer somebody could guess, so every action route
+checks ownership before doing anything with it.
+
+**Passwords are never stored.** What is kept is a scrypt hash and a per-user
+salt, compared in constant time. A failed sign-in costs the same whether the
+username exists or not, and says the same thing either way — otherwise the
+sign-in form becomes a way to enumerate customers.
+
+**The session cookie holds a random token; the database holds only its hash.**
+A stolen database yields neither passwords nor live sessions.
+
+The shipped examples belong to a `demo` account whose password is written in
+plain sight in `seed.py`. It guards public example data and is not a credential
+worth protecting; saying so is better than implying otherwise.
+
+---
+
+## Connecting a mailbox
+
+`/connect` is one button. Google asks for consent on its own page, and the
+person comes back connected — no password ever reaches this software, and the
+refresh token is stored server-side, never in a cookie or a URL.
+
+There is deliberately **no field for an emailed code**. A code sent to an
+address proves the holder can read that inbox and nothing more; it cannot grant
+permission to open it. Only Google can do that. A form that accepted an address
+and a code and then reported success would read no mail at all.
+
+Two scopes are requested and no others: read, and create drafts. Google has no
+permission meaning "drafts but not sending", so the consent screen mentions
+sending — which is exactly why the guarantee lives in the code instead, where a
+test fails if a send path ever appears.
+
+Disconnecting deletes the token here whatever else happens, and asks Google to
+withdraw the grant. A token stored in an unreadable shape must not leave
+somebody unable to disconnect.
+
+Registering the application with Google is a one-time job for whoever runs the
+server, not something a customer is asked to do. Until then the page says the
+connection is switched off, and the shipped examples still work.
 
 ---
 
@@ -384,8 +466,11 @@ ingest.py      contract -> scope items with verbatim spans
 classify.py    message -> verdict, against the scope items
 ledger.py      copied words -> dates; what is owed and what is late
 amend.py       agreement by email -> scope, cited to their own words
+invoice.py     a bill, line by line, against the agreement
+accounts.py    people, passwords, sessions, and who may see what
+oauth.py       connecting a mailbox through Google's consent page
 draft.py       proposals, and the rails that refuse unsafe ones
 evaluate.py    score the classifier against labelled threads
-app.py         the landing page and the review surface
+app.py         every surface: landing, sign in, welcome, review, connect
 seed.py        fixtures, snapshot, replay
 ```
