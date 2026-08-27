@@ -192,39 +192,80 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   s.addNotes("This is the defensibility slide. A mail-only competitor cannot produce the right-hand side at all.");
 }
 
-/* ---------------- 4 — what it does ---------------- */
+/* ---------------- 4 — how it is built ---------------- */
 {
   const s = pres.addSlide();
   s.background = { color: PAPER };
-  eyebrow(s, "what it does", 0.7, 0.42);
-  title(s, "Read it. Judge the mail. Track what changed.");
+  eyebrow(s, "how it is built", 0.7, 0.42);
+  title(s, "Six stages, and one rule they all obey");
 
-  const cols = [
-    ["1", "Reads the agreement", "Turns a signed contract into scope items, each carrying a span copied word for word. A quote that isn't in the document raises — never quietly dropped."],
-    ["2", "Judges every message", "In scope, out of scope, a new commitment, or noise — with the clause that decides it and how sure it is."],
-    ["3", "Keeps the ledger", "Every promise either side made, the words that set its deadline, and whether it was kept."],
-    ["4", "Checks the bill", "Every line on an invoice against the agreement as it now stands: payable under the contract, payable because it was agreed by email, or payable by nobody."],
+  // the pipeline is the architecture: naming the stages and what moves between
+  // them says more than a box diagram of the same thing
+  const stages = [
+    ["INGEST", "contract →\nscope items"],
+    ["CLASSIFY", "message →\nverdict"],
+    ["LEDGER", "words →\ndates"],
+    ["AMEND", "agreement →\nnew scope"],
+    ["DRAFT", "verdict →\nproposal"],
+    ["INVOICE", "line →\npayable?"],
   ];
 
-  cols.forEach(([n, head, body], i) => {
-    const x = 0.7 + i * 3.08;
-    card(s, x, 2.25, 2.8, 3.45);
-    dot(s, x + 0.26, 2.56, n);
+  stages.forEach(([head, body], i) => {
+    const x = 0.7 + i * 2.03;
+    card(s, x, 2.2, 1.82, 1.5);
     s.addText(head, {
-      x: x + 0.26, y: 3.14, w: 2.3, h: 0.72, margin: 0,
-      fontFace: SANS, fontSize: 16, bold: true, color: INK, lineSpacing: 21,
+      x: x + 0.16, y: 2.42, w: 1.6, h: 0.26, margin: 0,
+      fontFace: MONO, fontSize: 10.5, bold: true, color: CARBON, charSpacing: 1,
     });
     s.addText(body, {
-      x: x + 0.26, y: 3.92, w: 2.32, h: 1.65, margin: 0,
-      fontFace: SANS, fontSize: 12, color: SOFT, lineSpacing: 16,
+      x: x + 0.16, y: 2.76, w: 1.62, h: 0.82, margin: 0,
+      fontFace: SANS, fontSize: 11.5, color: SOFT, lineSpacing: 15,
     });
+    if (i < 5) {
+      s.addText("→", {
+        x: x + 1.84, y: 2.76, w: 0.22, h: 0.32, margin: 0,
+        fontFace: SANS, fontSize: 14, color: CARBON, align: "center",
+      });
+    }
   });
 
-  s.addText("It acts, but only into drafts — and never sends.", {
-    x: 0.7, y: 6.05, w: 11.9, h: 0.4, margin: 0,
-    fontFace: SANS, fontSize: 15, italic: true, color: CARBON,
+  // the rule
+  card(s, 0.7, 4.05, 7.35, 1.35, CARBON_DEEP);
+  s.addText("EVERY STAGE CITES A REAL SPAN OF A REAL DOCUMENT", {
+    x: 1.0, y: 4.3, w: 6.8, h: 0.26, margin: 0,
+    fontFace: MONO, fontSize: 10, color: "A9A2D8", charSpacing: 1.2,
   });
-  s.addNotes("Three capabilities, one dependency: all of it rests on having read the contract.");
+  s.addText("A clause from the contract, or the words in the email that changed it. A citation that cannot be found in its source raises rather than shipping.", {
+    x: 1.0, y: 4.64, w: 6.85, h: 0.66, margin: 0,
+    fontFace: SANS, fontSize: 13, color: WHITE, lineSpacing: 18,
+  });
+
+  // the stack, plainly
+  card(s, 0.7, 5.6, 7.35, 0.86, WHITE);
+  s.addText("Python · FastAPI · SQLite · htmx. No build step, no framework in the tests.", {
+    x: 1.0, y: 5.84, w: 6.85, h: 0.42, margin: 0,
+    fontFace: SANS, fontSize: 13, color: INK,
+  });
+
+  // what the models actually do, and where they are not trusted
+  card(s, 8.35, 2.2, 4.25, 4.26, WHITE);
+  s.addText("WHERE THE MODEL IS USED", {
+    x: 8.65, y: 2.46, w: 3.7, h: 0.26, margin: 0,
+    fontFace: MONO, fontSize: 10, color: CARBON, charSpacing: 1.2,
+  });
+  s.addText("Gemini 3.6 Flash, behind one interface that also speaks to Claude and to a local model. Every call returns a typed schema, validated before anything is stored.", {
+    x: 8.65, y: 2.84, w: 3.7, h: 1.1, margin: 0,
+    fontFace: SANS, fontSize: 12.5, color: SOFT, lineSpacing: 17,
+  });
+  s.addText("AND WHERE IT IS NOT", {
+    x: 8.65, y: 4.1, w: 3.7, h: 0.26, margin: 0,
+    fontFace: MONO, fontSize: 10, color: STAMP, charSpacing: 1.2,
+  });
+  s.addText("Dates are resolved in code from words the model copied. Money is never computed by a model. Whether somebody agreed is asked as its own question, because the wide schema answered it unreliably.", {
+    x: 8.65, y: 4.48, w: 3.7, h: 1.5, margin: 0,
+    fontFace: SANS, fontSize: 12.5, color: SOFT, lineSpacing: 17,
+  });
+  s.addNotes("The pipeline is the architecture. The rule underneath it is what makes the output checkable rather than merely plausible: every claim points at a span somebody can read for themselves. Judges asking about AI technologies want the right-hand column — the model is used for reading and judgement, and deliberately not for arithmetic or dates.");
 }
 
 /* ---------------- 5 — the proof beat ---------------- */
@@ -505,9 +546,9 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
   });
 
   const facts = [
-    ["Who", "Freelance developers and consultants who bill by scope — people who lose money to unpaid extras, not to lack of leads."],
-    ["Both sides", "The shop that hired them has the same problem inverted, and the same engine answers it. One contract, one thread, two readings of who is late. Growth without becoming a thinner product."],
-    ["Built", "Contract ingestion, message classification, obligation ledger, drafting with safety rails, and the review surface — end to end, on two contracts, from either side."],
+    ["Who pays", "Freelance developers and consultants who bill by scope — people who lose money to unpaid extras, not to lack of leads. Per seat, monthly."],
+    ["Next", "Renewal and notice dates, already sitting unread in the same contracts. Then a portfolio for the shop with eight vendors, not one. Then the channel where half of this actually happens: WhatsApp."],
+    ["The wider market", "The shop that hired them has the same problem inverted, and the same engine answers it — one contract, two readings of who is late. Growth without becoming a thinner product."],
   ];
 
   facts.forEach(([head, body], i) => {
@@ -526,7 +567,7 @@ function dot(slide, x, y, glyph, color = CARBON, d = 0.42) {
     x: 0.9, y: 5.7, w: 11.5, h: 0.6, margin: 0,
     fontFace: SERIF, fontSize: 25, italic: true, color: "CFC9F2",
   });
-  s.addNotes("Close on the same line the deck opened with.");
+  s.addNotes("Roadmap, in order: renewal and notice dates extracted from clauses already ingested; a multi-vendor view for the buyer side; WhatsApp, where a great deal of this correspondence actually lives and which no contract tool reads today. Close on the same line the deck opened with.");
 }
 
 pres.writeFile({ fileName: "deck/chief-of-staff.pptx" })
