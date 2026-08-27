@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Connect a mailbox — Chief of Staff</title>
+<title>Connect Gmail — Chief of Staff</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -14,105 +14,133 @@
 <nav class="topbar">
   <span class="wordmark"><a href="/" style="text-decoration:none">Chief of Staff</a></span>
   <div class="links">
-    <a href="/review">See it working</a>
-    <a href="/">Home</a>
+    <a href="/review">Your contracts</a>
+    {% if user %}
+      <span class="mono" style="color:var(--ink-soft)">{{ user.display_name }}</span>
+      <form method="post" action="/signout" style="display:inline">
+        <button class="linkish mono" type="submit">Sign out</button>
+      </form>
+    {% endif %}
   </div>
 </nav>
 
 <section class="execution">
   <span class="clause-mark mono">Your mailbox</span>
   <h2>Connect Gmail</h2>
-  <p class="preamble">
-    The examples in this project ship with the code. To read your own client
-    threads, the app needs permission to your mailbox — granted on Google's own
-    page, revocable here, and narrower than it sounds.
-  </p>
 
-  {% if problem %}
-    <p class="notice is-problem">{{ problem }}</p>
-  {% endif %}
+  {% if problem %}<p class="notice is-problem">{{ problem }}</p>{% endif %}
   {% if just_connected %}
-    <p class="notice is-good">Connected <strong>{{ just_connected }}</strong>.</p>
+    <p class="notice is-good">
+      Connected <strong>{{ just_connected }}</strong>. Client threads in this
+      mailbox will now be read against your agreements.
+    </p>
   {% endif %}
   {% if removed %}
     <p class="notice">
       Removed <strong>{{ removed }}</strong>.
-      {% if revoked %}The permission was withdrawn at Google too.
-      {% else %}The token is gone from here; withdraw it at Google if it is
-      still listed there.{% endif %}
+      {% if revoked %}The permission was withdrawn at Google as well.
+      {% else %}The token is gone from here. If Google still lists this app
+      under your account, remove it there too.{% endif %}
     </p>
   {% endif %}
 
-  <div class="permissions">
-    <span class="perm-label mono">What it asks for, and nothing else</span>
-    <ul>
-      <li><code>gmail.readonly</code> — to read the thread against the contract.</li>
-      <li><code>gmail.compose</code> — to put a draft in your drafts folder.</li>
-    </ul>
-    <p class="fineprint">
-      Google has no draft-only permission, so <code>gmail.compose</code> would
-      technically allow sending. This codebase contains no send path, and a
-      test fails if one ever appears. Nothing leaves your account without you
-      pressing send yourself, in Gmail.
-    </p>
-  </div>
-
   {% if accounts %}
-  <div class="signatures">
-    {% for a in accounts %}
-    <div class="sig">
-      <span class="hand">{{ a.email }}</span>
-      <span class="sig-rule"></span>
-      <span class="sig-label mono">
-        connected {{ a.connected_at[:10] }} ·
-        <form method="post" action="/connect/{{ a.email }}/disconnect"
-              style="display:inline">
-          <button class="linkish" type="submit">disconnect</button>
-        </form>
-      </span>
+    <p class="preamble">Mail we are watching for you.</p>
+    <div class="signatures">
+      {% for a in accounts %}
+      <div class="sig">
+        <span class="hand">{{ a.email }}</span>
+        <span class="sig-rule"></span>
+        <span class="sig-label mono">
+          connected {{ a.connected_at[:10] }} ·
+          <form method="post" action="/connect/{{ a.email }}/disconnect"
+                style="display:inline">
+            <button class="linkish" type="submit">disconnect</button>
+          </form>
+        </span>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
   {% endif %}
 
   {% if configured %}
-    <p style="margin-top:40px">
-      <a class="cta" href="/connect/start">
-        {{ 'Connect another mailbox' if accounts else 'Connect Gmail →' }}
+    <div class="connect-card">
+      <p class="connect-lead">
+        {% if accounts %}Add another mailbox.{% else %}One click. Nothing to install, nothing to configure.{% endif %}
+      </p>
+      <a class="google-button" href="/connect/start">
+        <span class="g" aria-hidden="true">G</span>
+        <span>Continue with Google</span>
       </a>
-    </p>
+      <ol class="what-happens">
+        <li>Google asks you to sign in — <strong>on Google's own page</strong>,
+            never here.</li>
+        <li>It shows you exactly what this app is asking for, and you approve
+            or refuse.</li>
+        <li>You come back here, connected. No password ever reaches us.</li>
+      </ol>
+    </div>
+
+    <div class="permissions">
+      <span class="perm-label mono">What Google will ask you to allow</span>
+      <ul>
+        <li><strong>Read your mail</strong> — to check a thread against the
+            agreement it belongs to.</li>
+        <li><strong>Create drafts</strong> — to leave a reply waiting in your
+            drafts folder.</li>
+      </ul>
+      <p class="fineprint">
+        Google has no permission that means “drafts but not sending”, so the
+        consent screen will mention sending. This software contains no code that
+        sends mail, and a test fails if any ever appears. Everything leaves your
+        account by you pressing send, in Gmail.
+      </p>
+      <p class="fineprint">
+        You can disconnect on this page at any time, which deletes the token
+        here and asks Google to withdraw the permission.
+      </p>
+    </div>
   {% else %}
-    <div class="setup">
-      <span class="perm-label mono">Not set up yet</span>
+    <div class="connect-card is-off">
+      <p class="connect-lead">Gmail connection is not switched on yet.</p>
+      <p class="fineprint">
+        The examples on this account still work — they ship with the software.
+        Connecting a live mailbox needs whoever runs this server to register the
+        app with Google first.
+      </p>
+    </div>
+
+    <details class="setup">
+      <summary class="perm-label mono">For whoever runs this server</summary>
       <p>
-        This needs a Google OAuth client, which only the person running the app
-        can create. Once <code>credentials.json</code> is in the project root,
-        this page turns into a Connect button.
+        Google will not let an unregistered application ask anyone for access.
+        Registering takes about ten minutes and is done once, not per user.
       </p>
       <ol>
         <li>In the Google Cloud console, create a project and enable the
             <strong>Gmail API</strong>.</li>
-        <li>Configure the consent screen. While it is unverified, add yourself
-            under <strong>Test users</strong> — Google caps unverified apps at
-            about a hundred people and shows a warning screen.</li>
+        <li>Configure the consent screen. While the app is unverified, add
+            yourself under <strong>Test users</strong> — Google caps unverified
+            apps near a hundred people and shows a warning screen.</li>
         <li>Create an <strong>OAuth client ID</strong> of type
-            <strong>Web application</strong>, with this exact redirect URI:
+            <strong>Web application</strong> with this redirect URI:
             <code>{{ url_for('connect_callback') }}</code></li>
-        <li>Download the JSON, save it as <code>credentials.json</code> in the
-            project root, and reload this page.</li>
+        <li>Download the JSON, save it as <code>credentials.json</code> beside
+            the code, and reload this page.</li>
       </ol>
       <p class="fineprint">
-        <code>credentials.json</code> is listed in <code>.gitignore</code>, as
-        is the database the token is stored in. Neither belongs in a public
-        repository.
+        That file identifies the application to Google. It is not a user's
+        password and it is not a key anybody types in. It is listed in
+        <code>.gitignore</code>, as is the database the tokens live in.
       </p>
-    </div>
+    </details>
   {% endif %}
 
   <p class="honest">
-    The refresh token is stored on the server and nowhere else — not in a
-    cookie, not in a URL, not in this page. Disconnecting deletes it here and
-    asks Google to withdraw the grant.
+    Why there is no code to type in here: a code sent to an address only proves
+    you can read that inbox. It cannot give this software permission to open it.
+    Only Google can grant that, and only after asking you
+    directly{% if configured %} — which is what the button above does{% endif %}.
   </p>
 </section>
 
