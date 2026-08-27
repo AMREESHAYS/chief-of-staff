@@ -704,5 +704,52 @@ button.linkish {
 
 .what-happens li { margin-bottom: 8px; }
 
-details.setup > summary { cursor: pointer; list-style: revert; }
-details.setup[open] > summary { margin-bottom: 14px; }
+/* A collapsed section has to look like one. The summary carries .perm-label,
+   which sets display:block, and a block summary loses the browser's disclosure
+   triangle — leaving a bordered box with one line in it and no sign that it
+   opens. The marker is drawn here instead. */
+details.setup {
+  padding: 0;
+  background: none;
+  border: 0;
+  max-width: 760px;
+  margin-top: 30px;
+}
+
+details.setup > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  padding: 9px 14px 9px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--paper-lift);
+  color: var(--ink-soft);
+}
+
+details.setup > summary::-webkit-details-marker { display: none; }
+
+details.setup > summary::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform .15s ease;
+}
+
+details.setup[open] > summary::before { transform: rotate(90deg); }
+
+details.setup > summary:hover { color: var(--carbon); border-color: var(--carbon); }
+
+/* the instructions themselves, once opened */
+details.setup > :not(summary) {
+  max-width: 760px;
+  margin-left: 2px;
+}
+
+details.setup[open] > summary { margin-bottom: 18px; }
